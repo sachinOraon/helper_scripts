@@ -158,3 +158,22 @@ include $(BUILD_PREBUILT)
 [30] errors like build/core/product_config.mk:245: *** Can not locate config makefile for product "emotion_lettuce".  Stop.
 	* rename device/yu/lettuce/emotion_lettuce.mk to device/yu/lettuce/emotion.mk
 	* edit device/yu/lettuce/AndroidProducts.mk change PRODUCT_MAKEFILES := device/yu/lettuce/emotion_lettuce.mk to PRODUCT_MAKEFILES := device/yu/lettuce/emotion.mk
+
+[31] vendor/qcom/opensource/cryptfs_hw: MODULE.TARGET.SHARED_LIBRARIES.libcryptfs_hw already defined by device/qcom/common/cryptfs_hw
+	* rm -r device/qcom/common/cryptfs_hw
+	  it may cause fatal error: 'cryptfs_hw.h' file not found if vendor/qcom/opensource/cryptfs_hw is removed.
+
+[32] ninja: error: out/target/product/lettuce/system/lib64/libfmjni.so missing and no known rule to make it
+	* rm -r packages/apps/FMRadio
+	* or add BOARD_HAVE_QCOM_FM := true in device/cyanogen/msm8916-common/board/qcom-fm.mk
+
+[33] hardware/ril-caf/libril/rilSocketQueue.h:19:10 fatal error:hardware/ril-caf/librilutils/proto/sap-api.pb.h file not found
+	* edit hardware/ril-caf/libril/rilSocketQueue.h change 
+		#include <hardware/ril/librilutils/proto/sap-api.pb.h> to
+		#include <hardware/ril-caf/librilutils/proto/sap-api.pb.h>
+	* also similarly edit  hardware/ril-caf/libril/RilSapSocket.h
+
+[34] system/vold/cryptfs.c:74:10: fatal error: 'cryptfs_hw.h' file not found
+	* check for [TARGET_CRYPTFS_HW_PATH ?=] in system/vold/Android.mk file. If it's [vendor/qcom/opensource/cryptfs_hw] then check for that folder.
+	  If it's unavailable then do   git clone -b cm-14.1 https://github.com/LineageOS/android_vendor_qcom_opensource_cryptfs_hw.git vendor/qcom/opensource/cryptfs_hw
+	* after that remove this  rm -r device/qcom/common/cryptfs_hw

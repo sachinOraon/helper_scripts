@@ -544,12 +544,12 @@ sed -i '/config_deviceHardwareKeys/D' $romdir/device/yu/lettuce/overlay/framewor
 sed -i '/config_deviceHardwareWakeKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
 echo "---------------------------------------------"
 echo -e "- Creating vendorsetup.sh"
-if [ -e $romdir/device/yu/lettuce/vendorsetup.sh ]; then
-rm $romdir/device/yu/lettuce/vendorsetup.sh 2>/dev/null
+if [ -e $romdir/device/yu/lettuce/vendorsetup.sh ]; then rm $romdir/device/yu/lettuce/vendorsetup.sh 2>/dev/null;fi
+
 cat <<EOF>$romdir/device/yu/lettuce/vendorsetup.sh
 add_lunch_combo $(echo $vn)_lettuce-userdebug
 EOF
-fi
+
 echo "---------------------------------------------"
 echo -e "- Creating $(echo $vn)-build.sh"
 if ! [ -e $romdir/$(echo $vn)-build.sh ]; then
