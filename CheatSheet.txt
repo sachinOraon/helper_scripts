@@ -154,3 +154,7 @@ include $(BUILD_PREBUILT)
 
 [29] error: 'MEASUREMENT_COUNT' undeclared
 	* insert   #define MEASUREMENT_COUNT 2    in    system/media/audio_effects/include/audio_effects/effect_visualizer.h
+
+[30] errors like build/core/product_config.mk:245: *** Can not locate config makefile for product "emotion_lettuce".  Stop.
+	* rename device/yu/lettuce/emotion_lettuce.mk to device/yu/lettuce/emotion.mk
+	* edit device/yu/lettuce/AndroidProducts.mk change PRODUCT_MAKEFILES := device/yu/lettuce/emotion_lettuce.mk to PRODUCT_MAKEFILES := device/yu/lettuce/emotion.mk
