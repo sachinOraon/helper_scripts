@@ -1,0 +1,156 @@
+Some problems that can occur while rom compilation and their solutions(especially for lettuce)
+-------------------------------------------------------------------------------------------------
+[1] No rule to make target "SHARED_LIBRARIES/libaudiopolicymanager_intermediates/export_includes"
+	* insert USE_CUSTOM_AUDIO_POLICY := 0 in device/yu/lettuce/BoardConfig.mk
+	  or modify device/cyanogen/msm8916-common/board/qcom-audio.mk file.
+	  or clone the  hardware/qcom/audio-caf/ repo.
+
+[2] No rule to make target "SHARED_LIBRARIES/libcryptfs_hw_intermediates/export_includes"
+	* insert TARGET_HW_DISK_ENCRYPTION := false in device/yu/lettuce/BoardConfig.mk
+	  or modify device/cyanogen/msm8916-common/board/qcom-crypto.mk file. 
+
+[3] No rule to make target "SHARED_LIBRARIES/libqmiservices_intermediates/export_includes"
+	* insert TARGET_USES_QCOM_WCNSS_QMI := false in device/yu/lettuce/BoardConfig.mk
+	  or modify device/cyanogen/msm8916-common/board/qcom-wlan.mk file.
+
+[4] No rule to make target "zImage"
+	* insert TARGET_USES_UNCOMPRESSED_KERNEL := true
+	  and BOARD_KERNEL_IMAGE_NAME := Image
+
+[5] "phone-hdpi-2048-dalvik-heap.mk" not found
+	* wget -O frameworks/native/build/phone-hdpi-2048-dalvik-heap.mk https://github.com/YUTeleventures/frameworks_native/raw/yu-mm-6.0.1/build/phone-hdpi-2048-dalvik-heap.mk
+
+[6] "phone-xxhdpi-2048-hwui-memory.mk" not found 
+	* wget -O frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-14.1/build/phone-xxhdpi-2048-hwui-memory.mk
+	* wget -O frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-14.1/build/phone-xxhdpi-2048-dalvik-heap.mk
+
+[7] impicit declaration of "uiPrintf()"
+	* comment the "uiPrintf()"
+
+[8] implicit declaration of "strcmp()" or "strerror()"
+	* insert #include <string.h>
+
+[9] Unknown type "proc_dirty_ratio"
+	* insert   allow vold { proc_sysrq proc_dirty_ratio }:file rw_file_perms;
+	  in external/sepolicy/vold.te
+	* insert   genfscon proc /sys/vm/dirty_ratio  u:object_r:proc_dirty_ratio:s0
+	  in external/sepolicy/genfs_contexts
+	* insert   type proc_dirty_ratio, fs_type;
+	  in external/sepolicy/file.te
+
+[10] device/qcom/sepolicy/common/audioserver.te:63:ERROR 'attribute qti_debugfs_domain is not declared'
+	* insert the following into system/sepolicy/attributes
+# Domain type used for debugfs access by QCOM
+attribute qti_debugfs_domain;
+
+[11] "kernel headers" error
+	* use prebuilt kernel and replace vendor/<rom>/build/tasks/kernel.mk or build/core/tasks/kernel.mk with this one
+	  wget https://github.com/Unlegacy-Android/android_vendor_unlegacy/raw/aosp-6.0/build/tasks/kernel.mk
+	* insert TARGET_PREBUILT_KERNEL := device/yu/lettuce/Image
+	  remove kernel source files
+	  and copy KERNEL_OBJ from successfully generated rom dir.
+
+[12] No rule to make *.so files
+	* copy *.so files from device and put them in vendor/yu/lettuce/proprietary/lib and lib64 folders
+	  add entries in vendor/yu/lettuce/Android.mk
+
+[13] errors like "appears in overlay but not in the base package; use <add-resource> to add"
+	* comment the respective entries in corresponding .xml files
+	* config_deviceHardwareKeys  device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
+	* config_deviceHardwareWakeKeys   device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
+
+[14] error regarding TWRP
+	* insert TW_THEME := portrait_hdpi
+	  in device/yu/lettuce/BoardConfig.mk
+
+[15] ValueError: No dependencies file could be found
+	* create proper .dependencies file
+
+[16] No rule to make STATIC_LIBRARIES/lib_driver_cmd_qcwcn_intermediates/export_includes
+	* check for hardware/qcom/wlan/qcwcn/ files. if not present then clone it from cm repo.
+
+[17] No rule to make target 'out/target/product/lettuce/kernel', needed by 'out/target/product/lettuce/boot.img'
+	* download kernel.mk and dt_image.mk from cm repo and put them to build/core/tasks/
+	wget -O build/core/tasks/kernel.mk https://github.com/CyanogenMod/android_build/raw/cm-13.0/core/tasks/kernel.mk
+	wget -O build/core/tasks/dt_image.mk https://github.com/CyanogenMod/android_build/raw/cm-13.0/core/tasks/dt_image.mk
+
+[18] No rule to make target 'external/ant-wireless/antradio-library/com.dsi.ant.antradio_library.xml'
+	*  git clone -b cm-13.0 https://github.com/LineageOS/android_external_ant-wireless_antradio-library.git external/ant-wireless/antradio-library
+	*  git clone -b cm-14.1 https://github.com/LineageOS/android_external_ant-wireless_antradio-library.git external/ant-wireless/antradio-library
+
+[19] output directory "out/target/product/lettuce/obj/KERNEL_OBJ" does not exist.
+	* mkdir -p out/target/product/lettuce/obj/KERNEL_OBJ
+	* then do a DIRTY build
+	* if the problem persists then use prebuilt kernel
+
+[20] BUILD_FINGERPRINT cannot contain spaces
+	* insert  PRODUCT_BRAND := YU
+	  in device/yu/lettuce/<rom>.mk then delete PRODUCT_BRAND := YU from device/yu/lettuce/full_lettuce.mk
+
+######### FOR PROBLEM 21,22,23 ##############
+|
+|  clone hardware/qcom/display-caf/msm8916
+|
+#############################################
+[21] No rule to make obj/SHARED_LIBRARIES/libqdutils_intermediates/export_includes
+	* copy libqdutils.so file from /system/lib and /system/lib64 and paste it to vendor/yu/lettuce/proprietary/lib and lib64
+	* add the following lines to vendor/yu/lettuce/Android.mk file
+include $(CLEAR_VARS)
+LOCAL_MODULE := libqdutils
+LOCAL_MODULE_OWNER := yu
+LOCAL_SRC_FILES_64 := proprietary/lib64/libqdutils.so
+LOCAL_SRC_FILES_32 := proprietary/lib/libqdutils.so
+LOCAL_MULTILIB := both
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_CLASS := SHARED_LIBRARIES
+LOCAL_MODULE_SUFFIX := .so
+include $(BUILD_PREBUILT)
+
+[22] No rule to make /obj/SHARED_LIBRARIES/libqdMetaData_intermediates/
+	* copy libqdMetaData.so file from /system/lib and /system/lib64 and paste it to vendor/yu/lettuce/proprietary/lib and lib64
+	* add the following lines to vendor/yu/lettuce/Android.mk file
+include $(CLEAR_VARS)
+LOCAL_MODULE := libqdMetaData
+LOCAL_MODULE_OWNER := yu
+LOCAL_SRC_FILES_64 := proprietary/lib64/libqdMetaData.so
+LOCAL_SRC_FILES_32 := proprietary/lib/libqdMetaData.so
+LOCAL_MULTILIB := both
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_CLASS := SHARED_LIBRARIES
+LOCAL_MODULE_SUFFIX := .so
+include $(BUILD_PREBUILT)
+
+[23] No rule to make /obj_arm/SHARED_LIBRARIES/libqservice_intermediates/
+	* copy libqservice.so file from /system/lib and /system/lib64 and paste it to vendor/yu/lettuce/proprietary/lib and lib64
+	* add the following lines to vendor/yu/lettuce/Android.mk file
+include $(CLEAR_VARS)
+LOCAL_MODULE := libqservice
+LOCAL_MODULE_OWNER := yu
+LOCAL_SRC_FILES_64 := proprietary/lib64/libqservice.so
+LOCAL_SRC_FILES_32 := proprietary/lib/libqservice.so
+LOCAL_MULTILIB := both
+LOCAL_MODULE_TAGS := optional
+LOCAL_MODULE_CLASS := SHARED_LIBRARIES
+LOCAL_MODULE_SUFFIX := .so
+include $(BUILD_PREBUILT)
+
+[24] Communication error with jack (52)
+	* use fuckjack script
+	  git clone git://github.com/mikecriggs/fuckjack.git fuckjack
+
+[25] fatal error: 'gralloc_priv.h' file not found
+	* clone hardware/qcom/display-caf/msm8916
+
+[26] kernel/cyanogen/msm8916/Makefile:795: *** multiple target patterns.  Stop.
+	*  mv build/core/tasks/kernel.mk ../
+	*  wget -O build/core/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk
+
+[27] device/qcom/sepolicy/test/qti-testscripts.te:28:ERROR 'unknown type qti-testscripts'
+	* wget -O system/sepolicy/qti-testscripts.te https://github.com/CyanogenMod/android_system_sepolicy/raw/cm-14.1/qti-testscripts.te
+
+[28] libsepol.report_faliure
+	*  mv system/sepolicy ../
+	*  git clone -b cm-14.1 https://github.com/LineageOS/android_system_sepolicy.git system/sepolicy
+
+[29] error: 'MEASUREMENT_COUNT' undeclared
+	* insert   #define MEASUREMENT_COUNT 2    in    system/media/audio_effects/include/audio_effects/effect_visualizer.h
