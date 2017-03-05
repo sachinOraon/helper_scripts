@@ -503,19 +503,19 @@ find $romdir/vendor/$vn -name "*common*.mk" && find $romdir/vendor/$vn -name "*m
 echo "---------------------------------------------"
 read -p "Enter path/to/vendor/config/file : " vf
 echo "---------------------------------------------"
-echo -e "- Creating $(echo $vn)_lettuce.mk"
+echo -e "- Creating $(echo $vn).mk"
 echo -e "- Creating AndroidProducts.mk"
 if ! [ -e $romdir/device/yu/lettuce/cm.mk ];then
-	mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > device/yu/lettuce/AndroidProducts.mk
-	echo "s/PRODUCT_NAME := lineage_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
-	sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+	mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn).mk
+	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn).mk" > device/yu/lettuce/AndroidProducts.mk
+	echo "s/PRODUCT_NAME := lineage_lettuce/PRODUCT_NAME := $(echo $vn)/">$romdir/tmp
+	sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
 	rm $romdir/tmp
 else
-	mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > device/yu/lettuce/AndroidProducts.mk
-	echo "s/PRODUCT_NAME := cm_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
-	sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+	mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn).mk
+	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)" > device/yu/lettuce/AndroidProducts.mk
+	echo "s/PRODUCT_NAME := cm_lettuce/PRODUCT_NAME := $(echo $vn)/">$romdir/tmp
+	sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
 	rm $romdir/tmp
 fi
 echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
