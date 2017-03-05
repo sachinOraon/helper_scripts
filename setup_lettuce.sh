@@ -523,7 +523,7 @@ echo "$(echo $vf)">$romdir/tmp2
 sed -i 's/\//\\\//g' $romdir/tmp2
 paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
 sed -i 's/mk$/mk\//' $romdir/tmp
-sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
 rm -r $romdir/tmp*
 if [ -e $romdir/build/core/tasks/kernel.mk ];then
 	mv $romdir/build/core/tasks/kernel.mk $romdir/kernel.mk.bak
@@ -538,8 +538,8 @@ fi
 echo "---------------------------------------------"
 echo -e "- Fixing derps..."
 sed -i '/PRODUCT_BRAND/D' $romdir/device/yu/lettuce/full_lettuce.mk
-sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-sed -i '/common_full_phone.mk/c\$(call inherit-product, vendor/aosp/common.mk' $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn).mk
+sed -i '/common_full_phone.mk/c\$(call inherit-product, vendor/aosp/common.mk' $romdir/device/yu/lettuce/$(echo $vn).mk
 sed -i '/config_deviceHardwareKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
 sed -i '/config_deviceHardwareWakeKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
 echo "---------------------------------------------"
