@@ -119,10 +119,10 @@ case "$1" in
 		echo "Cloning Shared tree..."
 		echo "---------------------------------------------"
 		git clone -b $b --single-branch $s/android_device_cyanogen_msm8916-common.git $src/$b/device/cyanogen/msm8916-common
-		echo "---------------------------------------------"
-		echo "Cloning qcom_common tree..."
-		echo "---------------------------------------------"
-		git clone -b $b --single-branch $s/android_device_qcom_common.git $src/$b/device/qcom/common
+		#echo "---------------------------------------------"
+		#echo "Cloning qcom_common tree..."
+		#echo "---------------------------------------------"
+		#git clone -b $b --single-branch $s/android_device_qcom_common.git $src/$b/device/qcom/common
 		if ! [ "$b" = "cm-13.0" -o "$b" = "cm-12.1" ];then
 			echo "---------------------------------------------"
 			echo "Cloning qcom_binaries..."
@@ -451,16 +451,16 @@ mkdir -p $romdir/device/cyanogen
 mkdir -p $romdir/device/cyanogen/msm8916-common
 cp -r $HOME/workspace/lettuce-trees/$s/$b/device/cyanogen/msm8916-common/* $romdir/device/cyanogen/msm8916-common
 if ! [ -e $romdir/device/cyanogen/msm8916-common/Android.mk ];then st=1; else st=0; fi
-echo "---------------------------------------------"
-echo "Copying qcom_common tree..."
-if ! [ -e $romdir/device/qcom/common/Android.mk ];then
-	mkdir -p $romdir/device/qcom
-	mkdir -p $romdir/device/qcom/common
-	cp -r $HOME/workspace/lettuce-trees/$s/$b/device/qcom/common/* $romdir/device/qcom/common
-else
-	echo "* device/qcom/common/ already available..."
-fi
-if ! [ -e $romdir/device/qcom/common/Android.mk ];then qc=1; else qc=0; fi
+#echo "---------------------------------------------"
+#echo "Copying qcom_common tree..."
+#if ! [ -e $romdir/device/qcom/common/Android.mk ];then
+#	mkdir -p $romdir/device/qcom
+#	mkdir -p $romdir/device/qcom/common
+#	cp -r $HOME/workspace/lettuce-trees/$s/$b/device/qcom/common/* $romdir/device/qcom/common
+#else
+#	echo "* device/qcom/common/ already available..."
+#fi
+#if ! [ -e $romdir/device/qcom/common/Android.mk ];then qc=1; else qc=0; fi
 sleep 1
 if [ "$b" = "cm-14.0" ] || [ "$b" = "cm-14.1" ];then
 	echo "---------------------------------------------"
@@ -499,7 +499,7 @@ ls $romdir/vendor
 echo "---------------------------------------------"
 read -p "Enter name of rom's vendor : " vn
 echo "---------------------------------------------"
-find $romdir/vendor/$vn -name "*common*.mk" && find $romdir/vendor/$vn -name "*main*.mk"
+find $romdir/vendor/$vn -name "*common*.mk" && find $romdir/vendor/$vn -name "*main*.mk" && find $romdir/vendor/$vn -name "*$vn*.mk"
 echo "---------------------------------------------"
 read -p "Enter path/to/vendor/config/file : " vf
 echo "---------------------------------------------"
@@ -607,7 +607,7 @@ echo -e "\tLOG"
 echo "---------------------------------------------"
 if [ "$dt" = "1" ]; then echo -e "- device tree\t\t[FAILED]";else echo -e "- device tree\t\t[SUCCESS]";fi
 if [ "$st" = "1" ]; then echo -e "- shared tree\t\t[FAILED]";else echo -e "- shared tree\t\t[SUCCESS]";fi
-if [ "$qc" = "1" ]; then echo -e "- qcom-common tree\t[FAILED]";else echo -e "- qcom-common tree\t[SUCCESS]";fi
+#if [ "$qc" = "1" ]; then echo -e "- qcom-common tree\t[FAILED]";else echo -e "- qcom-common tree\t[SUCCESS]";fi
 if [ "$vt" = "1" ]; then echo -e "- vendor_yu\t\t[FAILED]";else echo -e "- vendor_yu\t\t[SUCCESS]";fi
 if [ "$vc" = "1" ]; then echo -e "- vendor_cm\t\t[FAILED]";else echo -e "- vendor_cm\t\t[SUCCESS]";fi
 if [ "$qb" = "1" ]; then echo -e "- qcom binaries\t\t[FAILED]";else echo -e "- qcom binaries\t\t[SUCCESS]";fi

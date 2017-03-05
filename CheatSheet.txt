@@ -177,3 +177,11 @@ include $(BUILD_PREBUILT)
 	* check for [TARGET_CRYPTFS_HW_PATH ?=] in system/vold/Android.mk file. If it's [vendor/qcom/opensource/cryptfs_hw] then check for that folder.
 	  If it's unavailable then do   git clone -b cm-14.1 https://github.com/LineageOS/android_vendor_qcom_opensource_cryptfs_hw.git vendor/qcom/opensource/cryptfs_hw
 	* after that remove this  rm -r device/qcom/common/cryptfs_hw
+
+[35] device/qcom/common/power/power.c:204:14: error: use of undeclared identifier 'POWER_HINT_LAUNCH_BOOST
+	 device/qcom/common/power/power.c:205:14: error: use of undeclared identifier 'POWER_HINT_AUDIO'
+	 device/qcom/common/power/power.c:204:14: error: duplicate case value 'POWER_HINT_CPU_BOOST'
+	 device/qcom/common/power/power-8916.c:403:17: error: use of undeclared identifier 'POWER_HINT_LAUNCH_BOOST'
+	* mkdir -p ~/trash && mv device/qcom/common/power ~/trash && git clone -b cm-14.1 https://github.com/LineageOS/android_device_qcom_common.git ~/trash/device_qcom_common
+	* cp -r ~/trash/device_qcom_common/power device/qcom/common/
+	
