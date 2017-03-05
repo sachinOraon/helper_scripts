@@ -60,6 +60,37 @@ case "$1" in
 		echo "---------------------------------------------"
 		exit 1
 		;;
+	-f)
+		echo "---------------------------------------------"
+		echo -e "\tFixing device makefiles"
+		echo "---------------------------------------------"
+		if [ -e $romdir/device/yu/lettuce/*.dat ];then
+			file=$(cat $romdir/device/yu/lettuce/*.dat)
+			if [ -e $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk ];then
+				mv $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk $romdir/device/yu/lettuce/$(echo $file).mk
+				if [ $? -eq 0 ];then echo -e "- Renaming $(echo $file)_lettuce.mk to $(echo $file).mk";else echo "- Can't rename $(echo $file)_lettuce.mk";fi
+				rm $romdir/device/yu/lettuce/AndroidProducts.mk
+				if [ $? -eq 0 ];then echo "- Old AndroidProducts.mk removed";else echo "- Old AndroidProducts.mk can't be removed";fi
+				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $file).mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
+				if [ $? -eq 0 ];then echo "- New AndroidProducts.mk created";else echo "- Can't create new AndroidProducts.mk";fi
+				if [ -e $romdir/device/yu/lettuce/$(echo $file).mk ];then echo -e "- Now lunch can run successfully";fi
+				echo "---------------------------------------------"
+			else
+				mv $romdir/device/yu/lettuce/$(echo $file).mk $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk
+				if [ $? -eq 0 ];then echo -e "- Renaming $file.mk to $(echo $file)_lettuce.mk";else echo "- Can't rename $file.mk";fi
+				rm $romdir/device/yu/lettuce/AndroidProducts.mk
+				if [ $? -eq 0 ];then echo "- Old AndroidProducts.mk removed";else echo "- Old AndroidProducts.mk can't be removed";fi
+				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $file)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
+				if [ $? -eq 0 ];then echo "- New AndroidProducts.mk created";else echo "- Can't create new AndroidProducts.mk";fi
+				if [ -e $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk ];then echo -e "- Now lunch can run successfully";fi
+				echo "---------------------------------------------"
+			fi
+		else
+			echo "- Can't find saved file"
+			
+		fi
+		exit 1
+		;;
 	-st)
 		echo "---------------------------------------------"
 		read -p "BRANCH (L/M/N) = " b
@@ -119,10 +150,10 @@ case "$1" in
 		echo "Cloning Shared tree..."
 		echo "---------------------------------------------"
 		git clone -b $b --single-branch $s/android_device_cyanogen_msm8916-common.git $src/$b/device/cyanogen/msm8916-common
-		#echo "---------------------------------------------"
-		#echo "Cloning qcom_common tree..."
-		#echo "---------------------------------------------"
-		#git clone -b $b --single-branch $s/android_device_qcom_common.git $src/$b/device/qcom/common
+		echo "---------------------------------------------"
+		echo "Cloning qcom_common tree..."
+		echo "---------------------------------------------"
+		git clone -b $b --single-branch $s/android_device_qcom_common.git $src/$b/device/qcom/common
 		if ! [ "$b" = "cm-13.0" -o "$b" = "cm-12.1" ];then
 			echo "---------------------------------------------"
 			echo "Cloning qcom_binaries..."
@@ -451,16 +482,22 @@ mkdir -p $romdir/device/cyanogen
 mkdir -p $romdir/device/cyanogen/msm8916-common
 cp -r $HOME/workspace/lettuce-trees/$s/$b/device/cyanogen/msm8916-common/* $romdir/device/cyanogen/msm8916-common
 if ! [ -e $romdir/device/cyanogen/msm8916-common/Android.mk ];then st=1; else st=0; fi
-#echo "---------------------------------------------"
-#echo "Copying qcom_common tree..."
-#if ! [ -e $romdir/device/qcom/common/Android.mk ];then
-#	mkdir -p $romdir/device/qcom
-#	mkdir -p $romdir/device/qcom/common
-#	cp -r $HOME/workspace/lettuce-trees/$s/$b/device/qcom/common/* $romdir/device/qcom/common
-#else
-#	echo "* device/qcom/common/ already available..."
-#fi
-#if ! [ -e $romdir/device/qcom/common/Android.mk ];then qc=1; else qc=0; fi
+echo "---------------------------------------------"
+echo "Copying qcom_common tree..."
+if [ "$s" = "CyanogenMod" ];then
+	if ! [ -e $romdir/device/qcom/common/Android.mk ];then
+		mkdir -p $romdir/device/qcom
+		mkdir -p $romdir/device/qcom/common
+		cp -r $HOME/workspace/lettuce-trees/$s/$b/device/qcom/common/* $romdir/device/qcom/common
+	else
+		echo "* device/qcom/common/ already available..."
+		qc=N;
+	fi
+	if ! [ -e $romdir/device/qcom/common/Android.mk ];then qc=1; else qc=0; fi
+else
+	echo " * device/qcom/common not required..."
+	qc=N;
+fi
 sleep 1
 if [ "$b" = "cm-14.0" ] || [ "$b" = "cm-14.1" ];then
 	echo "---------------------------------------------"
@@ -480,7 +517,7 @@ fi
 if [ "$b" = "cm-12.1" ] || [ "$b" = "cm-13.0" ];then
 echo "---------------------------------------------"
 echo "* vendor/qcom/binaries/ not required..."
-qb=0
+qb=N
 fi
 echo "---------------------------------------------"
 echo "Copying vendor/yu tree..."
@@ -498,24 +535,26 @@ echo "---------------------------------------------"
 ls $romdir/vendor
 echo "---------------------------------------------"
 read -p "Enter name of rom's vendor : " vn
+echo $vn>$romdir/device/yu/lettuce/$vn.dat
 echo "---------------------------------------------"
-find $romdir/vendor/$vn -name "*common*.mk" && find $romdir/vendor/$vn -name "*main*.mk" && find $romdir/vendor/$vn -name "*$vn*.mk"
+find $romdir/vendor/$vn -type f \( -name "*common*.mk" -o -name "*$vn*.mk" \) | cut --delimiter "/" --fields 6-
 echo "---------------------------------------------"
+echo "    (Choose from above list)"
 read -p "Enter path/to/vendor/config/file : " vf
 echo "---------------------------------------------"
-echo -e "- Creating $(echo $vn).mk"
+echo -e "- Creating $(echo $vn)_lettuce.mk"
 echo -e "- Creating AndroidProducts.mk"
 if ! [ -e $romdir/device/yu/lettuce/cm.mk ];then
-	mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn).mk
-	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn).mk" > device/yu/lettuce/AndroidProducts.mk
-	echo "s/PRODUCT_NAME := lineage_lettuce/PRODUCT_NAME := $(echo $vn)/">$romdir/tmp
-	sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
+	mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
+	echo "s/PRODUCT_NAME := lineage_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
+	sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
 	rm $romdir/tmp
 else
-	mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn).mk
-	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)" > device/yu/lettuce/AndroidProducts.mk
-	echo "s/PRODUCT_NAME := cm_lettuce/PRODUCT_NAME := $(echo $vn)/">$romdir/tmp
-	sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
+	mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce" > $romdir/device/yu/lettuce/AndroidProducts.mk
+	echo "s/PRODUCT_NAME := cm_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
+	sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
 	rm $romdir/tmp
 fi
 echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
@@ -523,23 +562,34 @@ echo "$(echo $vf)">$romdir/tmp2
 sed -i 's/\//\\\//g' $romdir/tmp2
 paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
 sed -i 's/mk$/mk\//' $romdir/tmp
-sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
+sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
 rm -r $romdir/tmp*
 if [ -e $romdir/build/core/tasks/kernel.mk ];then
 	mv $romdir/build/core/tasks/kernel.mk $romdir/kernel.mk.bak
 	if [ -e $HOME/workspace/lettuce-trees/kernel.mk ];then
 		cp $HOME/workspace/lettuce-trees/kernel.mk $romdir/build/core/tasks/kernel.mk 2>/dev/null
-		if [ $? -lt 1 ];then echo -e "\tkernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+		if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
 	else
-		wget -O build/core/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk &>/dev/null
-		if [ $? -lt 1 ];then echo -e "\tkernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+		wget -O $romdir/build/core/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk &>/dev/null
+		if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+	fi
+else
+	if [ -e $romdir/vendor/$vn/build/tasks/kernel.mk ];then
+		mv $romdir/vendor/$vn/build/tasks/kernel.mk $romdir/kernel.mk.bak
+		if [ -e $HOME/workspace/lettuce-trees/kernel.mk ];then
+			cp $HOME/workspace/lettuce-trees/kernel.mk $romdir/vendor/$vn/build/tasks/kernel.mk 2>/dev/null
+			if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+		else
+			wget -O $romdir/vendor/$vn/build/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk &>/dev/null
+			if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+		fi
 	fi
 fi
 echo "---------------------------------------------"
 echo -e "- Fixing derps..."
 sed -i '/PRODUCT_BRAND/D' $romdir/device/yu/lettuce/full_lettuce.mk
-sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn).mk
-sed -i '/common_full_phone.mk/c\$(call inherit-product, vendor/aosp/common.mk' $romdir/device/yu/lettuce/$(echo $vn).mk
+sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+#sed -i '/common_full_phone.mk/c\$(call inherit-product, vendor/aosp/common.mk' $romdir/device/yu/lettuce/$(echo $vn).mk
 sed -i '/config_deviceHardwareKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
 sed -i '/config_deviceHardwareWakeKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
 echo "---------------------------------------------"
@@ -602,17 +652,31 @@ rm -rf $romdir/hardware/qcom/media-caf/msm8916 &>/dev/null
 echo "---------------------------------------------"
 EOF
 chmod a+x $romdir/remove_trees.sh
+echo "- run ./setup_lettuce.sh -c to copy CAF-HAL trees if needed."
+echo "- also run ./setup_lettuce.sh -f to fix device tree if lunch fails." 
 echo "---------------------------------------------"
 echo -e "\tLOG"
 echo "---------------------------------------------"
 if [ "$dt" = "1" ]; then echo -e "- device tree\t\t[FAILED]";else echo -e "- device tree\t\t[SUCCESS]";fi
 if [ "$st" = "1" ]; then echo -e "- shared tree\t\t[FAILED]";else echo -e "- shared tree\t\t[SUCCESS]";fi
-#if [ "$qc" = "1" ]; then echo -e "- qcom-common tree\t[FAILED]";else echo -e "- qcom-common tree\t[SUCCESS]";fi
 if [ "$vt" = "1" ]; then echo -e "- vendor_yu\t\t[FAILED]";else echo -e "- vendor_yu\t\t[SUCCESS]";fi
 if [ "$vc" = "1" ]; then echo -e "- vendor_cm\t\t[FAILED]";else echo -e "- vendor_cm\t\t[SUCCESS]";fi
-if [ "$qb" = "1" ]; then echo -e "- qcom binaries\t\t[FAILED]";else echo -e "- qcom binaries\t\t[SUCCESS]";fi
 if [ "$kt" = "1" ]; then echo -e "- kernel tree\t\t[FAILED]";else echo -e "- kernel tree\t\t[SUCCESS]";fi
 if [ "$sp" = "1" ]; then echo -e "- qcom/sepolicy\t\t[FAILED]";else echo -e "- qcom/sepolicy\t\t[SUCCESS]";fi
+if [ "$qb" = "1" ]; then
+	echo -e "- qcom binaries\t\t[FAILED]"
+elif [ "$qb" = "N" ]; then
+	echo -e "- qcom binaries\t\t[NOT REQUIRED]"
+else
+	echo -e "- qcom binaries\t\t[SUCCESS]"
+fi
+if [ "$qc" = "1" ]; then
+	echo -e "- qcom-common tree\t[FAILED]"
+elif [ "$qc" = "N" ]; then
+	echo -e "- qcom-common tree\t[NOT REQUIRED]"
+else
+	echo -e "- qcom-common tree\t[SUCCESS]"
+fi
 echo "---------------------------------------------"
 exit 1
 ;;
@@ -622,6 +686,7 @@ exit 1
 	echo -e "\t---------------------------------------------"
 	echo -e "\t|   -j     Switch jdk versions              |"
 	echo -e "\t|   -c     Copy some caf HAL trees          |"
+	echo -e "\t|   -f     To fix lunch error               |"
 	echo -e "\t|   -t     Switch toolchain for compilation |"
 	echo -e "\t|   -st    Download device trees for later  |"
 	echo -e "\t|          use                              |"

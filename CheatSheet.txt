@@ -184,4 +184,18 @@ include $(BUILD_PREBUILT)
 	 device/qcom/common/power/power-8916.c:403:17: error: use of undeclared identifier 'POWER_HINT_LAUNCH_BOOST'
 	* mkdir -p ~/trash && mv device/qcom/common/power ~/trash && git clone -b cm-14.1 https://github.com/LineageOS/android_device_qcom_common.git ~/trash/device_qcom_common
 	* cp -r ~/trash/device_qcom_common/power device/qcom/common/
-	
+
+[36] Please install ImageMagick
+	* https://gist.github.com/rodleviton/74e22e952bd6e7e5bee1
+	  OR apt-get install imagemagick
+
+[37] packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp:398:30: error: unknown type name 'bthf_hf_ind_type_t'
+	 packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp:428:5: error: cannot initialize a member subobject of type 'bthf_key_pressed_cmd_callback'
+	 packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp:429:5: error: cannot initialize a member subobject of type 'bthf_bind_cmd_callback'
+	 packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp:430:5: error: cannot initialize a member subobject of type 'bthf_biev_cmd_callback'
+	 packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp:729:65: error: unknown type name 'bthf_hf_ind_type_t'; did you mean 'bthf_bind_type_t'
+	 packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp:730:33: error: use of undeclared identifier 'BTHF_HF_IND_ENABLED'
+	 packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp:730:55: error: use of undeclared identifier 'BTHF_HF_IND_DISABLED'
+	 
+	* mkdir -p ~/trash;mv packages/apps/Bluetooth/jni ~/trash/;git clone -b cm-14.1 https://github.com/LineageOS/android_packages_apps_Bluetooth.git ~/trash/packages_apps_Bluetooth;mv ~/trash/packages_apps_Bluetooth/jni packages/apps/Bluetooth/;
+
