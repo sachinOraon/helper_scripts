@@ -45,17 +45,17 @@ case "$1" in
 		echo "---------------------------------------------"
 		if [ -d $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom ];then
 		mkdir -p hardware/qcom/audio-caf/msm8916
-		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/audio-caf/msm8916 hardware/qcom/audio-caf/msm8916 2>/dev/null
+		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/audio-caf/msm8916/* hardware/qcom/audio-caf/msm8916 2>/dev/null
 		if ! [ $? -lt 1 ];then echo -e "audio-caf\t\t[FAILED]"; else echo -e "audio-caf\t\t[DONE]"; fi
 		mkdir -p hardware/qcom/display-caf/msm8916
-		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/display-caf/msm8916 hardware/qcom/display-caf/msm8916 2>/dev/null
+		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/display-caf/msm8916/* hardware/qcom/display-caf/msm8916 2>/dev/null
 		if ! [ $? -lt 1 ];then echo -e "display-caf\t\t[FAILED]"; else echo -e "display-caf\t\t[DONE]"; fi
 		mkdir -p hardware/qcom/media-caf/msm8916
-		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/media-caf/msm8916 hardware/qcom/media-caf/msm8916 2>/dev/null
+		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/media-caf/msm8916/* hardware/qcom/media-caf/msm8916 2>/dev/null
 		if ! [ $? -lt 1 ];then echo -e "media-caf\t\t[FAILED]"; else echo -e "media-caf\t\t[DONE]"; fi
 		if [ "$b" = "cm-12.1" -o "$b" = "cm-13.0" ]; then
 			rm -r hardware/qcom/ril-caf 2>/dev/null
-			cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf hardware/ril-caf 2>/dev/null
+			cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
 			if ! [ $? -lt 1 ];then echo -e "ril-caf\t\t\t[FAILED]"; else echo -e "ril-caf\t\t\t[DONE]"; fi
 		fi
 		echo "---------------------------------------------"
@@ -275,6 +275,15 @@ case "$1" in
 		echo -e "\tToolchains Selection"
 		echo "---------------------------------------------"
 		echo -e "1.\tSabermod v4.9\n2.\tUber v4.9\n3.\tLinaro v4.9\n4.\tRestore Toolchain"
+		echo "---------------------------------------------"
+		curr=$(ls $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/*.dat)
+		case "$curr" in
+			def.dat) echo -e "Current Toolchain\t[DEFAULT]";;
+			sb.dat) echo -e "Current Toolchain\t[SABERMOD]";;
+			ln.dat) echo -e "Current Toolchain\t[LINARO]";;
+			ub.dat) echo -e "Current Toolchain\t[UBERTC]";;
+			*) echo -e "Current Toolchain\t[UNABLE TO FIND]";;
+		esac
 		echo "---------------------------------------------"
 		read -p "Which toolchain do you want (1/2/3/4)? " ch
 		echo "---------------------------------------------"
