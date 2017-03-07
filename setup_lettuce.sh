@@ -43,6 +43,7 @@ case "$1" in
 		echo "---------------------------------------------"
 		echo -e "\tCOPYING caf trees"
 		echo "---------------------------------------------"
+		if [ -d $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom ];then
 		mkdir -p hardware/qcom/audio-caf/msm8916
 		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/audio-caf/msm8916 hardware/qcom/audio-caf/msm8916 2>/dev/null
 		if ! [ $? -lt 1 ];then echo -e "audio-caf\t\t[FAILED]"; else echo -e "audio-caf\t\t[DONE]"; fi
@@ -58,6 +59,7 @@ case "$1" in
 			if ! [ $? -lt 1 ];then echo -e "ril-caf\t\t\t[FAILED]"; else echo -e "ril-caf\t\t\t[DONE]"; fi
 		fi
 		echo "---------------------------------------------"
+		else echo -e "- Please setup trees properly.\n- To do run ./setup_lettuce -st";fi
 		exit 1
 		;;
 	-f)
@@ -160,6 +162,25 @@ case "$1" in
 			echo "---------------------------------------------"
 			git clone -b $b --single-branch https://github.com/TheMuppets/proprietary_vendor_qcom_binaries.git $src/$b/vendor/qcom/binaries
 		fi
+		if [ "$s" = "https://github.com/LineageOS" ];then
+			echo "---------------------------------------------"
+			echo "Cloning qcom_opensource..."
+			echo "---------------------------------------------"
+			if [ "$b" = "cm-13.0" ];then
+				git clone -b cm-13.0 https://github.com/LineageOS/android_vendor_qcom_opensource_cryptfs_hw.git $src/cm-13.0/vendor/qcom/opensource/cryptfs_hw
+				git clone -b cm-13.0 https://github.com/LineageOS/android_vendor_qcom_opensource_dataservices.git $src/cm-13.0/vendor/qcom/opensource/dataservices
+				git clone -b cm-13.0 https://github.com/LineageOS/android_vendor_qcom_opensource_dpm.git $src/cm-13.0/vendor/qcom/opensource/dpm
+				git clone -b cm-13.0 https://github.com/LineageOS/android_vendor_qcom_opensource_time-services.git $src/cm-13.0/vendor/qcom/opensource/time-services
+			else
+				if [ "$b" = "cm-14.1" ];then
+					git clone -b cm-14.1 https://github.com/LineageOS/android_vendor_qcom_opensource_cryptfs_hw.git $src/cm-14.1/vendor/qcom/opensource/cryptfs_hw
+					git clone -b cm-14.1 https://github.com/LineageOS/android_vendor_qcom_opensource_bluetooth.git $src/cm-14.1/vendor/qcom/opensource/bluetooth
+					git clone -b cm-14.1 https://github.com/LineageOS/android_vendor_qcom_opensource_dataservices.git $src/cm-14.1/vendor/qcom/opensource/dataservices
+					git clone -b cm-14.1 https://github.com/LineageOS/android_vendor_qcom_opensource_dpm.git $src/cm-14.1/vendor/qcom/opensource/dpm
+					git clone -b cm-14.1 https://github.com/LineageOS/android_vendor_qcom_opensource_time-services.git $src/cm-14.1/vendor/qcom/opensource/time-services
+				fi
+			fi
+		fi
 		echo "---------------------------------------------"
 		echo "Cloning vendor_yu tree..."
 		echo "---------------------------------------------"
@@ -170,12 +191,15 @@ case "$1" in
 		git clone -b $b --single-branch $s/android_kernel_cyanogen_msm8916.git $src/$b/kernel/cyanogen/msm8916
 		echo "---------------------------------------------"
 		echo "Cloning audio-caf tree..."
+		echo "---------------------------------------------"
 		git clone -b $br --single-branch $s/android_hardware_qcom_audio.git $src/$b/hardware/qcom/audio-caf/msm8916
 		echo "---------------------------------------------"
 		echo "Cloning display-caf tree..."
+		echo "---------------------------------------------"
 		git clone -b $br --single-branch $s/android_hardware_qcom_display.git $src/$b/hardware/qcom/display-caf/msm8916
 		echo "---------------------------------------------"
 		echo "Cloning media-caf tree..."
+		echo "---------------------------------------------"
 		git clone -b $br --single-branch $s/android_hardware_qcom_media.git $src/$b/hardware/qcom/media-caf/msm8916
 		echo "---------------------------------------------"
 		if [ "$b" = "cm-13.0" ];then
@@ -458,6 +482,7 @@ echo "---------------------------------------------"
 echo -e "Press enter to begin Copying trees from $s/$b"
 read enterkey
 echo "---------------------------------------------"
+if [ -d $HOME/workspace/lettuce-trees/$s/$b ];then
 echo "Copying device tree..."
 mkdir -p $romdir/device/
 mkdir -p $romdir/device/yu/
@@ -494,9 +519,27 @@ if [ "$s" = "CyanogenMod" ];then
 		qc=N;
 	fi
 	if ! [ -e $romdir/device/qcom/common/Android.mk ];then qc=1; else qc=0; fi
+	if [ -d $romdir/vendor/qcom/opensource/cryptfs_hw ];then
+		rm -r $romdir/vendor/qcom/opensource/cryptfs_hw 2>/dev/null
+		if [ $? -eq 0 ];then echo "* vendor/qcom/opensource/cryptfs_hw removed";else echo "* unable to remove vendor/qcom/opensource/cryptfs_hw";fi
+	fi
 else
 	echo " * device/qcom/common not required..."
 	qc=N;
+fi
+if [ "$s" = "LineageOS" ];then
+	echo "---------------------------------------------"
+	if [ -d $romdir/device/qcom/common/cryptfs_hw ];then rm -r $romdir/device/qcom/common/cryptfs_hw 2>/dev/null;fi;
+	echo "Copying vendor/qcom/opensource/cryptfs_hw"
+	if ! [ -d $romdir/vendor/qcom/opensource/cryptfs_hw ];then
+		cp -r $HOME/workspace/lettuce-trees/$s/$b/vendor/qcom/opensource/cryptfs_hw/* $romdir/vendor/qcom/opensource/cryptfs_hw &>/dev/null
+		if [ $? -eq 0 ];then os=0;else os=1;fi
+	else
+		echo " * vendor/qcom/opensource/cryptfs_hw already available..."
+		os=N
+	fi
+else
+	os=N
 fi
 sleep 1
 if [ "$b" = "cm-14.0" ] || [ "$b" = "cm-14.1" ];then
@@ -544,6 +587,7 @@ read -p "Enter path/to/vendor/config/file : " vf
 echo "---------------------------------------------"
 echo -e "- Creating $(echo $vn)_lettuce.mk"
 echo -e "- Creating AndroidProducts.mk"
+sleep 1
 if ! [ -e $romdir/device/yu/lettuce/cm.mk ];then
 	mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
 	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
@@ -564,6 +608,7 @@ paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
 sed -i 's/mk$/mk\//' $romdir/tmp
 sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
 rm -r $romdir/tmp*
+sleep 1
 if [ -e $romdir/build/core/tasks/kernel.mk ];then
 	mv $romdir/build/core/tasks/kernel.mk $romdir/kernel.mk.bak
 	if [ -e $HOME/workspace/lettuce-trees/kernel.mk ];then
@@ -585,17 +630,24 @@ else
 		fi
 	fi
 fi
+if [ "$s" = "CyanogenMod" ];then
+	sed -i 's/TARGET_CRYPTFS_HW_PATH ?= vendor\/qcom\/opensource\/cryptfs_hw/TARGET_CRYPTFS_HW_PATH ?= device\/qcom\/common\/cryptfs_hw/' $romdir/system/vold/Android.mk
+	echo "- Fixing system/vold/Android.mk"
+else
+	sed -i 's/TARGET_CRYPTFS_HW_PATH ?= device\/qcom\/common\/cryptfs_hw/TARGET_CRYPTFS_HW_PATH ?= vendor\/qcom\/opensource\/cryptfs_hw/' $romdir/system/vold/Android.mk
+	echo "- Fixing system/vold/Android.mk"
+fi
 echo "---------------------------------------------"
 echo -e "- Fixing derps..."
 sed -i '/PRODUCT_BRAND/D' $romdir/device/yu/lettuce/full_lettuce.mk
 sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-#sed -i '/common_full_phone.mk/c\$(call inherit-product, vendor/aosp/common.mk' $romdir/device/yu/lettuce/$(echo $vn).mk
+sleep 1
 sed -i '/config_deviceHardwareKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
 sed -i '/config_deviceHardwareWakeKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
 echo "---------------------------------------------"
 echo -e "- Creating vendorsetup.sh"
 if [ -e $romdir/device/yu/lettuce/vendorsetup.sh ]; then rm $romdir/device/yu/lettuce/vendorsetup.sh 2>/dev/null;fi
-
+sleep 1
 cat <<EOF>$romdir/device/yu/lettuce/vendorsetup.sh
 add_lunch_combo $(echo $vn)_lettuce-userdebug
 EOF
@@ -653,7 +705,8 @@ echo "---------------------------------------------"
 EOF
 chmod a+x $romdir/remove_trees.sh
 echo "- run ./setup_lettuce.sh -c to copy CAF-HAL trees if needed."
-echo "- also run ./setup_lettuce.sh -f to fix device tree if lunch fails." 
+echo "- also run ./setup_lettuce.sh -f to fix device tree if lunch fails."
+sleep 1
 echo "---------------------------------------------"
 echo -e "\tLOG"
 echo "---------------------------------------------"
@@ -663,6 +716,13 @@ if [ "$vt" = "1" ]; then echo -e "- vendor_yu\t\t[FAILED]";else echo -e "- vendo
 if [ "$vc" = "1" ]; then echo -e "- vendor_cm\t\t[FAILED]";else echo -e "- vendor_cm\t\t[SUCCESS]";fi
 if [ "$kt" = "1" ]; then echo -e "- kernel tree\t\t[FAILED]";else echo -e "- kernel tree\t\t[SUCCESS]";fi
 if [ "$sp" = "1" ]; then echo -e "- qcom/sepolicy\t\t[FAILED]";else echo -e "- qcom/sepolicy\t\t[SUCCESS]";fi
+if [ "$os" = "1" ]; then
+	echo -e "- qcom opensource\t[FAILED]"
+elif [ "$qb" = "N" ]; then
+	echo -e "- qcom opensource\t[NOT REQUIRED]"
+else
+	echo -e "- qcom opensource\t[SUCCESS]"
+fi
 if [ "$qb" = "1" ]; then
 	echo -e "- qcom binaries\t\t[FAILED]"
 elif [ "$qb" = "N" ]; then
@@ -678,6 +738,9 @@ else
 	echo -e "- qcom-common tree\t[SUCCESS]"
 fi
 echo "---------------------------------------------"
+else
+	echo -e "- Please setup trees properly.\n- To do run ./setup_lettuce -st"
+fi
 exit 1
 ;;
 *)

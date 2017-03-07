@@ -217,6 +217,7 @@ include $(BUILD_PREBUILT)
 ##################################################################
 |	FOR PROBLEM 39 AND 40 do this if above solution isn't working
 | mv system/keymaster ~/trash/;git clone -b cm-14.1 https://github.com/LineageOS/android_system_keymaster.git system/keymaster
+| git clone -b cm-14.1 https://github.com/CyanogenMod/android_hardware_libhardware.git hardware/libhardware
 ##################################################################
 
 [41] ERROR: /home/sachinoraon55/workspace/xosp-n/packages/apps/Bluetooth/src/com/android/bluetooth/hfp/HeadsetService.java:143: The type HeadsetService.BluetoothHeadsetBinder must implement the inherited abstract method IBluetoothHeadset.bindResponse(int, boolean)
