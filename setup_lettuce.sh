@@ -276,7 +276,7 @@ case "$1" in
 		echo "---------------------------------------------"
 		echo -e "1.\tSabermod v4.9\n2.\tUber v4.9\n3.\tLinaro v4.9\n4.\tRestore Toolchain"
 		echo "---------------------------------------------"
-		curr=$(ls $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/*.dat)
+		curr=$(ls $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/*.dat|cut -d "/" -f 11-)
 		case "$curr" in
 			def.dat) echo -e "Current Toolchain\t[DEFAULT]";;
 			sb.dat) echo -e "Current Toolchain\t[SABERMOD]";;
@@ -605,7 +605,7 @@ if ! [ -e $romdir/device/yu/lettuce/cm.mk ];then
 	rm $romdir/tmp
 else
 	mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce" > $romdir/device/yu/lettuce/AndroidProducts.mk
+	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 	echo "s/PRODUCT_NAME := cm_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
 	sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
 	rm $romdir/tmp
