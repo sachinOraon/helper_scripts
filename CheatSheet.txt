@@ -220,4 +220,6 @@ include $(BUILD_PREBUILT)
 | git clone -b cm-14.1 https://github.com/CyanogenMod/android_hardware_libhardware.git hardware/libhardware
 ##################################################################
 
-[41] ERROR: /home/sachinoraon55/workspace/xosp-n/packages/apps/Bluetooth/src/com/android/bluetooth/hfp/HeadsetService.java:143: The type HeadsetService.BluetoothHeadsetBinder must implement the inherited abstract method IBluetoothHeadset.bindResponse(int, boolean)
+[41] Multiple same specifications for /data/misc/radio(/.*)?
+	* https://github.com/Euphoria-OS/android_device_moto_shamu/commit/374c552d5152da7f800623c4d970e745b3917428
+	 Delete the line "/data/misc/radio(/.*)?" from vendor/<rom>/sepolicy/file_contexts OR from device/qcom/sepolicy/common/file_contexts

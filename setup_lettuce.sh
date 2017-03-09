@@ -614,6 +614,7 @@ case "$1" in
 			fi
 			echo "---------------------------------------------"
 			echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
+			
 			if [ -d $romdir/device/qcom/common/cryptfs_hw ];then
 				echo " * device/qcom/common/cryptfs_hw available..."
 			fi
@@ -660,6 +661,13 @@ case "$1" in
 			sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
 			rm $romdir/tmp
 		fi
+		echo "---------------------------------------------"
+		if [ -e vendor/$vn/sepolicy/file_contexts ];then
+			echo " * vendor/$vn/sepolicy/file_contexts --> $(grep -i /data/misc/radio vendor/$vn/sepolicy/file_contexts)"
+		else
+			echo "device/qcom/sepolicy/common/file_contexts --> $(grep -i /data/misc/radio device/qcom/sepolicy/common/file_contexts)"
+		fi
+		echo "---------------------------------------------"
 		echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
 		echo "$(echo $vf)">$romdir/tmp2
 		sed -i 's/\//\\\//g' $romdir/tmp2
