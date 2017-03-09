@@ -47,11 +47,13 @@ case "$1" in
 		mkdir -p hardware/qcom/audio-caf/msm8916
 		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/audio-caf/msm8916/* hardware/qcom/audio-caf/msm8916 2>/dev/null
 		if ! [ $? -lt 1 ];then echo -e "audio-caf\t\t[FAILED]"; else echo -e "audio-caf\t\t[DONE]"; fi
+		sleep 1
 		mkdir -p hardware/qcom/display-caf/msm8916
 		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/display-caf/msm8916/* hardware/qcom/display-caf/msm8916 2>/dev/null
 		if ! [ $? -lt 1 ];then echo -e "display-caf\t\t[FAILED]"; else echo -e "display-caf\t\t[DONE]"; fi
 		mkdir -p hardware/qcom/media-caf/msm8916
 		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/media-caf/msm8916/* hardware/qcom/media-caf/msm8916 2>/dev/null
+		sleep 1
 		if ! [ $? -lt 1 ];then echo -e "media-caf\t\t[FAILED]"; else echo -e "media-caf\t\t[DONE]"; fi
 		if [ "$b" = "cm-12.1" -o "$b" = "cm-13.0" ]; then
 			rm -r hardware/qcom/ril-caf 2>/dev/null
@@ -71,25 +73,28 @@ case "$1" in
 			if [ -e $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk ];then
 				mv $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk $romdir/device/yu/lettuce/$(echo $file).mk
 				if [ $? -eq 0 ];then echo -e "- Renaming $(echo $file)_lettuce.mk to $(echo $file).mk";else echo "- Can't rename $(echo $file)_lettuce.mk";fi
+				sleep 1
 				rm $romdir/device/yu/lettuce/AndroidProducts.mk
 				if [ $? -eq 0 ];then echo "- Old AndroidProducts.mk removed";else echo "- Old AndroidProducts.mk can't be removed";fi
 				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $file).mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
+				sleep 1
 				if [ $? -eq 0 ];then echo "- New AndroidProducts.mk created";else echo "- Can't create new AndroidProducts.mk";fi
 				if [ -e $romdir/device/yu/lettuce/$(echo $file).mk ];then echo -e "- Now lunch can run successfully";fi
 				echo "---------------------------------------------"
 			else
 				mv $romdir/device/yu/lettuce/$(echo $file).mk $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk
 				if [ $? -eq 0 ];then echo -e "- Renaming $file.mk to $(echo $file)_lettuce.mk";else echo "- Can't rename $file.mk";fi
+				sleep 1
 				rm $romdir/device/yu/lettuce/AndroidProducts.mk
 				if [ $? -eq 0 ];then echo "- Old AndroidProducts.mk removed";else echo "- Old AndroidProducts.mk can't be removed";fi
 				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $file)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
+				sleep 1
 				if [ $? -eq 0 ];then echo "- New AndroidProducts.mk created";else echo "- Can't create new AndroidProducts.mk";fi
 				if [ -e $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk ];then echo -e "- Now lunch can run successfully";fi
 				echo "---------------------------------------------"
 			fi
 		else
 			echo "- Can't find saved file"
-			
 		fi
 		exit 1
 		;;
@@ -141,6 +146,24 @@ case "$1" in
 		esac
 		echo "---------------------------------------------"
 		echo -e "\tSeting up trees"
+		if [ -e $src/$b/device/yu/lettuce/Android.mk ];then
+			echo "---------------------------------------------"
+			echo -e "Previous trees have been found..."
+			read -p "Do you want to re-sync ?(Y/N) : " x
+			echo "---------------------------------------------"
+			if [ "$x" = "y" -o "$x" = "Y" ];then
+				echo "- Removing $src/$b ..."
+				rm -rf $src/$b/ 2>/dev/null
+				if ! [ $? -eq 0 ];then
+					sleep 1
+					echo "- Unable to remove old stuffs..."
+					exit 1
+				fi
+			else
+				echo "Okay..then stay with old stuffs..."
+				exit 1
+			fi
+		fi
 		echo "---------------------------------------------"
 		echo "Press enter to begin ..."
 		read enterkey
@@ -211,16 +234,28 @@ case "$1" in
 		if ! [ -e $HOME/workspace/lettuce-trees/kernel.mk ]; then
 			wget -O $HOME/workspace/lettuce-trees/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk &>/dev/null
 		fi
-		exit 1
-		;;
+	exit 1
+	;;
 	-tc)
 		echo -e "\tToolchains Available for Download"
 		echo "---------------------------------------------"
-		echo -e "1.\tSabermod v4.9\n2.\tUber v4.9\n3.\tLinaro v4.9"
+		echo -e "1.\tSabermod v4.9\n2.\tUber v4.9\n3.\tLinaro v4.9\n4.\tSDClang v3.8"
 		echo "---------------------------------------------"
-		read -p "Which toolchain do you want (1/2/3)? " tc
+		read -p "Which toolchain do you want (1/2/3/4)? " tc
 		echo "---------------------------------------------"
 		case "$tc" in
+			4)
+				if [ -d $HOME/workspace/toolchains/sdclang ];then
+					echo "SDClang v3.8 already available..."
+					exit 1
+				else
+					echo "Cloning SDClang v3.8..."
+					echo "---------------------------------------------"
+					git clone https://github.com/sachinOraon/sdclang.git $HOME/workspace/toolchains/sdclang
+					echo "---------------------------------------------"
+				fi
+				exit 1
+				;;
 			1)
 				if ! [ -e $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9/sb.dat ]; then
 					echo "Cloning SaberMod 4.9 Toolchain..."
@@ -274,7 +309,7 @@ case "$1" in
 		echo "---------------------------------------------"
 		echo -e "\tToolchains Selection"
 		echo "---------------------------------------------"
-		echo -e "1.\tSabermod v4.9\n2.\tUber v4.9\n3.\tLinaro v4.9\n4.\tRestore Toolchain"
+		echo -e "1.\tSabermod v4.9\n2.\tUber v4.9\n3.\tLinaro v4.9\n4.\tSDClang v3.8.8\n5.\tRestore Toolchain"
 		echo "---------------------------------------------"
 		curr=$(ls $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/*.dat|cut -d "/" -f 11-)
 		case "$curr" in
@@ -284,31 +319,75 @@ case "$1" in
 			ub.dat) echo -e "Current Toolchain\t[UBERTC]";;
 			*) echo -e "Current Toolchain\t[UNABLE TO FIND]";;
 		esac
+		sdc=`grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk`
+		if [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang ];then
+			if [ $sdc -gt 0 ];then
+				if [ -e $romdir/device/qcom/common/sdllvm-lto-defs.mk ];then
+					echo -e "SDclang 3.8\t\t[ENABLED]"
+				fi
+			fi
+		else
+			echo -e "SDclang 3.8\t\t[DISABLED]"
+		fi
 		echo "---------------------------------------------"
-		read -p "Which toolchain do you want (1/2/3/4)? " ch
+		read -p "Which toolchain do you want (1/2/3/4/5)? " ch
 		echo "---------------------------------------------"
 		case "$ch" in
+			4)
+				if ! [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang ];then
+					if ! [ -e $HOME/workspace/toolchains/sdclang ];then
+						echo -e " * SDClang not found\n  Please run ./setup_lettuce.sh -tc to download..."
+						exit 1
+					else
+						echo "Enabling Snapdragon LLVM ARM Compiler 3.8.8"
+						mkdir -p $romdir/prebuilts/clang/linux-x86/host/sdclang
+						cp -r $HOME/workspace/toolchains/sdclang/* $romdir/prebuilts/clang/linux-x86/host/sdclang
+						if [ $? -eq 0 ];then echo " * SDClang copied successfully";else echo " * Unable to copy SDClang !!";fi
+						if ! [ -e $romdir/device/qcom/common/sdllvm-lto-defs.mk ];then
+							echo " * Creating sdllvm-lto-defs.mk in device/qcom/common"
+							wget -O $romdir/device/qcom/common/sdllvm-lto-defs.mk https://github.com/LineageOS/android_device_qcom_common/raw/cm-14.1/sdllvm-lto-defs.mk &>/dev/null
+							if [ $? -eq 0 ];then echo " * sdllvm-lto-defs.mk created";else echo " * Failed to create sdllvm-lto-defs.mk";fi
+						else
+							echo " * sdllvm-lto-defs.mk Found"
+						fi
+						chk=`grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk`
+						if [ $chk -eq 0 ];then
+							echo " * Creating backup of Boardconfig.mk"
+							cp $romdir/device/yu/lettuce/BoardConfig.mk $romdir/device/yu/lettuce/BoardConfig.mk.bak 2>/dev/null
+							echo " * Modifying Boardconfig.mk"
+							echo -e "\nSDCLANG := true\nSDCLANG_PATH := prebuilts/clang/linux-x86/host/sdclang/bin\nSDCLANG_LTO_DEFS := device/qcom/common/sdllvm-lto-defs.mk">>$romdir/device/yu/lettuce/BoardConfig.mk
+							if ! [ `grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk` ]; then echo " * Unable to modify BoardConfig.mk";fi
+						else
+							echo " * BoardConfig already modified"
+						fi
+					fi
+				else
+					read -p "Do you want to Disable SDClang (Y/N)? " y
+					if [ "$y" = "Y" -o "$y" = "y" ];then
+						echo " * Removing prebuilts/clang/linux-x86/host/sdclang"
+						rm -rf $romdir/prebuilts/clang/linux-x86/host/sdclang 2>/dev/null
+						echo " * Removing sdllvm-lto-defs.mk"
+						rm -f $romdir/device/qcom/common/sdllvm-lto-defs.mk 2>/dev/null
+						echo " * Restoring BoardConfig.mk"
+						mv $romdir/device/yu/lettuce/BoardConfig.mk.bak $romdir/device/yu/lettuce/BoardConfig.mk 2>/dev/null
+						if [ $? -eq 0 ];then echo " * DONE";else echo " * FAILED";fi
+					else
+						echo "Okay...let that survive !!"
+					fi
+				fi
+				exit 1
+			;;
 			1)
 				if [ -e $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9/sb.dat ];then
-				echo "Copying SaberMod toolchain..."
-				echo "---------------------------------------------"
-				if ! [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat ];then
-					if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/sb.dat ];then
-						echo -e "Sabermod\t[ACTIVATED]"
-						echo "---------------------------------------------"
-					else
-						if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ub.dat ];then
-							mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9 &>/dev/null
-							if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9/sb.dat ];then
-								mv $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-								if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
-							else
-								cp -r $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-								if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
-							fi
+					echo "Copying SaberMod toolchain..."
+					echo "---------------------------------------------"
+					if ! [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat ];then
+						if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/sb.dat ];then
+							echo -e "Sabermod\t[ACTIVATED]"
+							echo "---------------------------------------------"
 						else
-							if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ln.dat ];then
-								mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9 &>/dev/null
+							if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ub.dat ];then
+								mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9 &>/dev/null
 								if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9/sb.dat ];then
 									mv $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
 									if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
@@ -316,18 +395,28 @@ case "$1" in
 									cp -r $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
 									if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
 								fi
+							else
+								if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ln.dat ];then
+									mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9 &>/dev/null
+									if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9/sb.dat ];then
+										mv $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
+										if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
+									else
+										cp -r $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
+										if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
+									fi
+								fi
 							fi
 						fi
-					fi
-				else
-					mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/default-aarch64-linux-android-4.9 &>/dev/null
-					if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9/sb.dat ];then
-						mv $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
 					else
-						cp -r $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-						if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
+						mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/default-aarch64-linux-android-4.9 &>/dev/null
+						if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9/sb.dat ];then
+							mv $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
+						else
+							cp -r $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
+							if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
+						fi
 					fi
-				fi
 				else
 					echo -e "Sabermod TC isn't available on $HOME/workspace/toolchain...\nPlease run ./lettuce.sh -tc and select SaberMod from there to download.\n---------------------------------------------"
 				fi
@@ -456,214 +545,162 @@ case "$1" in
 		esac
 		exit 1
 		;;
--ct)
-echo "---------------------------------------------"
-read -p "BRANCH (L/M/N) = " b
-case "$b" in
-	l|L)
-		b=cm-12.1
-		;;
-	m|M)
-		b=cm-13.0
-		;;
-	n|N)
-		b=cm-14.1
-		;;
-	*)
-		echo "Invalid branch...!"
-		exit 1
-		;;
-esac
-read -p "SOURCE (L/C)   = " s
-case "$s" in
-	l|L)
-		s="LineageOS"
-		;;
-	c|C)
-		s="CyanogenMod"
-		;;
-	*)
-		echo "Invalid source...!"
-		exit 1
-		;;
-esac
-echo "---------------------------------------------"
-echo -e "Press enter to begin Copying trees from $s/$b"
-read enterkey
-echo "---------------------------------------------"
-if [ -d $HOME/workspace/lettuce-trees/$s/$b ];then
-echo "Copying device tree..."
-mkdir -p $romdir/device/
-mkdir -p $romdir/device/yu/
-mkdir -p $romdir/device/yu/lettuce
-cp -r $HOME/workspace/lettuce-trees/$s/$b/device/yu/lettuce/* $romdir/device/yu/lettuce
-if ! [ -e $romdir/device/yu/lettuce/device.mk ];then dt=1; else dt=0; fi
-
-echo "---------------------------------------------"
-echo "Copying device/qcom/sepolicy tree..."
-if ! [ -e $romdir/device/qcom/sepolicy/Android.mk ];then
-	mkdir -p $romdir/device/qcom/
-	mkdir -p $romdir/device/qcom/sepolicy
-	cp -r $HOME/workspace/lettuce-trees/$s/$b/device/qcom/sepolicy/* $romdir/device/qcom/sepolicy
-	if ! [ -e $romdir/device/qcom/sepolicy/Android.mk ];then sp=1; else sp=0; fi
-else
-	echo " * device/qcom/sepolicy already available..."
-	sp=0
-fi
-echo "---------------------------------------------"
-echo "Copying Shared tree..."
-mkdir -p $romdir/device/cyanogen
-mkdir -p $romdir/device/cyanogen/msm8916-common
-cp -r $HOME/workspace/lettuce-trees/$s/$b/device/cyanogen/msm8916-common/* $romdir/device/cyanogen/msm8916-common
-if ! [ -e $romdir/device/cyanogen/msm8916-common/Android.mk ];then st=1; else st=0; fi
-echo "---------------------------------------------"
-echo "Copying qcom_common tree..."
-if [ "$s" = "CyanogenMod" ];then
-	if ! [ -e $romdir/device/qcom/common/Android.mk ];then
-		mkdir -p $romdir/device/qcom
-		mkdir -p $romdir/device/qcom/common
-		cp -r $HOME/workspace/lettuce-trees/$s/$b/device/qcom/common/* $romdir/device/qcom/common
-	else
-		echo "* device/qcom/common/ already available..."
-		qc=N;
-	fi
-	if ! [ -e $romdir/device/qcom/common/Android.mk ];then qc=1; else qc=0; fi
-	if [ -d $romdir/vendor/qcom/opensource/cryptfs_hw ];then
-		rm -r $romdir/vendor/qcom/opensource/cryptfs_hw 2>/dev/null
-		if [ $? -eq 0 ];then echo "* vendor/qcom/opensource/cryptfs_hw removed";else echo "* unable to remove vendor/qcom/opensource/cryptfs_hw";fi
-	fi
-else
-	echo " * device/qcom/common not required..."
-	qc=N;
-fi
-if [ "$s" = "LineageOS" ];then
-	echo "---------------------------------------------"
-	if [ -d $romdir/device/qcom/common/cryptfs_hw ];then rm -r $romdir/device/qcom/common/cryptfs_hw 2>/dev/null;fi;
-	echo "Copying vendor/qcom/opensource/cryptfs_hw"
-	if ! [ -d $romdir/vendor/qcom/opensource/cryptfs_hw ];then
-		cp -r $HOME/workspace/lettuce-trees/$s/$b/vendor/qcom/opensource/cryptfs_hw/* $romdir/vendor/qcom/opensource/cryptfs_hw &>/dev/null
-		if [ $? -eq 0 ];then os=0;else os=1;fi
-	else
-		echo " * vendor/qcom/opensource/cryptfs_hw already available..."
-		os=N
-	fi
-else
-	os=N
-fi
-sleep 1
-if [ "$b" = "cm-14.0" ] || [ "$b" = "cm-14.1" ];then
-	echo "---------------------------------------------"
-	echo "Copying qcom_binaries..."
-	
-	if ! [ -e $romdir/vendor/qcom/binaries/Android.mk ]; then
-		mkdir -p $romdir/vendor/qcom
-		mkdir -p $romdir/vendor/qcom/binaries
-		cp -r $HOME/workspace/lettuce-trees/$s/$b/vendor/qcom/binaries/* $romdir/vendor/qcom/binaries
-	else
-		echo "* vendor/qcom/binaries/ already available..."
+	-ct)
 		echo "---------------------------------------------"
-	fi
-	if ! [ -e $romdir/vendor/qcom/binaries/Android.mk ]; then qb=1; else qb=0; fi
-	
-fi
-if [ "$b" = "cm-12.1" ] || [ "$b" = "cm-13.0" ];then
-echo "---------------------------------------------"
-echo "* vendor/qcom/binaries/ not required..."
-qb=N
-fi
-echo "---------------------------------------------"
-echo "Copying vendor/yu tree..."
-mkdir -p $romdir/vendor/yu
-cp -r $HOME/workspace/lettuce-trees/$s/$b/vendor/yu/* $romdir/vendor/yu
-if ! [ -e $romdir/vendor/yu/lettuce/Android.mk ];then vt=1; else vt=0; fi
-echo "---------------------------------------------"
-echo "Copying kernel tree..."
-mkdir -p $romdir/kernel
-mkdir -p $romdir/kernel/cyanogen
-mkdir -p $romdir/kernel/cyanogen/msm8916
-cp -r $HOME/workspace/lettuce-trees/$s/$b/kernel/cyanogen/msm8916/* $romdir/kernel/cyanogen/msm8916
-if ! [ -e $romdir/kernel/cyanogen/msm8916/AndroidKernel.mk ]; then kt=1; else kt=0; fi
-echo "---------------------------------------------"
-ls $romdir/vendor
-echo "---------------------------------------------"
-read -p "Enter name of rom's vendor : " vn
-echo $vn>$romdir/device/yu/lettuce/$vn.dat
-echo "---------------------------------------------"
-find $romdir/vendor/$vn -type f \( -name "*common*.mk" -o -name "*$vn*.mk" \) | cut --delimiter "/" --fields 6-
-echo "---------------------------------------------"
-echo "    (Choose from above list)"
-read -p "Enter path/to/vendor/config/file : " vf
-echo "---------------------------------------------"
-echo -e "- Creating $(echo $vn)_lettuce.mk"
-echo -e "- Creating AndroidProducts.mk"
-sleep 1
-if ! [ -e $romdir/device/yu/lettuce/cm.mk ];then
-	mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
-	echo "s/PRODUCT_NAME := lineage_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
-	sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-	rm $romdir/tmp
-else
-	mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-	echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
-	echo "s/PRODUCT_NAME := cm_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
-	sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-	rm $romdir/tmp
-fi
-echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
-echo "$(echo $vf)">$romdir/tmp2
-sed -i 's/\//\\\//g' $romdir/tmp2
-paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
-sed -i 's/mk$/mk\//' $romdir/tmp
-sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-rm -r $romdir/tmp*
-sleep 1
-if [ -e $romdir/build/core/tasks/kernel.mk ];then
-	mv $romdir/build/core/tasks/kernel.mk $romdir/kernel.mk.bak
-	if [ -e $HOME/workspace/lettuce-trees/kernel.mk ];then
-		cp $HOME/workspace/lettuce-trees/kernel.mk $romdir/build/core/tasks/kernel.mk 2>/dev/null
-		if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
-	else
-		wget -O $romdir/build/core/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk &>/dev/null
-		if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
-	fi
-else
-	if [ -e $romdir/vendor/$vn/build/tasks/kernel.mk ];then
-		mv $romdir/vendor/$vn/build/tasks/kernel.mk $romdir/kernel.mk.bak
-		if [ -e $HOME/workspace/lettuce-trees/kernel.mk ];then
-			cp $HOME/workspace/lettuce-trees/kernel.mk $romdir/vendor/$vn/build/tasks/kernel.mk 2>/dev/null
-			if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+		read -p "BRANCH (L/M/N) = " b
+		case "$b" in
+			l|L)
+				b=cm-12.1
+			;;
+			m|M)
+				b=cm-13.0
+			;;
+			n|N)
+				b=cm-14.1
+			;;
+			*)
+				echo "Invalid branch...!"
+				exit 1
+			;;
+		esac
+		read -p "SOURCE (L/C)   = " s
+		case "$s" in
+			l|L)
+				s="LineageOS"
+			;;
+			c|C)
+				s="CyanogenMod"
+			;;
+			*)
+				echo "Invalid source...!"
+				exit 1
+			;;
+		esac
+		echo "---------------------------------------------"
+		echo -e "Press enter to begin Copying trees from $s/$b"
+		read enterkey
+		echo "---------------------------------------------"
+		if [ -d $HOME/workspace/lettuce-trees/$s/$b ];then
+			echo "Copying device/yu/lettuce"
+			mkdir -p $romdir/device/
+			mkdir -p $romdir/device/yu/
+			mkdir -p $romdir/device/yu/lettuce
+			cp -r $HOME/workspace/lettuce-trees/$s/$b/device/yu/lettuce/* $romdir/device/yu/lettuce
+			if ! [ -e $romdir/device/yu/lettuce/device.mk ];then dt=1; else dt=0; fi
+			echo "---------------------------------------------"
+			echo "Copying device/cyanogen/msm8916-common"
+			mkdir -p $romdir/device/cyanogen
+			mkdir -p $romdir/device/cyanogen/msm8916-common
+			cp -r $HOME/workspace/lettuce-trees/$s/$b/device/cyanogen/msm8916-common/* $romdir/device/cyanogen/msm8916-common
+			if ! [ -e $romdir/device/cyanogen/msm8916-common/Android.mk ];then st=1; else st=0; fi
+			echo "---------------------------------------------"
+			if ! [ -e $romdir/device/qcom/common/Android.mk ];then
+				mkdir -p $romdir/device/qcom
+				mkdir -p $romdir/device/qcom/common
+				echo "Copying device/qcom/common"
+				cp -r $HOME/workspace/lettuce-trees/$s/$b/device/qcom/common/* $romdir/device/qcom/common
+				if ! [ -e $romdir/device/qcom/common/Android.mk ];then qc=1;qc=0;fi
+			else
+				echo " * device/qcom/common already available..."
+				qc=N
+			fi
+			echo "---------------------------------------------"
+			echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
+			if [ -d $romdir/device/qcom/common/cryptfs_hw ];then
+				echo " * device/qcom/common/cryptfs_hw available..."
+			fi
+			if [ -d $romdir/vendor/qcom/opensource/cryptfs_hw ];then
+				echo " * vendor/qcom/opensource/cryptfs_hw available..."
+			fi
+		sleep 1
+		echo "---------------------------------------------"
+		echo "Copying vendor/yu"
+		mkdir -p $romdir/vendor/yu
+		cp -r $HOME/workspace/lettuce-trees/$s/$b/vendor/yu/* $romdir/vendor/yu
+		if ! [ -e $romdir/vendor/yu/lettuce/Android.mk ];then vt=1; else vt=0; fi
+		echo "---------------------------------------------"
+		echo "Copying kernel/cyanogen/msm8916"
+		mkdir -p $romdir/kernel
+		mkdir -p $romdir/kernel/cyanogen
+		mkdir -p $romdir/kernel/cyanogen/msm8916
+		cp -r $HOME/workspace/lettuce-trees/$s/$b/kernel/cyanogen/msm8916/* $romdir/kernel/cyanogen/msm8916
+		if ! [ -e $romdir/kernel/cyanogen/msm8916/AndroidKernel.mk ]; then kt=1; else kt=0; fi
+		echo "---------------------------------------------"
+		ls $romdir/vendor
+		echo "---------------------------------------------"
+		read -p "Enter name of rom's vendor : " vn
+		echo $vn>$romdir/device/yu/lettuce/$vn.dat
+		echo "---------------------------------------------"
+		find $romdir/vendor/$vn -type f \( -name "*common*.mk" -o -name "*$vn*.mk" \) | cut --delimiter "/" --fields 6-
+		echo "---------------------------------------------"
+		echo "    (Choose from above list)"
+		read -p "Enter path/to/vendor/config/file : " vf
+		echo "---------------------------------------------"
+		echo -e "- Creating $(echo $vn)_lettuce.mk"
+		sleep 1
+		echo -e "- Creating AndroidProducts.mk"
+		if ! [ -e $romdir/device/yu/lettuce/cm.mk ];then
+			mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+			echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
+			echo "s/PRODUCT_NAME := lineage_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
+			sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+			rm $romdir/tmp
 		else
-			wget -O $romdir/vendor/$vn/build/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk &>/dev/null
-			if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+			mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+			echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
+			echo "s/PRODUCT_NAME := cm_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
+			sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+			rm $romdir/tmp
 		fi
-	fi
-fi
-if [ "$s" = "CyanogenMod" ];then
-	sed -i 's/TARGET_CRYPTFS_HW_PATH ?= vendor\/qcom\/opensource\/cryptfs_hw/TARGET_CRYPTFS_HW_PATH ?= device\/qcom\/common\/cryptfs_hw/' $romdir/system/vold/Android.mk
-	echo "- Fixing system/vold/Android.mk"
-else
-	sed -i 's/TARGET_CRYPTFS_HW_PATH ?= device\/qcom\/common\/cryptfs_hw/TARGET_CRYPTFS_HW_PATH ?= vendor\/qcom\/opensource\/cryptfs_hw/' $romdir/system/vold/Android.mk
-	echo "- Fixing system/vold/Android.mk"
-fi
-echo "---------------------------------------------"
-echo -e "- Fixing derps..."
-sed -i '/PRODUCT_BRAND/D' $romdir/device/yu/lettuce/full_lettuce.mk
-sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-sleep 1
-sed -i '/config_deviceHardwareKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
-sed -i '/config_deviceHardwareWakeKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
-echo "---------------------------------------------"
-echo -e "- Creating vendorsetup.sh"
-if [ -e $romdir/device/yu/lettuce/vendorsetup.sh ]; then rm $romdir/device/yu/lettuce/vendorsetup.sh 2>/dev/null;fi
-sleep 1
+		echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
+		echo "$(echo $vf)">$romdir/tmp2
+		sed -i 's/\//\\\//g' $romdir/tmp2
+		paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
+		sed -i 's/mk$/mk\//' $romdir/tmp
+		sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+		rm -r $romdir/tmp*
+		sleep 1
+		if [ -e $romdir/build/core/tasks/kernel.mk ];then
+			mv $romdir/build/core/tasks/kernel.mk $romdir/kernel.mk.bak
+			if [ -e $HOME/workspace/lettuce-trees/kernel.mk ];then
+				cp $HOME/workspace/lettuce-trees/kernel.mk $romdir/build/core/tasks/kernel.mk 2>/dev/null
+				if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+			else
+				wget -O $romdir/build/core/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk &>/dev/null
+				if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+			fi
+		else
+			if [ -e $romdir/vendor/$vn/build/tasks/kernel.mk ];then
+				mv $romdir/vendor/$vn/build/tasks/kernel.mk $romdir/kernel.mk.bak
+				if [ -e $HOME/workspace/lettuce-trees/kernel.mk ];then
+					cp $HOME/workspace/lettuce-trees/kernel.mk $romdir/vendor/$vn/build/tasks/kernel.mk 2>/dev/null
+					if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+				else
+					wget -O $romdir/vendor/$vn/build/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk &>/dev/null
+					if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+				fi
+			fi
+		fi
+		echo "---------------------------------------------"
+		echo -e "- Fixing derps..."
+		sed -i '/PRODUCT_BRAND/D' $romdir/device/yu/lettuce/full_lettuce.mk
+		sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+		sleep 1
+		sed -i '/config_deviceHardwareKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
+		sed -i '/config_deviceHardwareWakeKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
+		if ! [ `grep -i "MEASUREMENT_COUNT" $romdir/system/media/audio_effects/include/audio_effects/effect_visualizer.h|cut -d " " -f 2` ];then
+			sed -i '/#define MEASUREMENT_IDX_RMS  1/a #define MEASUREMENT_COUNT 2' $romdir/system/media/audio_effects/include/audio_effects/effect_visualizer.h
+		fi
+		echo "---------------------------------------------"
+		echo -e "- Creating vendorsetup.sh"
+		if [ -e $romdir/device/yu/lettuce/vendorsetup.sh ]; then rm $romdir/device/yu/lettuce/vendorsetup.sh 2>/dev/null;fi
+		sleep 1
 cat <<EOF>$romdir/device/yu/lettuce/vendorsetup.sh
 add_lunch_combo $(echo $vn)_lettuce-userdebug
 EOF
-
-echo "---------------------------------------------"
-echo -e "- Creating $(echo $vn)-build.sh"
-if ! [ -e $romdir/$(echo $vn)-build.sh ]; then
+		echo "---------------------------------------------"
+		echo -e "- Creating $(echo $vn)-build.sh"
+		if ! [ -e $romdir/$(echo $vn)-build.sh ]; then
 cat <<EOF>$romdir/$(echo $vn)-build.sh
 case "\$1" in
 	-c)
@@ -680,11 +717,11 @@ case "\$1" in
 		;;
 esac
 EOF
-chmod a+x $romdir/$(echo $vn)-build.sh
-fi
-echo "---------------------------------------------"
-echo -e "- Creating remove_trees.sh"
-if [ -e $romdir/remove_trees.sh ]; then rm -f $romdir/remove_trees.sh &>/dev/null;fi
+			chmod a+x $romdir/$(echo $vn)-build.sh
+		fi
+		echo "---------------------------------------------"
+		echo -e "- Creating remove_trees.sh"
+		if [ -e $romdir/remove_trees.sh ]; then rm -f $romdir/remove_trees.sh &>/dev/null;fi
 cat <<EOF>$romdir/remove_trees.sh
 echo "---------------------------------------------"
 rm -rf $HOME/.ccache &>/dev/null
@@ -693,12 +730,6 @@ rm -rf $romdir/device/yu/lettuce &>/dev/null
 echo "---------------------------------------------"
 echo "- Removing msm8916-common tree..."
 rm -rf $romdir/device/cyanogen/msm8916-common &>/dev/null
-echo "---------------------------------------------"
-echo "- Removing qcom/common tree..."
-rm -rf $romdir/device/qcom/common &>/dev/null
-echo "---------------------------------------------"
-echo "- Removing qcom/binaries..."
-rm -rf $romdir/vendor/qcom/binaries &>/dev/null
 echo "---------------------------------------------"
 echo "- Removing vendor/yu tree..."
 rm -rf $romdir/vendor/yu &>/dev/null
@@ -712,59 +743,43 @@ rm -rf $romdir/hardware/qcom/display-caf/msm8916 &>/dev/null
 rm -rf $romdir/hardware/qcom/media-caf/msm8916 &>/dev/null
 echo "---------------------------------------------"
 EOF
-chmod a+x $romdir/remove_trees.sh
-echo "- run ./setup_lettuce.sh -c to copy CAF-HAL trees if needed."
-echo "- also run ./setup_lettuce.sh -f to fix device tree if lunch fails."
-sleep 1
-echo "---------------------------------------------"
-echo -e "\tLOG"
-echo "---------------------------------------------"
-if [ "$dt" = "1" ]; then echo -e "- device tree\t\t[FAILED]";else echo -e "- device tree\t\t[SUCCESS]";fi
-if [ "$st" = "1" ]; then echo -e "- shared tree\t\t[FAILED]";else echo -e "- shared tree\t\t[SUCCESS]";fi
-if [ "$vt" = "1" ]; then echo -e "- vendor_yu\t\t[FAILED]";else echo -e "- vendor_yu\t\t[SUCCESS]";fi
-if [ "$vc" = "1" ]; then echo -e "- vendor_cm\t\t[FAILED]";else echo -e "- vendor_cm\t\t[SUCCESS]";fi
-if [ "$kt" = "1" ]; then echo -e "- kernel tree\t\t[FAILED]";else echo -e "- kernel tree\t\t[SUCCESS]";fi
-if [ "$sp" = "1" ]; then echo -e "- qcom/sepolicy\t\t[FAILED]";else echo -e "- qcom/sepolicy\t\t[SUCCESS]";fi
-if [ "$os" = "1" ]; then
-	echo -e "- qcom opensource\t[FAILED]"
-elif [ "$qb" = "N" ]; then
-	echo -e "- qcom opensource\t[NOT REQUIRED]"
-else
-	echo -e "- qcom opensource\t[SUCCESS]"
-fi
-if [ "$qb" = "1" ]; then
-	echo -e "- qcom binaries\t\t[FAILED]"
-elif [ "$qb" = "N" ]; then
-	echo -e "- qcom binaries\t\t[NOT REQUIRED]"
-else
-	echo -e "- qcom binaries\t\t[SUCCESS]"
-fi
-if [ "$qc" = "1" ]; then
-	echo -e "- qcom-common tree\t[FAILED]"
-elif [ "$qc" = "N" ]; then
-	echo -e "- qcom-common tree\t[NOT REQUIRED]"
-else
-	echo -e "- qcom-common tree\t[SUCCESS]"
-fi
-echo "---------------------------------------------"
-else
-	echo -e "- Please setup trees properly.\n- To do run ./setup_lettuce -st"
-fi
-exit 1
-;;
-*)
-	echo -e "\t---------------------------------------------"
-	echo -e "\t|               HELP MENU                   |"
-	echo -e "\t---------------------------------------------"
-	echo -e "\t|   -j     Switch jdk versions              |"
-	echo -e "\t|   -c     Copy some caf HAL trees          |"
-	echo -e "\t|   -f     To fix lunch error               |"
-	echo -e "\t|   -t     Switch toolchain for compilation |"
-	echo -e "\t|   -st    Download device trees for later  |"
-	echo -e "\t|          use                              |"
-	echo -e "\t|   -ct    Copy device trees to working-dir |"
-	echo -e "\t|   -tc    Download toolchain for later use |"
-	echo -e "\t---------------------------------------------"
-exit 1
-;;
+		chmod a+x $romdir/remove_trees.sh
+		echo "- run ./setup_lettuce.sh -c to copy CAF-HAL trees if needed."
+		echo "- also run ./setup_lettuce.sh -f to fix device tree if lunch fails."
+		sleep 1
+		echo "---------------------------------------------"
+		echo -e "\tLOG"
+		echo "---------------------------------------------"
+		if [ "$dt" = "1" ]; then echo -e "- device tree\t\t[FAILED]";else echo -e "- device tree\t\t[SUCCESS]";fi
+		if [ "$st" = "1" ]; then echo -e "- shared tree\t\t[FAILED]";else echo -e "- shared tree\t\t[SUCCESS]";fi
+		if [ "$vt" = "1" ]; then echo -e "- vendor_yu\t\t[FAILED]";else echo -e "- vendor_yu\t\t[SUCCESS]";fi
+		if [ "$kt" = "1" ]; then echo -e "- kernel tree\t\t[FAILED]";else echo -e "- kernel tree\t\t[SUCCESS]";fi
+		if [ "$qc" = "1" ]; then
+			echo -e "- qcom-common tree\t[FAILED]"
+		elif [ "$qc" = "N" ]; then
+			echo -e "- qcom-common tree\t[NOT REQUIRED]"
+		else
+			echo -e "- qcom-common tree\t[SUCCESS]"
+		fi
+		echo "---------------------------------------------"
+	else
+		echo -e "- Please setup trees properly.\n- To do run ./setup_lettuce -st"
+	fi
+	exit 1
+	;;
+	*)
+		echo -e "\t---------------------------------------------"
+		echo -e "\t|               HELP MENU                   |"
+		echo -e "\t---------------------------------------------"
+		echo -e "\t|   -j     Switch jdk versions              |"
+		echo -e "\t|   -c     Copy some caf HAL trees          |"
+		echo -e "\t|   -f     To fix lunch error               |"
+		echo -e "\t|   -t     Switch toolchain for compilation |"
+		echo -e "\t|   -st    Download device trees for later  |"
+		echo -e "\t|          use                              |"
+		echo -e "\t|   -ct    Copy device trees to working-dir |"
+		echo -e "\t|   -tc    Download toolchain for later use |"
+		echo -e "\t---------------------------------------------"
+		exit 1
+	;;
 esac
