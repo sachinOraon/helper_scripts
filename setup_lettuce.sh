@@ -369,8 +369,13 @@ case "$1" in
 						echo " * Removing sdllvm-lto-defs.mk"
 						rm -f $romdir/device/qcom/common/sdllvm-lto-defs.mk 2>/dev/null
 						echo " * Restoring BoardConfig.mk"
-						mv $romdir/device/yu/lettuce/BoardConfig.mk.bak $romdir/device/yu/lettuce/BoardConfig.mk 2>/dev/null
-						if [ $? -eq 0 ];then echo " * DONE";else echo " * FAILED";fi
+						if [ -e $romdir/device/yu/lettuce/BoardConfig.mk.bak ];then
+							rm $romdir/device/yu/lettuce/BoardConfig.mk
+							mv $romdir/device/yu/lettuce/BoardConfig.mk.bak $romdir/device/yu/lettuce/BoardConfig.mk
+							if [ $? -eq 0 ];then echo " * DONE";else echo " * FAILED";fi
+						else
+							" * NO backup found.."
+						fi
 					else
 						echo "Okay...let that survive !!"
 					fi
