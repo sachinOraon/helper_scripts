@@ -417,6 +417,7 @@ case "$1" in
 						mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/default-aarch64-linux-android-4.9 &>/dev/null
 						if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9/sb.dat ];then
 							mv $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
+							if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
 						else
 							cp -r $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
 							if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
@@ -462,6 +463,7 @@ case "$1" in
 					mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/default-aarch64-linux-android-4.9 &>/dev/null
 					if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9/ub.dat ];then
 						mv $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
+						if [ $? -gt 0 ];then echo -e "- UberTC\t\t[FAILED]";else echo -e "- UberTC\t\t[SUCCESS]";fi
 					else
 						cp -r $HOME/workspace/toolchains/ubertc-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
 						if [ $? -gt 0 ];then echo -e "- UberTC\t\t[FAILED]";else echo -e "- UberTC\t\t[SUCCESS]";fi
@@ -507,6 +509,7 @@ case "$1" in
 					mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/default-aarch64-linux-android-4.9 &>/dev/null
 					if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9/ln.dat ];then
 						mv $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
+						if [ $? -gt 0 ];then echo -e "- Linaro\t\t[FAILED]";else echo -e "- Linaro\t\t[SUCCESS]";fi
 					else
 						cp -r $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
 						if [ $? -gt 0 ];then echo -e "- Linaro\t\t[FAILED]";else echo -e "- Linaro\t\t[SUCCESS]";fi
@@ -517,7 +520,7 @@ case "$1" in
 			fi
 				exit 1
 				;;
-			4)
+			5)
 				echo "Restoring Toolchain..."
 				echo "---------------------------------------------"
 				if ! [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat ];then
@@ -529,7 +532,7 @@ case "$1" in
 						if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/sb.dat ];then
 							mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 &>/dev/null
 							mv $romdir/prebuilts/gcc/linux-x86/aarch64/default-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-							if [ $? -gt 0 ];then echo -e "- Default\t\t[FAILED]";else echo -e "- Default\t\t[FAILED][RESTORED]";fi
+							if [ $? -gt 0 ];then echo -e "- Default\t\t[FAILED]";else echo -e "- Default\t\t[RESTORED]";fi
 						else
 							if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ln.dat ];then
 								mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9 &>/dev/null
