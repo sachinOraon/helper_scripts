@@ -81,6 +81,7 @@ case "$1" in
 				if [ $? -eq 0 ];then echo "- New AndroidProducts.mk created";else echo "- Can't create new AndroidProducts.mk";fi
 				if [ -e $romdir/device/yu/lettuce/$(echo $file).mk ];then echo -e "- Now lunch can run successfully";fi
 				echo "---------------------------------------------"
+				touch $romdir/device/yu/lettuce/run.dat
 			else
 				mv $romdir/device/yu/lettuce/$(echo $file).mk $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk
 				if [ $? -eq 0 ];then echo -e "- Renaming $file.mk to $(echo $file)_lettuce.mk";else echo "- Can't rename $file.mk";fi
@@ -92,6 +93,7 @@ case "$1" in
 				if [ $? -eq 0 ];then echo "- New AndroidProducts.mk created";else echo "- Can't create new AndroidProducts.mk";fi
 				if [ -e $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk ];then echo -e "- Now lunch can run successfully";fi
 				echo "---------------------------------------------"
+				touch $romdir/device/yu/lettuce/run.dat
 			fi
 		else
 			echo "- Can't find saved file"
@@ -175,6 +177,10 @@ case "$1" in
 		echo "Cloning Shared tree..."
 		echo "---------------------------------------------"
 		git clone -b $b --single-branch $s/android_device_cyanogen_msm8916-common.git $src/$b/device/cyanogen/msm8916-common
+		echo "---------------------------------------------"
+		echo "Cloning android_device_qcom_sepolicy..."
+		echo "---------------------------------------------"
+		git clone -b $b --single-branch $s/android_device_qcom_sepolicy.git $src/$b/device/qcom/sepolicy
 		echo "---------------------------------------------"
 		echo "Cloning qcom_common tree..."
 		echo "---------------------------------------------"
@@ -628,6 +634,17 @@ case "$1" in
 		cp -r $HOME/workspace/lettuce-trees/$s/$b/vendor/yu/* $romdir/vendor/yu
 		if ! [ -e $romdir/vendor/yu/lettuce/Android.mk ];then vt=1; else vt=0; fi
 		echo "---------------------------------------------"
+		echo "Copying device/qcom/sepolicy"
+		if [ -d $romdir/device/qcom/sepolicy ];then
+			echo " * device/qcom/sepolicy already available..."
+			qs=N
+		else
+			mkdir -p $romdir/device/qcom
+			mkdir -p $romdir/device/qcom/sepolicy
+			cp -r $HOME/workspace/lettuce-trees/$s/$b/device/qcom/sepolicy/* $romdir/device/qcom/sepolicy
+			if [ -e $romdir/device/qcom/sepolicy/Android.mk ];then qs=0;else qs=1;fi
+		fi
+		echo "---------------------------------------------"
 		echo "Copying kernel/cyanogen/msm8916"
 		mkdir -p $romdir/kernel
 		mkdir -p $romdir/kernel/cyanogen
@@ -640,7 +657,7 @@ case "$1" in
 		read -p "Enter name of rom's vendor : " vn
 		echo $vn>$romdir/device/yu/lettuce/$vn.dat
 		echo "---------------------------------------------"
-		find $romdir/vendor/$vn -type f \( -name "*common*.mk" -o -name "*$vn*.mk" \) | cut --delimiter "/" --fields 6-
+		find $romdir/vendor/$vn -type f \( -name "*common*.mk" -o -name "*$vn*.mk" -o -name "main.mk" \) | cut --delimiter "/" --fields 6-
 		echo "---------------------------------------------"
 		echo "    (Choose from above list)"
 		read -p "Enter path/to/vendor/config/file : " vf
@@ -717,19 +734,33 @@ EOF
 		echo "---------------------------------------------"
 		echo -e "- Creating $(echo $vn)-build.sh"
 		if ! [ -e $romdir/$(echo $vn)-build.sh ]; then
+jobs=$(grep -ci processor /proc/cpuinfo)
+jobs=`expr $jobs \* 2`
 cat <<EOF>$romdir/$(echo $vn)-build.sh
+err=\$(echo \$PATH|grep -c -i aarch64)
 case "\$1" in
 	-c)
-		rm -rf $HOME/.ccache &>/dev/null
-		make clean && make clobber
 		. build/envsetup.sh
-		lunch $(echo $vn)_lettuce-userdebug
-		make otapackage -j$(cat /proc/cpuinfo|grep processor|wc --lines)
+		sleep 1
+		rm -rf $HOME/.ccache &>/dev/null
+		if (\$err)
+		then
+			lunch $(echo $vn)_lettuce-userdebug
+		fi
+		sleep 1
+		make clean && make clobber
+		sleep 1
+		make otapackage -j$(echo $jobs)
 		;;
 	*)
 		. build/envsetup.sh
-		lunch $(echo $vn)_lettuce-userdebug
-		make otapackage -j$(cat /proc/cpuinfo|grep processor|wc --lines)
+		sleep 1
+		if (\$err)
+		then
+			lunch $(echo $vn)_lettuce-userdebug
+		fi
+		sleep 1
+		make otapackage -j$(echo $jobs)
 		;;
 esac
 EOF
@@ -770,6 +801,13 @@ EOF
 		if [ "$st" = "1" ]; then echo -e "- shared tree\t\t[FAILED]";else echo -e "- shared tree\t\t[SUCCESS]";fi
 		if [ "$vt" = "1" ]; then echo -e "- vendor_yu\t\t[FAILED]";else echo -e "- vendor_yu\t\t[SUCCESS]";fi
 		if [ "$kt" = "1" ]; then echo -e "- kernel tree\t\t[FAILED]";else echo -e "- kernel tree\t\t[SUCCESS]";fi
+		if [ "$qs" = "1" ]; then
+			echo -e "- qcom-sepolicy tree\t[FAILED]"
+		elif [ "$qs" = "N" ]; then
+			echo -e "- qcom-sepolicy tree\t[NOT REQUIRED]"
+		else
+			echo -e "- qcom-sepolicy tree\t[SUCCESS]"
+		fi
 		if [ "$qc" = "1" ]; then
 			echo -e "- qcom-common tree\t[FAILED]"
 		elif [ "$qc" = "N" ]; then
