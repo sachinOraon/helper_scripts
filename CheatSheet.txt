@@ -362,4 +362,7 @@ typedef enum {
 	* git clone -b cm-14.1 https://github.com/LineageOS/android_system_extras.git system/extras
 	* git clone -b cm-14.1 https://github.com/LineageOS/android_external_f2fs-tools.git external/f2fs-tools
 
-[60]
+[60] /usr/lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.21' not found
+	* add-apt-repository -y ppa:ubuntu-toolchain-r/test
+	* apt-get update;apt-get install libstdc++6
+

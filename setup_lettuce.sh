@@ -621,13 +621,15 @@ case "$1" in
 			echo "---------------------------------------------"
 			if [ -d $romdir/device/qcom/common/cryptfs_hw ];then
 				echo " * device/qcom/common/cryptfs_hw available..."
-				flg=1
+				grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk
+				flg1=1
 			fi
 			if [ -d $romdir/vendor/qcom/opensource/cryptfs_hw ];then
 				echo " * vendor/qcom/opensource/cryptfs_hw available..."
-				flg=`expr $flg + 1`
+				grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk
+				flg2=1
 			fi
-			if [ $flg -gt 1 ];then
+			if [ $flg1 -eq 1 -a $flg2 -eq 1 ];then
 				echo -e " * cryptfs_hw is available on multiple places\n   Please remove one of them."
 				echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
 			fi
