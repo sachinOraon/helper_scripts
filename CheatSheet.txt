@@ -277,6 +277,7 @@ include $(BUILD_PREBUILT)
 [46] system/core/include/mincrypt/rsa.h:48:5: error: conflicting types for 'RSA_verify' present in external/boringssl/src/include/openssl/rsa.h
 	 system/core/fs_mgr/fs_mgr_verity.cpp:108: error: undefined reference to 'android_pubkey_decode'
 	* git clone -b XOS-7.1 https://github.com/halogenOS/android_system_core.git system/core
+	* git clone -b XOS-7.0 https://github.com/halogenOS/android_external_boringssl.git external/boringssl
 	* OR comment/delete the following lines from system/core/include/mincrypt/rsa.h
 		int RSA_verify(const RSAPublicKey *key,
                const uint8_t* signature,
@@ -296,6 +297,13 @@ include $(BUILD_PREBUILT)
 	* wget -O frameworks/base/core/jni/SkGraphics.h https://github.com/EuclideanOS/android_external_skia/raw/nougat-mr1/include/core/SkGraphics.h
 	  Modify #include <SkGraphics.h>  to  #include "SkGraphics.h"
 
+===================================================================
+|	frameworks/ errors below were due to EuclideanOS sources
+|	therefore I replaced following repos with LineageOS.
+|	https://github.com/LineageOS/android_frameworks_av.git
+|	https://github.com/LineageOS/android_frameworks_native.git
+|	https://github.com/LineageOS/android_system_media.git
+===================================================================  
 [50] frameworks/av/services/audiopolicy/AudioPolicyInterface.h:346:34: error: functions that differ only in their return type cannot be overloaded
 	 frameworks/av/services/audiopolicy/AudioPolicyInterface.h:347:17: error: conflicting types for 'destroyAudioPolicyManager'
 	 frameworks/av/services/audiopolicy/AudioPolicyInterface.h:346:34: error: functions that differ only in their return type cannot be overloaded
@@ -304,8 +312,9 @@ include $(BUILD_PREBUILT)
 	 frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp:613:54: error: unused parameter 'handle'
 	 frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp:623:49: error: unused parameter 'mono'
 	 frameworks/av/services/audiopolicy/service/AudioPolicyClientImplLegacy.cpp:59:16: error: cannot initialize return object of type
-	* Firstly replace erroneous files with LineageOS files. If the problem persists then replace the repo.
-	* git clone -b cm-14.1 https://github.com/LineageOS/android_frameworks_av.git frameworks/av
+	* replace frameworks/av/include/media/ files with LineageOS files.
+	  git clone -b cm-14.1 https://github.com/LineageOS/android_frameworks_av.git ~/trash/fram_av_los
+	  cp -rvf ~/trash/fram_av_los/include/media/* frameworks/av/include/media/
 
 [51] frameworks/av/camera/ICameraClient.cpp:53:63: error: use of undeclared identifier 'CAMERA_FRAME_DATA_FD'
 	* Insert following lines in  system/core/include/system/camera.h:341  FOR reference https://github.com/LineageOS/android_system_core/raw/3e7227c99f9aed259d23994787ff56ef3fefa82f/include/system/camera.h
@@ -338,3 +347,19 @@ typedef enum {
 	OR insert following line in system/media/audio_effects/include/audio_effects/audio_effects_conf.h FOR ref https://github.com/LineageOS/android_system_media/raw/cm-14.1/audio_effects/include/audio_effects/audio_effects_conf.h
 	#define AUDIO_EFFECT_VENDOR_CONFIG_FILE2 "/system/etc/audio_effects_vendor.conf"
 
+[57] frameworks/av/media/libmedia/IAudioPolicyService.cpp:807:1: error: allocating an object of abstract class type 'android::BpAudioPolicyService'
+	 frameworks/av/media/libmedia/IAudioPolicyServiceClient.cpp:98:1: error: allocating an object of abstract class type 'android::BpAudioPolicyServiceClient'
+	* https://github.com/LineageOS/android_frameworks_av.git
+ 
+[58] system/core/healthd/healthd_mode_android.cpp:60:39: error: allocating an object of abstract class type 'android::BatteryPropertiesRegistrar'
+	 frameworks/native/include/batteryservice/IBatteryPropertiesRegistrar.h:41:22: note: unimplemented pure virtual method 'getDockProperty' in
+	* git clone -b cm-14.1 https://github.com/LineageOS/android_system_core.git system/core
+
+[59] system/extras/f2fs_utils/f2fs_utils.c:106: error: undefined reference to 'flush_sparse_buffs'
+	 system/extras/f2fs_utils/f2fs_ioutils.c:101:21: error: no member named 'fd' in 'struct f2fs_configuration'
+	 external/f2fs-tools/include/f2fs_fs.h:992:13: note: previous declaration is here
+	 system/extras/f2fs_utils/f2fs_ioutils.c:154:6: error: conflicting types for 'f2fs_finalize_device'
+	* git clone -b cm-14.1 https://github.com/LineageOS/android_system_extras.git system/extras
+	* git clone -b cm-14.1 https://github.com/LineageOS/android_external_f2fs-tools.git external/f2fs-tools
+
+[60]
