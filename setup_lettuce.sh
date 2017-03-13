@@ -251,13 +251,13 @@ case "$1" in
 		echo "---------------------------------------------"
 		case "$tc" in
 			4)
-				if [ -d $HOME/workspace/toolchains/sdclang ];then
+				if [ -d $HOME/workspace/toolchains/sdclang-3.8 ];then
 					echo "SDClang v3.8 already available..."
 					exit 1
 				else
 					echo "Cloning SDClang v3.8..."
 					echo "---------------------------------------------"
-					git clone https://github.com/sachinOraon/sdclang.git $HOME/workspace/toolchains/sdclang
+					git clone https://github.com/sachinOraon/sdclang.git $HOME/workspace/toolchains/sdclang-3.8
 					echo "---------------------------------------------"
 				fi
 				exit 1
@@ -326,7 +326,7 @@ case "$1" in
 			*) echo -e "Current Toolchain\t[UNABLE TO FIND]";;
 		esac
 		sdc=`grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk`
-		if [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang ];then
+		if [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 ];then
 			if [ $sdc -gt 0 ];then
 				if [ -e $romdir/device/qcom/common/sdllvm-lto-defs.mk ];then
 					echo -e "SDclang 3.8\t\t[ENABLED]"
@@ -340,14 +340,14 @@ case "$1" in
 		echo "---------------------------------------------"
 		case "$ch" in
 			4)
-				if ! [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang ];then
-					if ! [ -e $HOME/workspace/toolchains/sdclang ];then
+				if ! [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 ];then
+					if ! [ -e $HOME/workspace/toolchains/sdclang-3.8 ];then
 						echo -e " * SDClang not found\n  Please run ./setup_lettuce.sh -tc to download..."
 						exit 1
 					else
 						echo "Enabling Snapdragon LLVM ARM Compiler 3.8.8"
-						mkdir -p $romdir/prebuilts/clang/linux-x86/host/sdclang
-						cp -r $HOME/workspace/toolchains/sdclang/* $romdir/prebuilts/clang/linux-x86/host/sdclang
+						mkdir -p $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8
+						cp -r $HOME/workspace/toolchains/sdclang-3.8/* $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8
 						if [ $? -eq 0 ];then echo " * SDClang copied successfully";else echo " * Unable to copy SDClang !!";fi
 						if ! [ -e $romdir/device/qcom/common/sdllvm-lto-defs.mk ];then
 							echo " * Creating sdllvm-lto-defs.mk in device/qcom/common"
@@ -361,7 +361,7 @@ case "$1" in
 							echo " * Creating backup of Boardconfig.mk"
 							cp $romdir/device/yu/lettuce/BoardConfig.mk $romdir/device/yu/lettuce/BoardConfig.mk.bak 2>/dev/null
 							echo " * Modifying Boardconfig.mk"
-							echo -e "\nSDCLANG := true\nSDCLANG_PATH := prebuilts/clang/linux-x86/host/sdclang/bin\nSDCLANG_LTO_DEFS := device/qcom/common/sdllvm-lto-defs.mk">>$romdir/device/yu/lettuce/BoardConfig.mk
+							echo -e "\nSDCLANG := true\nSDCLANG_PATH := prebuilts/clang/linux-x86/host/sdclang-3.8/bin\nSDCLANG_LTO_DEFS := device/qcom/common/sdllvm-lto-defs.mk">>$romdir/device/yu/lettuce/BoardConfig.mk
 							if ! [ `grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk` ]; then echo " * Unable to modify BoardConfig.mk";fi
 						else
 							echo " * BoardConfig already modified"
@@ -370,8 +370,8 @@ case "$1" in
 				else
 					read -p "Do you want to Disable SDClang (Y/N)? " y
 					if [ "$y" = "Y" -o "$y" = "y" ];then
-						echo " * Removing prebuilts/clang/linux-x86/host/sdclang"
-						rm -rf $romdir/prebuilts/clang/linux-x86/host/sdclang 2>/dev/null
+						echo " * Removing prebuilts/clang/linux-x86/host/sdclang-3.8"
+						rm -rf $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 2>/dev/null
 						echo " * Removing sdllvm-lto-defs.mk"
 						rm -f $romdir/device/qcom/common/sdllvm-lto-defs.mk 2>/dev/null
 						echo " * Restoring BoardConfig.mk"
