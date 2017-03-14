@@ -629,7 +629,7 @@ case "$1" in
 				grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk
 				flg2=1
 			fi
-			if [ $flg1 -eq 1 -a $flg2 -eq 1 ];then
+			if [ "$flg1" = "1" -a "$flg2" = "1" ];then
 				echo -e " * cryptfs_hw is available on multiple places\n   Please remove one of them."
 				echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
 			fi
