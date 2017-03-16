@@ -155,6 +155,7 @@ case "$1" in
 			echo "---------------------------------------------"
 			if [ "$x" = "y" -o "$x" = "Y" ];then
 				echo "- Removing $src/$b ..."
+                sleep 1
 				rm -rf $src/$b/ 2>/dev/null
 				if ! [ $? -eq 0 ];then
 					sleep 1
@@ -632,6 +633,9 @@ case "$1" in
 			if [ "$flg1" = "1" -a "$flg2" = "1" ];then
 				echo -e " * cryptfs_hw is available on multiple places\n   Please remove one of them."
 				echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
+            else
+                echo -e "- NO cryptfs_hw directory found...!!!\n   But look at this..."
+                echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
 			fi
 			sleep 1
 			echo "---------------------------------------------"
@@ -664,7 +668,11 @@ case "$1" in
                 echo "---------------------------------------------"
                 read -p "Enter name of rom's vendor : " vn
                 echo "---------------------------------------------"
-                find $romdir/vendor/$vn -type f \( -name "*common*.mk" -o -name "*$vn*.mk" -o -name "main.mk" \) | cut --delimiter "/" --fields 6-
+                if [ -d $romdir/vendor/$vn ];then
+                    find $romdir/vendor/$vn -type f \( -name "*common*.mk" -o -name "*$vn*.mk" -o -name "main.mk" \) | cut --delimiter "/" --fields 6-
+                else
+                    echo "- NO such directory available...!!"
+                fi
                 echo "---------------------------------------------"
                 echo "    (Select from above list)"
                 read -p "Haven't found required file...wanna retry(y/Y) : " ctl
@@ -705,7 +713,16 @@ case "$1" in
                 paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
                 sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
                 flg=`grep -ci vendor/$(echo $vn)/config/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk`
-                if ! [ $flg -eq 0 ];then echo " - inserted $(echo $vn)/config/common_full_phone.mk";fi
+                if ! [ $flg -eq 0 ];then echo "- inserted $(echo $vn)/config/common_full_phone.mk";fi
+                rm -r $romdir/tmp*
+            fi
+            if [ -e $romdir/vendor/$vn/configs/common_full_phone.mk ];then
+                echo "/vendor\/cm\/config\/common_full_phone.mk/a">$romdir/tmp1
+                echo " \$(call inherit-product, vendor\/$(echo $vn)\/configs\/common_full_phone.mk)">$romdir/tmp2
+                paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
+                sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+                flg=`grep -ci vendor/$(echo $vn)/configs/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk`
+                if ! [ $flg -eq 0 ];then echo "- inserted $(echo $vn)/config/common_full_phone.mk";fi
                 rm -r $romdir/tmp*
             fi
 			echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
@@ -716,7 +733,7 @@ case "$1" in
 			sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
 			rm -r $romdir/tmp*
 			flg=`grep -ci $(echo $vf) $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk`
-            if ! [ $flg -eq 0 ];then echo " - inserted $vf";fi
+            if ! [ $flg -eq 0 ];then echo "- inserted $vf";fi
             sleep 1
 			if [ -e $romdir/build/core/tasks/kernel.mk ];then
 				mv $romdir/build/core/tasks/kernel.mk $romdir/kernel.mk.bak
