@@ -713,7 +713,7 @@ case "$1" in
                 paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
                 sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
                 flg=`grep -ci vendor/$(echo $vn)/config/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk`
-                if ! [ $flg -eq 0 ];then echo "- inserted $(echo $vn)/config/common_full_phone.mk";fi
+                if ! [ $flg -eq 0 ];then echo "- inserted vendor/$(echo $vn)/config/common_full_phone.mk";fi
                 rm -r $romdir/tmp*
             fi
             if [ -e $romdir/vendor/$vn/configs/common_full_phone.mk ];then
@@ -722,7 +722,7 @@ case "$1" in
                 paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
                 sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
                 flg=`grep -ci vendor/$(echo $vn)/configs/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk`
-                if ! [ $flg -eq 0 ];then echo "- inserted $(echo $vn)/config/common_full_phone.mk";fi
+                if ! [ $flg -eq 0 ];then echo "- inserted vendor/$(echo $vn)/configs/common_full_phone.mk";fi
                 rm -r $romdir/tmp*
             fi
 			echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
