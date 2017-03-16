@@ -624,18 +624,24 @@ case "$1" in
 				echo " * device/qcom/common/cryptfs_hw available..."
 				grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk
 				flg1=1
+            else
+                flg1=0
 			fi
 			if [ -d $romdir/vendor/qcom/opensource/cryptfs_hw ];then
 				echo " * vendor/qcom/opensource/cryptfs_hw available..."
 				grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk
 				flg2=1
+            else
+                flg2=0
 			fi
-			if [ "$flg1" = "1" -a "$flg2" = "1" ];then
+			if [ $flg1 -eq 1 -a $flg2 -eq 1 ];then
 				echo -e " * cryptfs_hw is available on multiple places\n   Please remove one of them."
 				echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
             else
-                echo -e "- NO cryptfs_hw directory found...!!!\n   But look at this..."
-                echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
+                if [ $flg1 -eq 0 -a $flg2 -eq 0 ];then
+                    echo -e " * NO cryptfs_hw directory found...!!!\n   But look at this..."
+                    echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
+                fi
 			fi
 			sleep 1
 			echo "---------------------------------------------"
@@ -794,6 +800,7 @@ case "\$1" in
 		. build/envsetup.sh
 		sleep 1
 		rm -rf $HOME/.ccache &>/dev/null
+        rm -rf $HOME/.cache &>/dev/null
 		if [ \$err -eq 0 ]
 		then
 			lunch $(echo $vn)_lettuce-userdebug
@@ -823,6 +830,7 @@ EOF
 cat <<EOF>$romdir/remove_trees.sh
 echo "---------------------------------------------"
 rm -rf $HOME/.ccache &>/dev/null
+rm -rf $HOME/.cache &>/dev/null
 echo "- Removing device tree..."
 rm -rf $romdir/device/yu/lettuce &>/dev/null
 echo "---------------------------------------------"

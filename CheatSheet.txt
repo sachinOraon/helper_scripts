@@ -366,3 +366,9 @@ typedef enum {
 	* add-apt-repository -y ppa:ubuntu-toolchain-r/test
 	* apt-get update;apt-get install libstdc++6
 
+[61] hardware/qcom/display-caf/msm8916/liblight: MODULE.TARGET.SHARED_LIBRARIES.lights.msm8916 already defined by device/yu/lettuce/liblight.
+    * rm -r  hardware/qcom/display-caf/msm8916/liblight
+
+[62] packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp:398:30: error: unknown type name 'bthf_hf_ind_type_t'; did you mean 'bthf_bind_type_t'?
+     hardware/libhardware/include/hardware/bt_hf.h:74:2: note: 'bthf_bind_type_t' declared here
+    * wget -O packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp  https://github.com/LineageOS/android_packages_apps_Bluetooth/raw/cm-14.1/jni/com_android_bluetooth_hfp.cpp
