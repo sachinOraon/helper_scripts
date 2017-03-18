@@ -687,31 +687,58 @@ case "$1" in
             echo $vn>$romdir/device/yu/lettuce/$vn.dat
             read -p "Enter path/to/vendor/config/file : " vf
             echo "---------------------------------------------"
-            echo -e "- Creating $(echo $vn)_lettuce.mk"
+            read -p "Want to inject more(y/Y) ? " inj
+            echo "---------------------------------------------"
+            if [ "$inj" = "y" -o "$inj" = "Y" ];then
+                read -p "Enter path/to/vendor/config/file : " svf
+            fi
+            echo "---------------------------------------------"
 			sleep 1
-			echo -e "- Creating AndroidProducts.mk"
 			if ! [ -e $romdir/device/yu/lettuce/cm.mk ];then
-				mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+				echo -e "- Creating $(echo $vn)_lettuce.mk"
+                mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+                echo -e "- Creating AndroidProducts.mk"
 				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 				echo "s/PRODUCT_NAME := lineage_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
 				sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
 				rm $romdir/tmp
 			else
+                echo -e "- Creating $(echo $vn)_lettuce.mk"
 				mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+                echo -e "- Creating AndroidProducts.mk"
 				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 				echo "s/PRODUCT_NAME := cm_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
 				sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
 				rm $romdir/tmp
 			fi
-			echo "---------------------------------------------"
-			if [ -e $romdir/vendor/$vn/sepolicy/file_contexts ];then
-				flag=`grep -ci /data/misc/radio vendor/$vn/sepolicy/file_contexts`
-				str=`grep -i /data/misc/radio vendor/$vn/sepolicy/file_contexts`
-				flag2=`grep -ci /data/misc/radio device/qcom/sepolicy/common/file_contexts`
-				if [ $flag -gt 0 -a $flag2 -gt 0 ];then
-					echo -e " * Please remove [ $str ]\n   from vendor/$vn/sepolicy/file_contexts to avoid errors."
-				fi
-			fi
+            if [ -z "$vf" ];then
+                echo " * NO value given for vendor file..."
+            else
+                echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
+                echo "$(echo $vf)">$romdir/tmp2
+                sed -i 's/\//\\\//g' $romdir/tmp2
+                paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
+                sed -i 's/mk$/mk\//' $romdir/tmp
+                sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+                rm -r $romdir/tmp*
+                flg=`grep -ci $(echo $vf) $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk`
+                if ! [ $flg -eq 0 ];then echo "- inserted $vf";fi
+                if [ -z "$svf" ];then
+                    echo " * NO another value given for vendor file..."
+                else
+                    echo $vf>$romdir/tmp1
+                    echo $svf>$romdir/tmp2
+                    sed -i 's/\//\\\//g' $romdir/tmp1
+                    sed -i 's/\//\\\//g' $romdir/tmp2
+                    echo "/$(cat $romdir/tmp1)/a ">$romdir/tmp3
+                    echo "\$(call inherit-product, $(cat $romdir/tmp2))">$romdir/tmp4
+                    paste --delimiters "" $romdir/tmp3 $romdir/tmp4>$romdir/tmp5
+                    sed -f $romdir/tmp5 -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+                    rm -r $romdir/tmp*
+                    flg=`grep -ci $(echo $svf) $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk`
+                    if ! [ $flg -eq 0 ];then echo "- inserted $svf";fi
+                fi
+            fi
             sleep 1
             if [ -e $romdir/vendor/$vn/config/common_full_phone.mk ];then
                 echo "/vendor\/cm\/config\/common_full_phone.mk/a">$romdir/tmp1
@@ -731,15 +758,15 @@ case "$1" in
                 if ! [ $flg -eq 0 ];then echo "- inserted vendor/$(echo $vn)/configs/common_full_phone.mk";fi
                 rm -r $romdir/tmp*
             fi
-			echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
-			echo "$(echo $vf)">$romdir/tmp2
-			sed -i 's/\//\\\//g' $romdir/tmp2
-			paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
-			sed -i 's/mk$/mk\//' $romdir/tmp
-			sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-			rm -r $romdir/tmp*
-			flg=`grep -ci $(echo $vf) $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk`
-            if ! [ $flg -eq 0 ];then echo "- inserted $vf";fi
+			echo "---------------------------------------------"
+			if [ -e $romdir/vendor/$vn/sepolicy/file_contexts ];then
+				flag=`grep -ci /data/misc/radio vendor/$vn/sepolicy/file_contexts`
+				str=`grep -i /data/misc/radio vendor/$vn/sepolicy/file_contexts`
+				flag2=`grep -ci /data/misc/radio device/qcom/sepolicy/common/file_contexts`
+				if [ $flag -gt 0 -a $flag2 -gt 0 ];then
+					echo -e " * Please remove [ $str ]\n   from vendor/$vn/sepolicy/file_contexts to avoid errors."
+				fi
+			fi
             sleep 1
 			if [ -e $romdir/build/core/tasks/kernel.mk ];then
 				mv $romdir/build/core/tasks/kernel.mk $romdir/kernel.mk.bak
@@ -747,7 +774,7 @@ case "$1" in
 					cp $HOME/workspace/lettuce-trees/kernel.mk $romdir/build/core/tasks/kernel.mk 2>/dev/null
 					if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
 				else
-					wget -O $romdir/build/core/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk &>/dev/null
+					wget --quiet -O $romdir/build/core/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk
 					if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
 				fi
 			else

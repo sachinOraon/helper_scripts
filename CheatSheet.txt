@@ -223,7 +223,10 @@ include $(BUILD_PREBUILT)
 	* mkdir -p ~/trash;mv system/bt ~/trash/sys_bt;git clone -b cm-14.1 https://github.com/LineageOS/android_system_bt.git ~/trash/system_bt;mv ~/trash/system_bt system/bt
 
 [39] system/keymaster/keymaster_tags.cpp:23:13: error: 9 enumeration values not handled in switch: 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY', 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY_BLOB', 'KM_TAG_SOTER_UID'
+     system/keymaster/attestation_record.cpp:224:17: error: 9 enumeration values not handled in switch: 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY', 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY_BLOB', 'KM_TAG_SOTER_UID'
+     system/keymaster/keymaster_enforcement.cpp:235:17: error: 9 enumeration values not handled in switch: 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET
 	* mv system/keymaster/keymaster_tags.cpp ~/trash/;wget -O system/keymaster/keymaster_tags.cpp  https://github.com/LineageOS/android_system_keymaster/raw/cm-14.1/keymaster_tags.cpp
+    * git clone -b cm-14.1 https://github.com/LineageOS/android_system_keymaster.git system/keymaster
 
 [40] system/keymaster/attestation_record.cpp:224:17: error: 9 enumeration values not handled in switch: 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY', 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY_BLOB', 'KM_TAG_SOTER_UID'
 	* mv system/keymaster/attestation_record.cpp ~/trash/;wget -O system/keymaster/attestation_record.cpp https://github.com/LineageOS/android_system_keymaster/raw/cm-14.1/attestation_record.cpp
@@ -372,3 +375,10 @@ typedef enum {
 [62] packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp:398:30: error: unknown type name 'bthf_hf_ind_type_t'; did you mean 'bthf_bind_type_t'?
      hardware/libhardware/include/hardware/bt_hf.h:74:2: note: 'bthf_bind_type_t' declared here
     * wget -O packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp  https://github.com/LineageOS/android_packages_apps_Bluetooth/raw/cm-14.1/jni/com_android_bluetooth_hfp.cpp
+
+[63] system/bt/btif/src/btif_hf.c:739:44: error: no member named 'bind_cb' in 'bthf_callbacks_t'
+     system/bt/btif/src/btif_hf.c:747:44: error: no member named 'biev_cb' in 'bthf_callbacks_t'
+     system/bt/btif/src/btif_hf.c:747:54: error: use of undeclared identifier 'bthf_hf_ind_type_t'
+     system/bt/btif/src/btif_hf.c:118:31: error: use of undeclared identifier 'BTA_AG_FEAT_HFIND'
+     system/bt/btif/src/btif_hf.c:118:31: error: use of undeclared identifier 'BTA_AG_FEAT_S4'
+    * git clone -b cm-14.1 https://github.com/LineageOS/android_system_bt.git system/bt
