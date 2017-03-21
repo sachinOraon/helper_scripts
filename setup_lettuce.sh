@@ -55,11 +55,20 @@ case "$1" in
 		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/media-caf/msm8916/* hardware/qcom/media-caf/msm8916 2>/dev/null
 		sleep 1
 		if ! [ $? -lt 1 ];then echo -e "media-caf\t\t[FAILED]"; else echo -e "media-caf\t\t[DONE]"; fi
-		if [ "$b" = "cm-12.1" -o "$b" = "cm-13.0" ]; then
-			rm -r hardware/qcom/ril-caf 2>/dev/null
-			cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
-			if ! [ $? -lt 1 ];then echo -e "ril-caf\t\t\t[FAILED]"; else echo -e "ril-caf\t\t\t[DONE]"; fi
-		fi
+        mkdir -p hardware/qcom/wlan-caf
+        cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/wlan-caf/* hardware/qcom/wlan-caf 2>/dev/null
+        if ! [ $? -lt 1 ];then echo -e "wlan-caf\t\t[FAILED]"; else echo -e "wlan-caf\t\t[DONE]"; fi
+        mkdir -p hardware/qcom/bt-caf
+        cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/bt-caf/* hardware/qcom/bt-caf 2>/dev/null
+        if ! [ $? -lt 1 ];then echo -e "bt-caf\t\t[FAILED]"; else echo -e "bt-caf\t\t[DONE]"; fi
+        mkdir -p hardware/ril-caf
+        cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
+        if ! [ $? -lt 1 ];then echo -e "ril-caf\t\t[FAILED]"; else echo -e "ril-caf\t\t[DONE]"; fi
+		#if [ "$b" = "cm-12.1" -o "$b" = "cm-13.0" ]; then
+		#	rm -r hardware/qcom/ril-caf 2>/dev/null
+		#	cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
+		#	if ! [ $? -lt 1 ];then echo -e "ril-caf\t\t\t[FAILED]"; else echo -e "ril-caf\t\t\t[DONE]"; fi
+		#fi
 		echo "---------------------------------------------"
 		else echo -e "- Please setup trees properly.\n- To do run ./setup_lettuce -st";fi
 		exit 1
@@ -107,14 +116,17 @@ case "$1" in
 			l|L)
 				b=cm-12.1
 				br=cm-12.1-caf-8916
+                brc=cm-12.1-caf
 			;;
 			m|M)
 				b=cm-13.0
 				br=cm-13.0-caf-8916
+                brc=cm-13.0-caf
 			;;
 			n|N)
 				b=cm-14.1
 				br=cm-14.1-caf-8916
+                brc=cm-14.1-caf
 			;;
 			*)
 				echo "Invalid branch...!"
@@ -186,14 +198,14 @@ case "$1" in
 		echo "Cloning qcom_common tree..."
 		echo "---------------------------------------------"
 		git clone -b $b --single-branch $s/android_device_qcom_common.git $src/$b/device/qcom/common
-		if ! [ "$b" = "cm-13.0" -o "$b" = "cm-12.1" ];then
-			echo "---------------------------------------------"
-			echo "Cloning qcom_binaries..."
-			echo "---------------------------------------------"
-			git clone -b $b --single-branch https://github.com/TheMuppets/proprietary_vendor_qcom_binaries.git $src/$b/vendor/qcom/binaries
-		fi
+		#if ! [ "$b" = "cm-13.0" -o "$b" = "cm-12.1" ];then
+		#	echo "---------------------------------------------"
+		#	echo "Cloning qcom_binaries..."
+		#	echo "---------------------------------------------"
+		#	git clone -b $b --single-branch https://github.com/TheMuppets/proprietary_vendor_qcom_binaries.git $src/$b/vendor/qcom/binaries
+		#fi
 		if [ "$s" = "https://github.com/LineageOS" ];then
-			echo "---------------------------------------------"
+			#echo "---------------------------------------------"
 			echo "Cloning qcom_opensource..."
 			echo "---------------------------------------------"
 			if [ "$b" = "cm-13.0" ];then
@@ -232,12 +244,18 @@ case "$1" in
 		echo "---------------------------------------------"
 		git clone -b $br --single-branch $s/android_hardware_qcom_media.git $src/$b/hardware/qcom/media-caf/msm8916
 		echo "---------------------------------------------"
-		if [ "$b" = "cm-13.0" ];then
-			echo "Cloning ril-caf tree..."
-			echo "---------------------------------------------"
-			git clone -b cm-13.0-caf --single-branch $s/android_hardware_ril-caf.git $src/$b/hardware/ril-caf
-			echo "---------------------------------------------"
-		fi
+		echo "Cloning ril-caf tree..."
+		echo "---------------------------------------------"
+		git clone -b $brc --single-branch $s/android_hardware_ril.git $src/$b/hardware/ril-caf
+		echo "---------------------------------------------"
+        echo "Cloning wlan-caf tree..."
+        echo "---------------------------------------------"
+        git clone -b $brc --single-branch $s/android_hardware_qcom_wlan.git $src/$b/hardware/qcom/wlan-caf
+        echo "---------------------------------------------"
+        echo "Cloning bt-caf tree..."
+        echo "---------------------------------------------"
+        git clone -b $brc --single-branch $s/android_hardware_qcom_bt.git $src/$b/hardware/qcom/bt-caf
+        echo "---------------------------------------------"
 		if ! [ -e $HOME/workspace/lettuce-trees/kernel.mk ]; then
 			wget -O $HOME/workspace/lettuce-trees/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk &>/dev/null
 		fi
@@ -582,9 +600,11 @@ case "$1" in
 		case "$s" in
 			l|L)
 				s="LineageOS"
+                url="https://github.com/LineageOS"
 			;;
 			c|C)
 				s="CyanogenMod"
+                url="https://github.com/CyanogenMod"
 			;;
 			*)
 				echo "Invalid source...!"
@@ -639,8 +659,13 @@ case "$1" in
 				echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
             else
                 if [ $flg1 -eq 0 -a $flg2 -eq 0 ];then
-                    echo -e " * NO cryptfs_hw directory found...!!!\n   But look at this..."
-                    echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
+                    echo -e " * NO cryptfs_hw directory found...!!!"
+                    path=`grep -ci "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk`
+                    if [ $path -eq 1 ];then
+                        echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
+                    else
+                        echo " * TARGET_CRYPTFS_HW_PATH = NULL"
+                    fi
                 fi
 			fi
 			sleep 1
@@ -655,9 +680,10 @@ case "$1" in
 				echo " * device/qcom/sepolicy already available..."
 				qs=N
 			else
-				mkdir -p $romdir/device/qcom
-				mkdir -p $romdir/device/qcom/sepolicy
-				cp -r $HOME/workspace/lettuce-trees/$s/$b/device/qcom/sepolicy/* $romdir/device/qcom/sepolicy
+			#	mkdir -p $romdir/device/qcom
+			#	mkdir -p $romdir/device/qcom/sepolicy
+			#	cp -r $HOME/workspace/lettuce-trees/$s/$b/device/qcom/sepolicy/* $romdir/device/qcom/sepolicy
+                git clone -b $b $url/android_device_qcom_sepolicy.git device/qcom/sepolicy
 				if [ -e $romdir/device/qcom/sepolicy/Android.mk ];then qs=0;else qs=1;fi
 			fi
 			echo "---------------------------------------------"
@@ -887,13 +913,13 @@ EOF
 			if [ "$st" = "1" ]; then echo -e "- shared tree\t\t[FAILED]";else echo -e "- shared tree\t\t[SUCCESS]";fi
 			if [ "$vt" = "1" ]; then echo -e "- vendor_yu\t\t[FAILED]";else echo -e "- vendor_yu\t\t[SUCCESS]";fi
 			if [ "$kt" = "1" ]; then echo -e "- kernel tree\t\t[FAILED]";else echo -e "- kernel tree\t\t[SUCCESS]";fi
-			if [ "$qs" = "1" ]; then
-				echo -e "- qcom-sepolicy tree\t[FAILED]"
-			elif [ "$qs" = "N" ]; then
-				echo -e "- qcom-sepolicy tree\t[NOT REQUIRED]"
-			else
-				echo -e "- qcom-sepolicy tree\t[SUCCESS]"
-			fi
+			#if [ "$qs" = "1" ]; then
+			#	echo -e "- qcom-sepolicy tree\t[FAILED]"
+			#elif [ "$qs" = "N" ]; then
+			#	echo -e "- qcom-sepolicy tree\t[NOT REQUIRED]"
+			#else
+			#	echo -e "- qcom-sepolicy tree\t[SUCCESS]"
+			#fi
 			if [ "$qc" = "1" ]; then
 				echo -e "- qcom-common tree\t[FAILED]"
 			elif [ "$qc" = "N" ]; then
