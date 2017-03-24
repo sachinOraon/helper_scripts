@@ -1,17 +1,22 @@
 Some problems that can occur while rom compilation and their solutions(especially for lettuce)
 -------------------------------------------------------------------------------------------------
 [1] No rule to make target "SHARED_LIBRARIES/libaudiopolicymanager_intermediates/export_includes"
-	* insert USE_CUSTOM_AUDIO_POLICY := 0 in device/yu/lettuce/BoardConfig.mk
+    * insert USE_CUSTOM_AUDIO_POLICY := 0 in device/yu/lettuce/BoardConfig.mk
 	  or modify device/cyanogen/msm8916-common/board/qcom-audio.mk file.
 	  or clone the  hardware/qcom/audio-caf/ repo. If the problem persists after cloning then insert  USE_LEGACY_AUDIO_POLICY := 1  in device/yu/lettuce/BoardConfig.mk
 
 [2] No rule to make target "SHARED_LIBRARIES/libcryptfs_hw_intermediates/export_includes"
-	* insert TARGET_HW_DISK_ENCRYPTION := false in device/yu/lettuce/BoardConfig.mk
+	* Comment/delete the following line  common_shared_libraries += libcryptfs_hw   from system/vold/Android.mk
+      add this line   TARGET_CRYPTFS_HW_PATH ?= device/qcom/common/cryptfs_hw  to system/vold/Android.mk:113 for ref  https://github.com/CyanogenMod/android_system_vold/raw/cm-14.1/Android.mk
+      copy cryptfs_hw folder to device/qcom/common
+    * insert TARGET_HW_DISK_ENCRYPTION := false in device/yu/lettuce/BoardConfig.mk
 	  or modify device/cyanogen/msm8916-common/board/qcom-crypto.mk file.
 	* check for TARGET_CRYPTFS_HW_PATH ?=  in system/vold/Android.mk
 
 [3] No rule to make target "SHARED_LIBRARIES/libqmiservices_intermediates/export_includes"
-	* insert TARGET_USES_QCOM_WCNSS_QMI := false in device/yu/lettuce/BoardConfig.mk
+	* Add  TARGET_BOARD_AUTO := true  into device/cyanogen/msm8916-common/board/qcom-wlan.mk file.
+    * Check for missing lines in   hardware/qcom/wlan/Android.mk   for ref https://github.com/CyanogenMod/android_hardware_qcom_wlan/raw/cm-14.1/Android.mk
+    * insert TARGET_USES_QCOM_WCNSS_QMI := false in device/yu/lettuce/BoardConfig.mk
 	  or modify device/cyanogen/msm8916-common/board/qcom-wlan.mk file.
 
 [4] No rule to make target "zImage"
@@ -73,8 +78,8 @@ attribute qti_debugfs_domain;
 [15] ValueError: No dependencies file could be found
 	* create proper .dependencies file
 
-[16] No rule to make STATIC_LIBRARIES/lib_driver_cmd_qcwcn_intermediates/export_includes
-	* check for hardware/qcom/wlan/qcwcn/ files. if not present then clone it from cm repo.
+[16] obj/STATIC_LIBRARIES/lib_driver_cmd_qcwcn_intermediates/export_includes', needed by '/home/sachinoraon55/workspace/eucos/out/target/product/lettuce/obj/EXECUTABLES/hostapd_intermediates/import_includes', missing and no known rule to make it
+	* 
 
 [17] No rule to make target 'out/target/product/lettuce/kernel', needed by 'out/target/product/lettuce/boot.img'
 	* download kernel.mk and dt_image.mk from cm repo and put them to build/core/tasks/
@@ -289,6 +294,10 @@ include $(BUILD_PREBUILT)
                const int hash_len);
 
 [47] /product/lettuce/obj_arm/STATIC_LIBRARIES/libqc-skia_intermediates/libqc-skia.a  needed by /obj_arm/SHARED_LIBRARIES/libskia_intermediates/LINKED/libskia.so missing and no known rule to make it.
+    * Comment/Remove following lines from external/skia/Android.mk
+ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
+    LOCAL_WHOLE_STATIC_LIBRARIES += libqc-skia
+endif
 	* mv externel/skia ~/trash/external_skia;git clone -b cm-14.1 https://github.com/LineageOS/android_external_skia.git external/skia
 	* OR copy libskia.so from device and follow same procedure as problem 21
 
@@ -382,3 +391,18 @@ typedef enum {
      system/bt/btif/src/btif_hf.c:118:31: error: use of undeclared identifier 'BTA_AG_FEAT_HFIND'
      system/bt/btif/src/btif_hf.c:118:31: error: use of undeclared identifier 'BTA_AG_FEAT_S4'
     * git clone -b cm-14.1 https://github.com/LineageOS/android_system_bt.git system/bt
+
+[64] hardware/qcom/media-caf/msm8916/mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp:9326:14: error: use of undeclared identifier 'MSM_VIDC_BT709_5'
+     hardware/qcom/media-caf/msm8916/mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp:9330:14: error: use of undeclared identifier 'MSM_VIDC_BT470_6_M'
+     hardware/qcom/media-caf/msm8916/mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp:9340:14: error: use of undeclared identifier 'MSM_VIDC_GENERIC_FILM'
+     hardware/qcom/media-caf/msm8916/mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp:9395:14: error: use of undeclared identifier 'MSM_VIDC_MATRIX_601_6_625'
+    * insert declaration for each identifier as per given here  https://github.com/LineageOS/android_kernel_cyanogen_msm8916/raw/cm-14.1/include/uapi/media/msm_vidc.h
+    OR 
+    * wget -qO kernel/cyanogen/msm8916/include/uapi/media/msm_vidc.h https://github.com/LineageOS/android_kernel_cyanogen_msm8916/raw/cm-14.1/include/uapi/media/msm_vidc.h
+
+[65] hardware/qcom/media-caf/msm8916/mm-video-v4l2/vidc/venc/src/video_encoder_device_v4l2.cpp:3275:18: error: use of undeclared identifier 'V4L2_CID_MPEG_VIDC_VIDEO_FULL_RANGE'
+     hardware/qcom/media-caf/msm8916/mm-video-v4l2/vidc/venc/src/video_encoder_device_v4l2.cpp:3290:18: error: use of undeclared identifier 'V4L2_CID_MPEG_VIDC_VIDEO_TRANSFER_CHARS'
+     hardware/qcom/media-caf/msm8916/mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp:9898:38: error: use of undeclared identifier 'V4L2_MPEG_VIDC_EXTRADATA_VUI_DISPLAY'
+     hardware/qcom/media-caf/msm8916/mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp:9904:37: error: use of undeclared identifier 'V4L2_MPEG_VIDC_EXTRADATA_VPX_COLORSPACE'
+    * wget -qO kernel/cyanogen/msm8916/include/uapi/linux/v4l2-controls.h https://github.com/LineageOS/android_kernel_cyanogen_msm8916/raw/cm-14.1/include/uapi/linux/v4l2-controls.h
+
