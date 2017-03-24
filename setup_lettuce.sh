@@ -60,10 +60,10 @@ case "$1" in
         if ! [ $? -lt 1 ];then echo -e "wlan-caf\t\t[FAILED]"; else echo -e "wlan-caf\t\t[DONE]"; fi
         mkdir -p hardware/qcom/bt-caf
         cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/bt-caf/* hardware/qcom/bt-caf 2>/dev/null
-        if ! [ $? -lt 1 ];then echo -e "bt-caf\t\t[FAILED]"; else echo -e "bt-caf\t\t[DONE]"; fi
+        if ! [ $? -lt 1 ];then echo -e "bt-caf\t\t\t[FAILED]"; else echo -e "bt-caf\t\t\t[DONE]"; fi
         mkdir -p hardware/ril-caf
         cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
-        if ! [ $? -lt 1 ];then echo -e "ril-caf\t\t[FAILED]"; else echo -e "ril-caf\t\t[DONE]"; fi
+        if ! [ $? -lt 1 ];then echo -e "ril-caf\t\t\t[FAILED]"; else echo -e "ril-caf\t\t\t[DONE]"; fi
 		#if [ "$b" = "cm-12.1" -o "$b" = "cm-13.0" ]; then
 		#	rm -r hardware/qcom/ril-caf 2>/dev/null
 		#	cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
@@ -143,23 +143,43 @@ case "$1" in
 		mkdir -p $HOME/workspace/lettuce-trees/LineageOS/cm-12.1
 		mkdir -p $HOME/workspace/lettuce-trees/LineageOS/cm-13.0
 		mkdir -p $HOME/workspace/lettuce-trees/LineageOS/cm-14.1
+        mkdir -p $HOME/workspace/lettuce-trees/YU-N
+        mkdir -p $HOME/workspace/lettuce-trees/YU-N/cm-14.1
 		read -p "SOURCE (L/C)   = " s
 		case "$s" in
 			l|L)
 				s="https://github.com/LineageOS"
 				src="$HOME/workspace/lettuce-trees/LineageOS"
+                if [ "$b" = "cm-14.1" ];then
+                    read -p "Do you want to have YU-N trees also ?(y/n) " cho
+                    if [ "$cho" = "y" -o "$cho" = "Y" ];then
+                        sy="https://github.com/YU-N"
+                        srcy="$HOME/workspace/lettuce-trees/YU-N"
+                    fi
+                fi
 			;;
 			c|C)
 				s="https://github.com/CyanogenMod"
 				src="$HOME/workspace/lettuce-trees/CyanogenMod"
+                if [ "$b" = "cm-14.1" ];then
+                    read -p "Do you want to have YU-N trees also ?(y/n) " cho
+                    if [ "$cho" = "y" -o "$cho" = "Y" ];then
+                        sy="https://github.com/YU-N"
+                        srcy="$HOME/workspace/lettuce-trees/YU-N"
+                    fi
+                fi
 			;;
 			*)
 				echo "Invalid source...!"
 				exit 1
 			;;
 		esac
-		echo "---------------------------------------------"
-		echo -e "\tSeting up trees"
+        echo "---------------------------------------------"
+        if [ "$cho" = "y" -o "$cho" = "Y" ]; then
+            echo -e "\tSeting up trees with\n * $s/$b AND\n * $sy/$b"
+		else
+            echo -e "\tSeting up trees with\n * $s/$b"
+        fi
 		if [ -e $src/$b/device/yu/lettuce/Android.mk ];then
 			echo "---------------------------------------------"
 			echo -e "Previous trees have been found..."
@@ -169,6 +189,7 @@ case "$1" in
 				echo "- Removing $src/$b ..."
                 sleep 1
 				rm -rf $src/$b/ 2>/dev/null
+                if [ "$cho" = "y" -o "$cho" = "Y" ];then echo "- Removing $srcy/$b ...";rm -rf $srcy/$b/ 2>/dev/null;fi
 				if ! [ $? -eq 0 ];then
 					sleep 1
 					echo "- Unable to remove old stuffs..."
@@ -179,13 +200,36 @@ case "$1" in
 				exit 1
 			fi
 		fi
-		echo "---------------------------------------------"
-		echo "Press enter to begin ..."
+        echo "---------------------------------------------"
+        echo "Press enter to begin cloning ..."
 		read enterkey
-		echo "---------------------------------------------"
-		echo "Cloning device tree..."
-		echo "---------------------------------------------"
-		git clone -b $b --single-branch $s/android_device_yu_lettuce.git $src/$b/device/yu/lettuce
+        if [ "$cho" = "y" -o "$cho" = "Y" ];then
+            echo "---------------------------------------------"
+            echo "Cloning device tree..."
+            echo "---------------------------------------------"
+            git clone -b $b --single-branch $sy/android_device_yu_lettuce.git $srcy/$b/device/yu/lettuce
+            echo "---------------------------------------------"
+            echo "Cloning kernel tree..."
+            echo "---------------------------------------------"
+            git clone -b $b --single-branch $sy/android_kernel_cyanogen_msm8916.git $srcy/$b/kernel/cyanogen/msm8916
+            echo "---------------------------------------------"
+            echo "Cloning vendor_yu tree..."
+            echo "---------------------------------------------"
+            git clone -b $b --single-branch $sy/proprietary_vendor_yu.git $srcy/$b/vendor/yu
+        else
+            echo "---------------------------------------------"
+            echo "Cloning device tree..."
+            echo "---------------------------------------------"
+            git clone -b $b --single-branch $s/android_device_yu_lettuce.git $src/$b/device/yu/lettuce
+            echo "---------------------------------------------"
+            echo "Cloning kernel tree..."
+            echo "---------------------------------------------"
+            git clone -b $b --single-branch $s/android_kernel_cyanogen_msm8916.git $src/$b/kernel/cyanogen/msm8916
+            echo "---------------------------------------------"
+            echo "Cloning vendor_yu tree..."
+            echo "---------------------------------------------"
+            git clone -b $b --single-branch https://github.com/TheMuppets/proprietary_vendor_yu.git $src/$b/vendor/yu
+        fi
 		echo "---------------------------------------------"
 		echo "Cloning Shared tree..."
 		echo "---------------------------------------------"
@@ -223,14 +267,6 @@ case "$1" in
 				fi
 			fi
 		fi
-		echo "---------------------------------------------"
-		echo "Cloning vendor_yu tree..."
-		echo "---------------------------------------------"
-		git clone -b $b --single-branch https://github.com/TheMuppets/proprietary_vendor_yu.git $src/$b/vendor/yu
-		echo "---------------------------------------------"
-		echo "Cloning kernel tree..."
-		echo "---------------------------------------------"
-		git clone -b $b --single-branch $s/android_kernel_cyanogen_msm8916.git $src/$b/kernel/cyanogen/msm8916
 		echo "---------------------------------------------"
 		echo "Cloning audio-caf tree..."
 		echo "---------------------------------------------"
@@ -601,26 +637,44 @@ case "$1" in
 			l|L)
 				s="LineageOS"
                 url="https://github.com/LineageOS"
+                sy="YU-N"
 			;;
 			c|C)
 				s="CyanogenMod"
                 url="https://github.com/CyanogenMod"
+                sy="YU-N"
 			;;
 			*)
 				echo "Invalid source...!"
 				exit 1
 			;;
 		esac
-		echo "---------------------------------------------"
-		echo -e "Press enter to begin Copying trees from $s/$b"
+        if [ "$b" = "cm-14.1" ];then
+            read -p "Do you want YU-N trees also ?(Y/N) " choi
+            if ! [ -e $HOME/workspace/lettuce-trees/$s/$b/device/yu/lettuce/Android.mk ];then
+                echo "YU-N trees not found...Please run ./setup_lettuce -st"
+                exit 1
+            fi
+        fi
+        echo "---------------------------------------------"
+        if [ "$choi" = "y" -o "$choi" = "Y" ];then
+            echo -e "Press enter to begin Copying trees from\n * $s/$b\n * $sy/$b"
+        else
+            echo -e "Press enter to begin Copying trees from\n * $s/$b"
+        fi
 		read enterkey
 		echo "---------------------------------------------"
+
 		if [ -d $HOME/workspace/lettuce-trees/$s/$b ];then
 			echo "Copying device/yu/lettuce"
 			mkdir -p $romdir/device/
 			mkdir -p $romdir/device/yu/
 			mkdir -p $romdir/device/yu/lettuce
-			cp -r $HOME/workspace/lettuce-trees/$s/$b/device/yu/lettuce/* $romdir/device/yu/lettuce
+            if [ "$choi" = "y" -o "$choi" = "Y" ];then
+                cp -r $HOME/workspace/lettuce-trees/$sy/$b/device/yu/lettuce/* $romdir/device/yu/lettuce
+            else
+                cp -r $HOME/workspace/lettuce-trees/$s/$b/device/yu/lettuce/* $romdir/device/yu/lettuce
+            fi
 			if ! [ -e $romdir/device/yu/lettuce/device.mk ];then dt=1; else dt=0; fi
 			echo "---------------------------------------------"
 			echo "Copying device/cyanogen/msm8916-common"
@@ -672,7 +726,11 @@ case "$1" in
 			echo "---------------------------------------------"
 			echo "Copying vendor/yu"
 			mkdir -p $romdir/vendor/yu
-			cp -r $HOME/workspace/lettuce-trees/$s/$b/vendor/yu/* $romdir/vendor/yu
+            if [ "$choi" = "y" -o "$choi" = "Y" ];then
+                cp -r $HOME/workspace/lettuce-trees/$sy/$b/vendor/yu/* $romdir/vendor/yu
+            else
+                cp -r $HOME/workspace/lettuce-trees/$sy/$b/vendor/yu/* $romdir/vendor/yu
+            fi
 			if ! [ -e $romdir/vendor/yu/lettuce/Android.mk ];then vt=1; else vt=0; fi
 			echo "---------------------------------------------"
 			echo "Copying device/qcom/sepolicy"
@@ -683,7 +741,7 @@ case "$1" in
 			#	mkdir -p $romdir/device/qcom
 			#	mkdir -p $romdir/device/qcom/sepolicy
 			#	cp -r $HOME/workspace/lettuce-trees/$s/$b/device/qcom/sepolicy/* $romdir/device/qcom/sepolicy
-                git clone -b $b $url/android_device_qcom_sepolicy.git device/qcom/sepolicy
+                git clone -qb $b $url/android_device_qcom_sepolicy.git device/qcom/sepolicy
 				if [ -e $romdir/device/qcom/sepolicy/Android.mk ];then qs=0;else qs=1;fi
 			fi
 			echo "---------------------------------------------"
@@ -691,7 +749,11 @@ case "$1" in
 			mkdir -p $romdir/kernel
 			mkdir -p $romdir/kernel/cyanogen
 			mkdir -p $romdir/kernel/cyanogen/msm8916
-			cp -r $HOME/workspace/lettuce-trees/$s/$b/kernel/cyanogen/msm8916/* $romdir/kernel/cyanogen/msm8916
+            if [ "$choi" = "y" -o "$choi" = "Y" ];then
+                cp -r $HOME/workspace/lettuce-trees/$sy/$b/kernel/cyanogen/msm8916/* $romdir/kernel/cyanogen/msm8916
+            else
+                cp -r $HOME/workspace/lettuce-trees/$s/$b/kernel/cyanogen/msm8916/* $romdir/kernel/cyanogen/msm8916
+            fi
 			if ! [ -e $romdir/kernel/cyanogen/msm8916/AndroidKernel.mk ]; then kt=1; else kt=0; fi
 			echo "---------------------------------------------"
 			ctl=y
@@ -717,8 +779,8 @@ case "$1" in
             echo "---------------------------------------------"
             if [ "$inj" = "y" -o "$inj" = "Y" ];then
                 read -p "Enter path/to/vendor/config/file : " svf
+                echo "---------------------------------------------"
             fi
-            echo "---------------------------------------------"
 			sleep 1
 			if ! [ -e $romdir/device/yu/lettuce/cm.mk ];then
 				echo -e "- Creating $(echo $vn)_lettuce.mk"
@@ -913,13 +975,13 @@ EOF
 			if [ "$st" = "1" ]; then echo -e "- shared tree\t\t[FAILED]";else echo -e "- shared tree\t\t[SUCCESS]";fi
 			if [ "$vt" = "1" ]; then echo -e "- vendor_yu\t\t[FAILED]";else echo -e "- vendor_yu\t\t[SUCCESS]";fi
 			if [ "$kt" = "1" ]; then echo -e "- kernel tree\t\t[FAILED]";else echo -e "- kernel tree\t\t[SUCCESS]";fi
-			#if [ "$qs" = "1" ]; then
-			#	echo -e "- qcom-sepolicy tree\t[FAILED]"
-			#elif [ "$qs" = "N" ]; then
-			#	echo -e "- qcom-sepolicy tree\t[NOT REQUIRED]"
-			#else
-			#	echo -e "- qcom-sepolicy tree\t[SUCCESS]"
-			#fi
+			if [ "$qs" = "1" ]; then
+				echo -e "- qcom-sepolicy tree\t[FAILED]"
+			elif [ "$qs" = "N" ]; then
+				echo -e "- qcom-sepolicy tree\t[NOT REQUIRED]"
+			else
+				echo -e "- qcom-sepolicy tree\t[SUCCESS]"
+			fi
 			if [ "$qc" = "1" ]; then
 				echo -e "- qcom-common tree\t[FAILED]"
 			elif [ "$qc" = "N" ]; then
