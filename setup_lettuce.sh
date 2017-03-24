@@ -792,20 +792,20 @@ case "$1" in
             fi
 			sleep 1
 			if ! [ -e $romdir/device/yu/lettuce/cm.mk ];then
-				echo -e "- Creating $(echo $vn)_lettuce.mk"
-                mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+				echo -e "- Creating $(echo $vn).mk"
+                mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn).mk
                 echo -e "- Creating AndroidProducts.mk"
-				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
+				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn).mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 				echo "s/PRODUCT_NAME := lineage_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
-				sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+				sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
 				rm $romdir/tmp
 			else
-                echo -e "- Creating $(echo $vn)_lettuce.mk"
-				mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+                echo -e "- Creating $(echo $vn).mk"
+				mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn).mk
                 echo -e "- Creating AndroidProducts.mk"
-				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
+				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn).mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 				echo "s/PRODUCT_NAME := cm_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
-				sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+				sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
 				rm $romdir/tmp
 			fi
             if [ -z "$vf" ];then
@@ -816,10 +816,10 @@ case "$1" in
                 sed -i 's/\//\\\//g' $romdir/tmp2
                 paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
                 sed -i 's/mk$/mk\//' $romdir/tmp
-                sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+                sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
                 rm -r $romdir/tmp*
-                flg=`grep -ci $(echo $vf) $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk`
-                if ! [ $flg -eq 0 ];then echo "- inserted $vf";fi
+                flg=`grep -ci $(echo $vf) $romdir/device/yu/lettuce/$(echo $vn).mk`
+                if ! [ $flg -eq 0 ];then echo "- inserted $vf";sleep 1;fi
                 if [ -z "$svf" ];then
                     echo " * NO another value given for vendor file..."
                 else
@@ -830,28 +830,32 @@ case "$1" in
                     echo "/$(cat $romdir/tmp1)/a ">$romdir/tmp3
                     echo "\$(call inherit-product, $(cat $romdir/tmp2))">$romdir/tmp4
                     paste --delimiters "" $romdir/tmp3 $romdir/tmp4>$romdir/tmp5
-                    sed -f $romdir/tmp5 -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+                    sed -f $romdir/tmp5 -i $romdir/device/yu/lettuce/$(echo $vn).mk
                     rm -r $romdir/tmp*
-                    flg=`grep -ci $(echo $svf) $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk`
+                    flg=`grep -ci $(echo $svf) $romdir/device/yu/lettuce/$(echo $vn).mk`
                     if ! [ $flg -eq 0 ];then echo "- inserted $svf";fi
                 fi
             fi
             sleep 1
             if [ -e $romdir/vendor/$vn/config/common_full_phone.mk ];then
-                echo "/vendor\/cm\/config\/common_full_phone.mk/a">$romdir/tmp1
+                echo $vf>$romdir/tmp1
+                sed -i 's/\//\\\//g' $romdir/tmp1
                 echo " \$(call inherit-product, vendor\/$(echo $vn)\/config\/common_full_phone.mk)">$romdir/tmp2
-                paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
-                sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-                flg=`grep -ci vendor/$(echo $vn)/config/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk`
+                echo "/$(cat $romdir/tmp1)/a ">$romdir/tmp3
+                paste --delimiters "" $romdir/tmp3 $romdir/tmp2>$romdir/tmp4
+                sed -f $romdir/tmp4 -i $romdir/device/yu/lettuce/$(echo $vn).mk
+                flg=`grep -ci vendor/$(echo $vn)/config/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn).mk`
                 if ! [ $flg -eq 0 ];then echo "- inserted vendor/$(echo $vn)/config/common_full_phone.mk";fi
                 rm -r $romdir/tmp*
             fi
             if [ -e $romdir/vendor/$vn/configs/common_full_phone.mk ];then
-                echo "/vendor\/cm\/config\/common_full_phone.mk/a">$romdir/tmp1
+                echo $vf>$romdir/tmp1
+                sed -i 's/\//\\\//g' $romdir/tmp1
                 echo " \$(call inherit-product, vendor\/$(echo $vn)\/configs\/common_full_phone.mk)">$romdir/tmp2
-                paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
-                sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
-                flg=`grep -ci vendor/$(echo $vn)/configs/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk`
+                echo "/$(cat $romdir/tmp1)/a ">$romdir/tmp3
+                paste --delimiters "" $romdir/tmp3 $romdir/tmp2>$romdir/tmp4
+                sed -f $romdir/tmp4 -i $romdir/device/yu/lettuce/$(echo $vn).mk
+                flg=`grep -ci vendor/$(echo $vn)/configs/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn).mk`
                 if ! [ $flg -eq 0 ];then echo "- inserted vendor/$(echo $vn)/configs/common_full_phone.mk";fi
                 rm -r $romdir/tmp*
             fi
@@ -889,7 +893,7 @@ case "$1" in
 			echo "---------------------------------------------"
 			echo -e "- Fixing derps..."
 			sed -i '/PRODUCT_BRAND/D' $romdir/device/yu/lettuce/full_lettuce.mk
-			sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn)_lettuce.mk
+			sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn).mk
 			sleep 1
 			sed -i '/config_deviceHardwareKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
 			sed -i '/config_deviceHardwareWakeKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
