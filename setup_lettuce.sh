@@ -189,12 +189,21 @@ case "$1" in
 				echo "- Removing $src/$b ..."
                 sleep 1
 				rm -rf $src/$b/ 2>/dev/null
-                if [ "$cho" = "y" -o "$cho" = "Y" ];then echo "- Removing $srcy/$b ...";rm -rf $srcy/$b/ 2>/dev/null;fi
-				if ! [ $? -eq 0 ];then
+                if ! [ $? -eq 0 ];then
 					sleep 1
-					echo "- Unable to remove old stuffs..."
-					exit 1
+					echo "- Unable to remove $src/$b ..."
+                    exit 1
 				fi
+                if [ "$cho" = "y" -o "$cho" = "Y" ];then
+                    if [ -e $srcy/$b/device/yu/lettuce/Android.mk ];then
+                        read -p "Do you want to update YU-N trees also ?(Y/N)" var
+                        if [ "$var" = "y" -o "$var" = "Y" ];then
+                            echo "- Removing $srcy/$b ..."
+                            rm -rf $srcy/$b/ 2>/dev/null
+                            if ! [ $? -eq 0 ];then echo "- Unable to remove $srcy/$b ...";exit 1;fi
+                        fi
+                    fi
+                fi
 			else
 				echo "Okay..then stay with old stuffs..."
 				exit 1
