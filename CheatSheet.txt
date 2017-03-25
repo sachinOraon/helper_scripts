@@ -55,6 +55,9 @@ Some problems that can occur while rom compilation and their solutions(especiall
 # Domain type used for debugfs access by QCOM
 attribute qti_debugfs_domain;
 
+     device/qcom/sepolicy/test/qti-testscripts.te:28:ERROR 'unknown type qti-testscripts'
+    * wget -qO system/sepolicy/qti-testscripts.te https://github.com/LineageOS/android_system_sepolicy/raw/cm-14.1/qti-testscripts.te
+
 [11] "kernel headers" error
 	* use prebuilt kernel and replace vendor/<rom>/build/tasks/kernel.mk or build/core/tasks/kernel.mk with this one
 	  wget https://github.com/Unlegacy-Android/android_vendor_unlegacy/raw/aosp-6.0/build/tasks/kernel.mk
@@ -167,8 +170,7 @@ include $(BUILD_PREBUILT)
 [28] libsepol.report_failure: neverallow on line 574 of system/sepolicy/domain.te (or line 9460 of policy.conf) violated by allow rmt_storage debugfs:file
 	 libsepol.report_failure: neverallow on line 574 of system/sepolicy/domain.te (or line 9460 of policy.conf) violated by allow energyawareness debugfs
 	 libsepol.report_failure: neverallow on line 574 of system/sepolicy/domain.te (or line 9460 of policy.conf) violated by allow audioserver debugfs
-	*  mv system/sepolicy ../
-	*  git clone -b cm-14.1 https://github.com/LineageOS/android_system_sepolicy.git system/sepolicy
+	* git clone -b cm-14.1 https://github.com/LineageOS/android_system_sepolicy.git system/sepolicy
 
 [29] error: 'MEASUREMENT_COUNT' undeclared
 	* insert   #define MEASUREMENT_COUNT 2    in    system/media/audio_effects/include/audio_effects/effect_visualizer.h
@@ -312,21 +314,19 @@ endif
 ===================================================================
 |	frameworks/ errors below were due to EuclideanOS sources
 |	therefore I replaced following repos with LineageOS.
-|	https://github.com/LineageOS/android_frameworks_av.git
-|	https://github.com/LineageOS/android_frameworks_native.git
-|	https://github.com/LineageOS/android_system_media.git
+|	git clone -b cm-14.1 https://github.com/LineageOS/android_frameworks_av.git frameworks/av
+|	git clone -b cm-14.1 https://github.com/LineageOS/android_frameworks_native.git frameworks/native
+|	git clone -b cm-14.1 https://github.com/LineageOS/android_system_media.git system/media
 ===================================================================  
 [50] frameworks/av/services/audiopolicy/AudioPolicyInterface.h:346:34: error: functions that differ only in their return type cannot be overloaded
-	 frameworks/av/services/audiopolicy/AudioPolicyInterface.h:347:17: error: conflicting types for 'destroyAudioPolicyManager'
-	 frameworks/av/services/audiopolicy/AudioPolicyInterface.h:346:34: error: functions that differ only in their return type cannot be overloaded
-	 frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp:281:56: error: format specifies type 'int' but the argument has type
-	 frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp:611:79: error: unused parameter 'source'
-	 frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp:613:54: error: unused parameter 'handle'
-	 frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp:623:49: error: unused parameter 'mono'
-	 frameworks/av/services/audiopolicy/service/AudioPolicyClientImplLegacy.cpp:59:16: error: cannot initialize return object of type
-	* replace frameworks/av/include/media/ files with LineageOS files.
-	  git clone -b cm-14.1 https://github.com/LineageOS/android_frameworks_av.git ~/trash/fram_av_los
-	  cp -rvf ~/trash/fram_av_los/include/media/* frameworks/av/include/media/
+     extern "C" AudioPolicyInterface* createAudioPolicyManager(AudioPolicyClientInterface *clientInterface);
+     frameworks/av/services/audiopolicy/AudioPolicyInterface.h:347:17: error: conflicting types for 'destroyAudioPolicyManager'
+     extern "C" void destroyAudioPolicyManager(AudioPolicyInterface *interface);
+    * insert following lines. For ref  https://github.com/LineageOS/android_frameworks_av/raw/cm-14.1/services/audiopolicy/AudioPolicyInterface.h
+#ifndef USE_LEGACY_AUDIO_POLICY
+extern "C" AudioPolicyInterface* createAudioPolicyManager(AudioPolicyClientInterface *clientInterface);
+extern "C" void destroyAudioPolicyManager(AudioPolicyInterface *interface);
+#endif
 
 [51] frameworks/av/camera/ICameraClient.cpp:53:63: error: use of undeclared identifier 'CAMERA_FRAME_DATA_FD'
 	* Insert following lines in  system/core/include/system/camera.h:341  FOR reference https://github.com/LineageOS/android_system_core/raw/3e7227c99f9aed259d23994787ff56ef3fefa82f/include/system/camera.h
@@ -405,4 +405,15 @@ typedef enum {
      hardware/qcom/media-caf/msm8916/mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp:9898:38: error: use of undeclared identifier 'V4L2_MPEG_VIDC_EXTRADATA_VUI_DISPLAY'
      hardware/qcom/media-caf/msm8916/mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp:9904:37: error: use of undeclared identifier 'V4L2_MPEG_VIDC_EXTRADATA_VPX_COLORSPACE'
     * wget -qO kernel/cyanogen/msm8916/include/uapi/linux/v4l2-controls.h https://github.com/LineageOS/android_kernel_cyanogen_msm8916/raw/cm-14.1/include/uapi/linux/v4l2-controls.h
+
+[66] frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp:611:79: error: unused parameter 'source'
+     frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp:613:54: error: unused parameter 'handle'
+     frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp:281:56: error: format specifies type 'int' but the argument has type
+     frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp:623:49: error: unused parameter 'mono'
+    * make changes to  frameworks/av/services/audiopolicy/service/AudioPolicyInterfaceImplLegacy.cpp
+      as per  https://github.com/LineageOS/android_frameworks_av/commit/37493c60a78aafb3b8864c567325cf5936edb389
+
+[67] frameworks/av/services/audiopolicy/service/AudioPolicyClientImplLegacy.cpp:59:16: error: cannot initialize return object of type 'audio_module_handle_t' with an rvalue of type 'int'
+    * make changes to  frameworks/av/services/audiopolicy/service/AudioPolicyClientImplLegacy.cpp
+      as per  https://github.com/LineageOS/android_frameworks_av/commit/c778d3f6aa027f6435045bfebcb77866c072278a
 

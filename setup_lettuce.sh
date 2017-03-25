@@ -920,7 +920,7 @@ EOF
 			echo -e "- Creating $(echo $vn)-build.sh"
 			if ! [ -e $romdir/$(echo $vn)-build.sh ]; then
 				jobs=$(grep -ci processor /proc/cpuinfo)
-				jobs=`expr $jobs \* 2`
+#				jobs=`expr $jobs \* 2`
 cat <<EOF>$romdir/$(echo $vn)-build.sh
 err=\$(echo \$PATH|grep -c -i aarch64)
 case "\$1" in
@@ -936,7 +936,8 @@ case "\$1" in
 		sleep 1
 		make clean && make clobber
 		sleep 1
-		make otapackage -j$(echo $jobs)
+#		make otapackage -j$(echo $jobs)
+        make -j$(echo $jobs)
 		;;
 	*)
 		. build/envsetup.sh
@@ -946,7 +947,8 @@ case "\$1" in
 			lunch $(echo $vn)_lettuce-userdebug
 		fi
 		sleep 1
-		make otapackage -j$(echo $jobs)
+#		make otapackage -j$(echo $jobs)
+        make -j$(echo $jobs)
 		;;
 esac
 EOF
