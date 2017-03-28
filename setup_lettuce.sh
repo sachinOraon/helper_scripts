@@ -77,8 +77,8 @@ case "$1" in
 		echo "---------------------------------------------"
 		echo -e "\tFixing device makefiles"
 		echo "---------------------------------------------"
-		if [ -e $romdir/device/yu/lettuce/*.dat ];then
-			file=$(cat $romdir/device/yu/lettuce/*.dat)
+		if [ -e $romdir/device/yu/lettuce/vendor.dat ];then
+			file=$(cat $romdir/device/yu/lettuce/vendor.dat)
 			if [ -e $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk ];then
 				mv $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk $romdir/device/yu/lettuce/$(echo $file).mk
 				if [ $? -eq 0 ];then echo -e "- Renaming $(echo $file)_lettuce.mk to $(echo $file).mk";else echo "- Can't rename $(echo $file)_lettuce.mk";fi
@@ -90,7 +90,6 @@ case "$1" in
 				if [ $? -eq 0 ];then echo "- New AndroidProducts.mk created";else echo "- Can't create new AndroidProducts.mk";fi
 				if [ -e $romdir/device/yu/lettuce/$(echo $file).mk ];then echo -e "- Now lunch can run successfully";fi
 				echo "---------------------------------------------"
-				touch $romdir/device/yu/lettuce/run.dat
 			else
 				mv $romdir/device/yu/lettuce/$(echo $file).mk $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk
 				if [ $? -eq 0 ];then echo -e "- Renaming $file.mk to $(echo $file)_lettuce.mk";else echo "- Can't rename $file.mk";fi
@@ -102,7 +101,6 @@ case "$1" in
 				if [ $? -eq 0 ];then echo "- New AndroidProducts.mk created";else echo "- Can't create new AndroidProducts.mk";fi
 				if [ -e $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk ];then echo -e "- Now lunch can run successfully";fi
 				echo "---------------------------------------------"
-				touch $romdir/device/yu/lettuce/run.dat
 			fi
 		else
 			echo "- Can't find saved file"
@@ -302,7 +300,7 @@ case "$1" in
         git clone -b $brc --single-branch $s/android_hardware_qcom_bt.git $src/$b/hardware/qcom/bt-caf
         echo "---------------------------------------------"
 		if ! [ -e $HOME/workspace/lettuce-trees/kernel.mk ]; then
-			wget -O $HOME/workspace/lettuce-trees/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk &>/dev/null
+			wget -qO $HOME/workspace/lettuce-trees/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk
 		fi
 	exit 1
 	;;
@@ -415,7 +413,7 @@ case "$1" in
 						if [ $? -eq 0 ];then echo " * SDClang copied successfully";else echo " * Unable to copy SDClang !!";fi
 						if ! [ -e $romdir/device/qcom/common/sdllvm-lto-defs.mk ];then
 							echo " * Creating sdllvm-lto-defs.mk in device/qcom/common"
-							wget -O $romdir/device/qcom/common/sdllvm-lto-defs.mk https://github.com/LineageOS/android_device_qcom_common/raw/cm-14.1/sdllvm-lto-defs.mk &>/dev/null
+							wget -qO $romdir/device/qcom/common/sdllvm-lto-defs.mk https://github.com/LineageOS/android_device_qcom_common/raw/cm-14.1/sdllvm-lto-defs.mk
 							if [ $? -eq 0 ];then echo " * sdllvm-lto-defs.mk created";else echo " * Failed to create sdllvm-lto-defs.mk";fi
 						else
 							echo " * sdllvm-lto-defs.mk Found"
@@ -792,7 +790,7 @@ case "$1" in
                 read -p "Haven't found required file...wanna retry(y/n) : " ctl
                 echo "---------------------------------------------"
             done
-            echo $vn>$romdir/device/yu/lettuce/$vn.dat
+            echo $vn>$romdir/device/yu/lettuce/vendor.dat
             read -p "Enter path/to/vendor/config/file : " vf
             echo "---------------------------------------------"
             read -p "Want to inject more(y/n) ? " inj
@@ -832,7 +830,7 @@ case "$1" in
                 flg=`grep -ci $(echo $vf) $romdir/device/yu/lettuce/$(echo $vn).mk`
                 if ! [ $flg -eq 0 ];then echo "- inserted $vf";sleep 1;fi
                 if [ -z "$svf" ];then
-                    echo " * NO another value given for vendor file..."
+                    echo " * NO value given for 2nd vendor file..."
                 else
                     echo $vf>$romdir/tmp1
                     echo $svf>$romdir/tmp2
