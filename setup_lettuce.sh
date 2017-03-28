@@ -723,11 +723,22 @@ case "$1" in
             else
                 if [ $flg1 -eq 0 -a $flg2 -eq 0 ];then
                     echo -e " * NO cryptfs_hw directory found...!!!"
-                    path=`grep -ci "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk`
-                    if [ $path -eq 1 ];then
+                    val=`grep -ci "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk`
+                    if [ $val -eq 1 ];then
+                        path=`grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk|cut -d "=" -f 2`
                         echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
+                        if [ "$s" = "CyanogenMod" ];then
+                            git clone -qb $b $url/android_device_qcom_common.git $HOME/android_device_qcom_common
+                            mkdir -p $path
+                            cp -r $HOME/android_device_qcom_common/cryptfs_hw/* $path/ 2>/dev/null
+                            if [ -e $path/cryptfs_hw.c ];then echo " * cryptfs_hw copied to $path";rm -r $HOME/android_device_qcom_common 2>/dev/null;else echo " * unable to copy cryptfs_hw at $path";fi
+                        fi
+                        if [ "$s" = "LineageOS" ];then
+                            git clone -qb $b $url/android_vendor_qcom_opensource_cryptfs_hw.git $path
+                            if [ -e $path/cryptfs_hw.c ];then echo " * cryptfs_hw copied to $path";else echo " * unable to copy cryptfs_hw at $path";fi
+                        fi
                     else
-                        echo " * TARGET_CRYPTFS_HW_PATH = NULL"
+                        echo -e " * TARGET_CRYPTFS_HW_PATH = NULL\n   You have to manually edit system/vold/Android.mk and clone cryptfs_hw"
                     fi
                 fi
 			fi
@@ -738,7 +749,7 @@ case "$1" in
             if [ "$choi" = "y" -o "$choi" = "Y" ];then
                 cp -r $HOME/workspace/lettuce-trees/$sy/$b/vendor/yu/* $romdir/vendor/yu
             else
-                cp -r $HOME/workspace/lettuce-trees/$sy/$b/vendor/yu/* $romdir/vendor/yu
+                cp -r $HOME/workspace/lettuce-trees/$s/$b/vendor/yu/* $romdir/vendor/yu
             fi
 			if ! [ -e $romdir/vendor/yu/lettuce/Android.mk ];then vt=1; else vt=0; fi
 			echo "---------------------------------------------"
@@ -885,7 +896,7 @@ case "$1" in
 						cp $HOME/workspace/lettuce-trees/kernel.mk $romdir/vendor/$vn/build/tasks/kernel.mk 2>/dev/null
 						if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
 					else
-						wget -O $romdir/vendor/$vn/build/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk &>/dev/null
+						wget -qO $romdir/vendor/$vn/build/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk
 						if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
 					fi
 				fi

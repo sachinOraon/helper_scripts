@@ -78,8 +78,9 @@ attribute qti_debugfs_domain;
 	* insert TW_THEME := portrait_hdpi
 	  in device/yu/lettuce/BoardConfig.mk
 
-[15] ValueError: No dependencies file could be found
-	* create proper .dependencies file
+[15] system/core/fs_mgr/fs_mgr_verity.cpp:127: error: undefined reference to 'SHA256_hash'
+     system/core/fs_mgr/fs_mgr_verity.cpp:644: error: undefined reference to 'SHA256_hash'
+
 
 [16] obj/STATIC_LIBRARIES/lib_driver_cmd_qcwcn_intermediates/export_includes', needed by '/home/sachinoraon55/workspace/eucos/out/target/product/lettuce/obj/EXECUTABLES/hostapd_intermediates/import_includes', missing and no known rule to make it
 	* 
@@ -282,18 +283,14 @@ include $(BUILD_PREBUILT)
 	 system/core/healthd/BatteryMonitor.cpp:297:19: error: no member named 'dockBatteryTechnology' in 'android::BatteryProperties'
 	 system/core/healthd/BatteryMonitor.cpp:347:43: error: no member named 'chargerDockAcOnline' in 'android::BatteryProperties'
 	 
-	 * mv frameworks/native/include/batteryservice/BatteryService.h $HOME/trash/;wget -O frameworks/native/include/batteryservice/BatteryService.h https://github.com/LineageOS/android_frameworks_native/raw/cm-14.1/include/batteryservice/BatteryService.h
+	 * wget -O frameworks/native/include/batteryservice/BatteryService.h https://github.com/LineageOS/android_frameworks_native/raw/cm-14.1/include/batteryservice/BatteryService.h
 
-[46] system/core/include/mincrypt/rsa.h:48:5: error: conflicting types for 'RSA_verify' present in external/boringssl/src/include/openssl/rsa.h
+[46] Errors due to libcrypto_utils being used instead of libmincrypt
+     system/core/include/mincrypt/rsa.h:48:5: error: conflicting types for 'RSA_verify' present in external/boringssl/src/include/openssl/rsa.h
 	 system/core/fs_mgr/fs_mgr_verity.cpp:108: error: undefined reference to 'android_pubkey_decode'
+     halogenOS uses libmincrypt https://github.com/halogenOS/android_system_core/commit/504874a10279a407bd693259b9fcadbb1d873042
 	* git clone -b XOS-7.1 https://github.com/halogenOS/android_system_core.git system/core
 	* git clone -b XOS-7.0 https://github.com/halogenOS/android_external_boringssl.git external/boringssl
-	* OR comment/delete the following lines from system/core/include/mincrypt/rsa.h
-		int RSA_verify(const RSAPublicKey *key,
-               const uint8_t* signature,
-               const int len,
-               const uint8_t* hash,
-               const int hash_len);
 
 [47] /product/lettuce/obj_arm/STATIC_LIBRARIES/libqc-skia_intermediates/libqc-skia.a  needed by /obj_arm/SHARED_LIBRARIES/libskia_intermediates/LINKED/libskia.so missing and no known rule to make it.
     * Comment/Remove following lines from external/skia/Android.mk
@@ -371,7 +368,9 @@ typedef enum {
 	 system/extras/f2fs_utils/f2fs_ioutils.c:101:21: error: no member named 'fd' in 'struct f2fs_configuration'
 	 external/f2fs-tools/include/f2fs_fs.h:992:13: note: previous declaration is here
 	 system/extras/f2fs_utils/f2fs_ioutils.c:154:6: error: conflicting types for 'f2fs_finalize_device'
-	* git clone -b cm-14.1 https://github.com/LineageOS/android_system_extras.git system/extras
+     system/extras/f2fs_utils/f2fs_dlutils.c:57:6: error: conflicting types for 'f2fs_init_configuration'
+	* Copy the directory  f2fs_utils  from https://github.com/LineageOS/android_system_extras
+      OR cherry-pick https://github.com/LineageOS/android_system_extras/commit/9c339d72fd3cc86283e66deccf806d8585dceaf3
 	* git clone -b cm-14.1 https://github.com/LineageOS/android_external_f2fs-tools.git external/f2fs-tools
 
 [60] /usr/lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.21' not found
@@ -417,3 +416,65 @@ typedef enum {
     * make changes to  frameworks/av/services/audiopolicy/service/AudioPolicyClientImplLegacy.cpp
       as per  https://github.com/LineageOS/android_frameworks_av/commit/c778d3f6aa027f6435045bfebcb77866c072278a
 
+[68] system/vold/cryptfs.c:3365:106: error: too few arguments to function call, expected 3, have 2
+     int rc = update_hw_device_encryption_key(DEFAULT_PASSWORD, (char*) crypt_ftr.crypto_type_name);
+    * change as given below in device/qcom/common/cryptfs_hw/cryptfs_hw.h
+      int update_hw_device_encryption_key(const char*, const char*);
+
+[69] system/vold/cryptfs.c:1856: error: undefined reference to 'set_hw_device_encryption_key'
+     system/vold/cryptfs.c:3365: error: undefined reference to 'update_hw_device_encryption_key'
+     system/vold/cryptfs.c:3117: error: undefined reference to 'clear_hw_device_encryption_key'
+    * git clone -b cm-14.1 https://github.com/LineageOS/android_system_vold.git system/vold
+    * git clone -b cm-14.1 https://github.com/LineageOS/android_vendor_qcom_opensource_cryptfs_hw.git vendor/qcom/opensource/cryptfs_hw
+
+[70] ninja: error: '/home/sachinoraon55/workspace/eucos/out/target/product/lettuce/obj/SHARED_LIBRARIES/libcrypto_utils_intermediates/export_includes', needed by '/home/sachinoraon55/workspace/eucos/out/target/product/lettuce/obj/EXECUTABLES/vold_intermediates/import_includes', missing and no known rule to make it
+    * copy  libcrypto_utils  folder from  https://github.com/LineageOS/android_system_core  paste it in system/core/
+    * OR git remote add -t cm-14.1 libcrypto https://github.com/LineageOS/android_system_core.git;git fetch libcrypto
+    * git cherry-pick c78415fa50105ffae7a02b6d67b90ff1126e09b3
+
+[71] system/vold/cryptfs.c:2280:24: error: implicit declaration of function 'fs_mgr_is_mdtp_activated' is invalid in C99
+    * cherry-pick https://github.com/LineageOS/android_system_core/commit/8fea6d25b32a826758879b78b9ea43685630bfbc
+    * insert  int fs_mgr_is_mdtp_activated(void);
+      in system/core/fs_mgr/include/fs_mgr.h
+    * insert following lines in system/core/fs_mgr/fs_mgr.c:490  for ref https://github.com/LineageOS/android_system_core/blob/cm-14.1/fs_mgr/fs_mgr.c
+int fs_mgr_is_mdtp_activated()
+{
+      char cmdline[2048];
+      char *ptr;
+      int fd;
+      static int mdtp_activated = 0;
+      static int mdtp_activated_set = 0;
+
+      if (mdtp_activated_set) {
+          return mdtp_activated;
+      }
+
+      fd = open("/proc/cmdline", O_RDONLY);
+      if (fd >= 0) {
+          int n = read(fd, cmdline, sizeof(cmdline) - 1);
+          if (n < 0) n = 0;
+
+          /* get rid of trailing newline, it happens */
+          if (n > 0 && cmdline[n-1] == '\n') n--;
+
+          cmdline[n] = 0;
+          close(fd);
+      } else {
+          cmdline[0] = 0;
+      }
+
+      ptr = cmdline;
+      while (ptr && *ptr) {
+          char *x = strchr(ptr, ' ');
+          if (x != 0) *x++ = 0;
+          if (!strcmp(ptr,"mdtp")) {
+            mdtp_activated = 1;
+            break;
+          }
+          ptr = x;
+      }
+
+      mdtp_activated_set = 1;
+
+      return mdtp_activated;
+}
