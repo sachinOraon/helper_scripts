@@ -789,13 +789,13 @@ case "$1" in
                 fi
                 echo "---------------------------------------------"
                 echo "    (Select from above list)"
-                read -p "Haven't found required file...wanna retry(y/Y) : " ctl
+                read -p "Haven't found required file...wanna retry(y/n) : " ctl
                 echo "---------------------------------------------"
             done
             echo $vn>$romdir/device/yu/lettuce/$vn.dat
             read -p "Enter path/to/vendor/config/file : " vf
             echo "---------------------------------------------"
-            read -p "Want to inject more(y/Y) ? " inj
+            read -p "Want to inject more(y/n) ? " inj
             echo "---------------------------------------------"
             if [ "$inj" = "y" -o "$inj" = "Y" ];then
                 read -p "Enter path/to/vendor/config/file : " svf
@@ -846,29 +846,29 @@ case "$1" in
                     flg=`grep -ci $(echo $svf) $romdir/device/yu/lettuce/$(echo $vn).mk`
                     if ! [ $flg -eq 0 ];then echo "- inserted $svf";fi
                 fi
-            fi
-            sleep 1
-            if [ -e $romdir/vendor/$vn/config/common_full_phone.mk ];then
-                echo $vf>$romdir/tmp1
-                sed -i 's/\//\\\//g' $romdir/tmp1
-                echo " \$(call inherit-product, vendor\/$(echo $vn)\/config\/common_full_phone.mk)">$romdir/tmp2
-                echo "/$(cat $romdir/tmp1)/a ">$romdir/tmp3
-                paste --delimiters "" $romdir/tmp3 $romdir/tmp2>$romdir/tmp4
-                sed -f $romdir/tmp4 -i $romdir/device/yu/lettuce/$(echo $vn).mk
-                flg=`grep -ci vendor/$(echo $vn)/config/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn).mk`
-                if ! [ $flg -eq 0 ];then echo "- inserted vendor/$(echo $vn)/config/common_full_phone.mk";fi
-                rm -r $romdir/tmp*
-            fi
-            if [ -e $romdir/vendor/$vn/configs/common_full_phone.mk ];then
-                echo $vf>$romdir/tmp1
-                sed -i 's/\//\\\//g' $romdir/tmp1
-                echo " \$(call inherit-product, vendor\/$(echo $vn)\/configs\/common_full_phone.mk)">$romdir/tmp2
-                echo "/$(cat $romdir/tmp1)/a ">$romdir/tmp3
-                paste --delimiters "" $romdir/tmp3 $romdir/tmp2>$romdir/tmp4
-                sed -f $romdir/tmp4 -i $romdir/device/yu/lettuce/$(echo $vn).mk
-                flg=`grep -ci vendor/$(echo $vn)/configs/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn).mk`
-                if ! [ $flg -eq 0 ];then echo "- inserted vendor/$(echo $vn)/configs/common_full_phone.mk";fi
-                rm -r $romdir/tmp*
+                sleep 1
+                if [ -e $romdir/vendor/$vn/config/common_full_phone.mk ];then
+                    echo $vf>$romdir/tmp1
+                    sed -i 's/\//\\\//g' $romdir/tmp1
+                    echo " \$(call inherit-product, vendor\/$(echo $vn)\/config\/common_full_phone.mk)">$romdir/tmp2
+                    echo "/$(cat $romdir/tmp1)/a ">$romdir/tmp3
+                    paste --delimiters "" $romdir/tmp3 $romdir/tmp2>$romdir/tmp4
+                    sed -f $romdir/tmp4 -i $romdir/device/yu/lettuce/$(echo $vn).mk
+                    flg=`grep -ci vendor/$(echo $vn)/config/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn).mk`
+                    if ! [ $flg -eq 0 ];then echo "- inserted vendor/$(echo $vn)/config/common_full_phone.mk";fi
+                    rm -r $romdir/tmp*
+                fi
+                if [ -e $romdir/vendor/$vn/configs/common_full_phone.mk ];then
+                    echo $vf>$romdir/tmp1
+                    sed -i 's/\//\\\//g' $romdir/tmp1
+                    echo " \$(call inherit-product, vendor\/$(echo $vn)\/configs\/common_full_phone.mk)">$romdir/tmp2
+                    echo "/$(cat $romdir/tmp1)/a ">$romdir/tmp3
+                    paste --delimiters "" $romdir/tmp3 $romdir/tmp2>$romdir/tmp4
+                    sed -f $romdir/tmp4 -i $romdir/device/yu/lettuce/$(echo $vn).mk
+                    flg=`grep -ci vendor/$(echo $vn)/configs/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn).mk`
+                    if ! [ $flg -eq 0 ];then echo "- inserted vendor/$(echo $vn)/configs/common_full_phone.mk";fi
+                    rm -r $romdir/tmp*
+                fi
             fi
 			echo "---------------------------------------------"
 			if [ -e $romdir/vendor/$vn/sepolicy/file_contexts ];then
