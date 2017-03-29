@@ -41,36 +41,50 @@ case "$1" in
 			;;
 		esac
 		echo "---------------------------------------------"
-		echo -e "\tCOPYING caf trees"
+		echo -e "\tCOPYING \033[1mcaf\033[0m trees"
 		echo "---------------------------------------------"
-		if [ -d $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom ];then
-		mkdir -p hardware/qcom/audio-caf/msm8916
-		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/audio-caf/msm8916/* hardware/qcom/audio-caf/msm8916 2>/dev/null
-		if ! [ $? -lt 1 ];then echo -e "audio-caf\t\t[FAILED]"; else echo -e "audio-caf\t\t[DONE]"; fi
-		sleep 1
-		mkdir -p hardware/qcom/display-caf/msm8916
-		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/display-caf/msm8916/* hardware/qcom/display-caf/msm8916 2>/dev/null
-		if ! [ $? -lt 1 ];then echo -e "display-caf\t\t[FAILED]"; else echo -e "display-caf\t\t[DONE]"; fi
-		mkdir -p hardware/qcom/media-caf/msm8916
-		cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/media-caf/msm8916/* hardware/qcom/media-caf/msm8916 2>/dev/null
-		sleep 1
-		if ! [ $? -lt 1 ];then echo -e "media-caf\t\t[FAILED]"; else echo -e "media-caf\t\t[DONE]"; fi
-        mkdir -p hardware/qcom/wlan-caf
-        cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/wlan-caf/* hardware/qcom/wlan-caf 2>/dev/null
-        if ! [ $? -lt 1 ];then echo -e "wlan-caf\t\t[FAILED]"; else echo -e "wlan-caf\t\t[DONE]"; fi
-        mkdir -p hardware/qcom/bt-caf
-        cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/bt-caf/* hardware/qcom/bt-caf 2>/dev/null
-        if ! [ $? -lt 1 ];then echo -e "bt-caf\t\t\t[FAILED]"; else echo -e "bt-caf\t\t\t[DONE]"; fi
-        mkdir -p hardware/ril-caf
-        cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
-        if ! [ $? -lt 1 ];then echo -e "ril-caf\t\t\t[FAILED]"; else echo -e "ril-caf\t\t\t[DONE]"; fi
+        echo -e " * \033[1mRemoving\033[0m previous \033[1mcaf\033[0m HAL trees..."
+        rm -rf $romdir/hardware/qcom/audio-caf/msm8916 &>/dev/null
+        rm -rf $romdir/hardware/qcom/display-caf/msm8916 &>/dev/null
+        rm -rf $romdir/hardware/qcom/media-caf/msm8916 &>/dev/null
+        rm -rf $romdir/hardware/qcom/wlan-caf &>/dev/null
+        rm -rf $romdir/hardware/bt-caf &>/dev/null
+        rm -rf $romdir/hardware/ril-caf &>/dev/null
+        echo "---------------------------------------------"
+		#if [ -d $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom ];then
+		#mkdir -p hardware/qcom/audio-caf/msm8916
+		#cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/audio-caf/msm8916/* hardware/qcom/audio-caf/msm8916 2>/dev/null
+        git clone -qb $b-caf-8916 https://github.com/$s/android_hardware_qcom_audio.git hardware/qcom/audio-caf/msm8916
+		if ! [ $? -lt 1 ];then echo -e "\033[1maudio-caf\033[0m\t\t[FAILED]"; else echo -e "\033[1maudio-caf\033[0m\t\t[DONE]"; fi
+		#sleep 1
+		#mkdir -p hardware/qcom/display-caf/msm8916
+		#cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/display-caf/msm8916/* hardware/qcom/display-caf/msm8916 2>/dev/null
+        git clone https://github.com/$s/android_hardware_qcom_display.git -qb $b-caf-8916 hardware/qcom/display-caf/msm8916
+		if ! [ $? -lt 1 ];then echo -e "\033[1mdisplay-caf\033[0m\t\t[FAILED]"; else echo -e "\033[1mdisplay-caf\033[0m\t\t[DONE]"; fi
+		#mkdir -p hardware/qcom/media-caf/msm8916
+		#cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/media-caf/msm8916/* hardware/qcom/media-caf/msm8916 2>/dev/null
+        git clone -qb $b-caf-8916 https://github.com/$s/android_hardware_qcom_media.git hardware/qcom/media-caf/msm8916
+		#sleep 1
+		if ! [ $? -lt 1 ];then echo -e "\033[1mmedia-caf\033[0m\t\t[FAILED]"; else echo -e "\033[1mmedia-caf\033[0m\t\t[DONE]"; fi
+        #mkdir -p hardware/qcom/wlan-caf
+        #cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/wlan-caf/* hardware/qcom/wlan-caf 2>/dev/null
+        git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_wlan.git hardware/qcom/wlan-caf
+        if ! [ $? -lt 1 ];then echo -e "\033[1mwlan-caf\033[0m\t\t[FAILED]"; else echo -e "\033[1mwlan-caf\033[0m\t\t[DONE]"; fi
+        #mkdir -p hardware/qcom/bt-caf
+        #cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/bt-caf/* hardware/qcom/bt-caf 2>/dev/null
+        git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_bt.git hardware/qcom/bt-caf
+        if ! [ $? -lt 1 ];then echo -e "\033[1mbt-caf\033[0m\t\t\t[FAILED]"; else echo -e "\033[1mbt-caf\033[0m\t\t\t[DONE]"; fi
+        #mkdir -p hardware/ril-caf
+        #cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
+        git clone -qb $b-caf https://github.com/$s/android_hardware_ril-caf.git hardware/ril-caf/msm8916
+        if ! [ $? -lt 1 ];then echo -e "\033[1mril-caf\033[0m\t\t\t[FAILED]"; else echo -e "\033[1mril-caf\033[0m\t\t\t[DONE]"; fi
 		#if [ "$b" = "cm-12.1" -o "$b" = "cm-13.0" ]; then
 		#	rm -r hardware/qcom/ril-caf 2>/dev/null
 		#	cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
 		#	if ! [ $? -lt 1 ];then echo -e "ril-caf\t\t\t[FAILED]"; else echo -e "ril-caf\t\t\t[DONE]"; fi
 		#fi
 		echo "---------------------------------------------"
-		else echo -e "- Please setup trees properly.\n- To do run ./setup_lettuce -st";fi
+		#else echo -e "- Please setup trees properly.\n- To do run ./setup_lettuce -st";fi
 		exit 1
 		;;
 	-f)
@@ -174,79 +188,79 @@ case "$1" in
 		esac
         echo "---------------------------------------------"
         if [ "$cho" = "y" -o "$cho" = "Y" ]; then
-            echo -e "\tSeting up trees with\n * $s/$b AND\n * $sy/$b"
+            echo -e "\tSeting up trees with\n * \033[1m$s/$b\033[0m AND\n * \033[1m$sy/$b\033[0m"
 		else
-            echo -e "\tSeting up trees with\n * $s/$b"
+            echo -e "\tSeting up trees with\n * \033[1m$s/$b\033[0m"
         fi
 		if [ -e $src/$b/device/yu/lettuce/Android.mk ];then
 			echo "---------------------------------------------"
-			echo -e "Previous trees have been found..."
+			echo -e "\033[1mPrevious\033[0m trees have been \033[1mfound\033[0m..."
 			read -p "Do you want to re-sync ?(Y/N) : " x
 			echo "---------------------------------------------"
 			if [ "$x" = "y" -o "$x" = "Y" ];then
-				echo "- Removing $src/$b ..."
+				echo -e "- Removing \033[1m$src/$b\033[0m ..."
                 sleep 1
 				rm -rf $src/$b/ 2>/dev/null
                 if ! [ $? -eq 0 ];then
 					sleep 1
-					echo "- Unable to remove $src/$b ..."
+					echo -e "- Unable to remove \033[1m$src/$b\033[0m ..."
                     exit 1
 				fi
                 if [ "$cho" = "y" -o "$cho" = "Y" ];then
                     if [ -e $srcy/$b/device/yu/lettuce/Android.mk ];then
                         read -p "Do you want to update YU-N trees also ?(Y/N)" var
                         if [ "$var" = "y" -o "$var" = "Y" ];then
-                            echo "- Removing $srcy/$b ..."
+                            echo -e "- Removing \033[1m$srcy/$b\033[0m ..."
                             rm -rf $srcy/$b/ 2>/dev/null
-                            if ! [ $? -eq 0 ];then echo "- Unable to remove $srcy/$b ...";exit 1;fi
+                            if ! [ $? -eq 0 ];then echo -e "- Unable to remove \033[1m$srcy/$b\033[0m ...";exit 1;fi
                         fi
                     fi
                 fi
 			else
-				echo "Okay..then stay with old stuffs..."
+				echo -e " * Okay..then stay with \033[1mold\033[0m stuffs..."
 				exit 1
 			fi
 		fi
         echo "---------------------------------------------"
-        echo "Press enter to begin cloning ..."
+        echo -e "Press \033[1menter\033[0m to begin cloning ..."
 		read enterkey
         if [ "$cho" = "y" -o "$cho" = "Y" ];then
             echo "---------------------------------------------"
-            echo "Cloning device tree..."
+            echo -e "Cloning device tree..."
             echo "---------------------------------------------"
             git clone -b $b --single-branch $sy/android_device_yu_lettuce.git $srcy/$b/device/yu/lettuce
             echo "---------------------------------------------"
-            echo "Cloning kernel tree..."
+            echo -e "Cloning kernel tree..."
             echo "---------------------------------------------"
             git clone -b $b --single-branch $sy/android_kernel_cyanogen_msm8916.git $srcy/$b/kernel/cyanogen/msm8916
             echo "---------------------------------------------"
-            echo "Cloning vendor_yu tree..."
+            echo -e "Cloning vendor_yu tree..."
             echo "---------------------------------------------"
             git clone -b $b --single-branch $sy/proprietary_vendor_yu.git $srcy/$b/vendor/yu
         else
             echo "---------------------------------------------"
-            echo "Cloning device tree..."
+            echo -e "Cloning device tree..."
             echo "---------------------------------------------"
             git clone -b $b --single-branch $s/android_device_yu_lettuce.git $src/$b/device/yu/lettuce
             echo "---------------------------------------------"
-            echo "Cloning kernel tree..."
+            echo -e "Cloning kernel tree..."
             echo "---------------------------------------------"
             git clone -b $b --single-branch $s/android_kernel_cyanogen_msm8916.git $src/$b/kernel/cyanogen/msm8916
             echo "---------------------------------------------"
-            echo "Cloning vendor_yu tree..."
+            echo -e "Cloning vendor_yu tree..."
             echo "---------------------------------------------"
             git clone -b $b --single-branch https://github.com/TheMuppets/proprietary_vendor_yu.git $src/$b/vendor/yu
         fi
 		echo "---------------------------------------------"
-		echo "Cloning Shared tree..."
+		echo -e "Cloning Shared tree..."
 		echo "---------------------------------------------"
 		git clone -b $b --single-branch $s/android_device_cyanogen_msm8916-common.git $src/$b/device/cyanogen/msm8916-common
 		echo "---------------------------------------------"
-		echo "Cloning android_device_qcom_sepolicy..."
+		echo -e "Cloning android_device_qcom_sepolicy..."
 		echo "---------------------------------------------"
 		git clone -b $b --single-branch $s/android_device_qcom_sepolicy.git $src/$b/device/qcom/sepolicy
 		echo "---------------------------------------------"
-		echo "Cloning qcom_common tree..."
+		echo -e "Cloning qcom_common tree..."
 		echo "---------------------------------------------"
 		git clone -b $b --single-branch $s/android_device_qcom_common.git $src/$b/device/qcom/common
 		#if ! [ "$b" = "cm-13.0" -o "$b" = "cm-12.1" ];then
@@ -635,7 +649,7 @@ case "$1" in
 				b=cm-14.1
 			;;
 			*)
-				echo "Invalid branch...!"
+				echo -e "\033[1mInvalid\033[0m branch...!"
 				exit 1
 			;;
 		esac
@@ -652,28 +666,28 @@ case "$1" in
                 sy="YU-N"
 			;;
 			*)
-				echo "Invalid source...!"
+				echo -e "\033[1mInvalid\033[0m source...!"
 				exit 1
 			;;
 		esac
         if [ "$b" = "cm-14.1" ];then
             read -p "Do you want YU-N trees also ?(Y/N) " choi
             if ! [ -e $HOME/workspace/lettuce-trees/$s/$b/device/yu/lettuce/Android.mk ];then
-                echo "YU-N trees not found...Please run ./setup_lettuce -st"
+                echo -e "\033[1mYU-N\033[0m trees \033[1mnot\033[0m found...Please run \033[1m./setup_lettuce -st\033[0m"
                 exit 1
             fi
         fi
         echo "---------------------------------------------"
         if [ "$choi" = "y" -o "$choi" = "Y" ];then
-            echo -e "Press enter to begin Copying trees from\n * $s/$b\n * $sy/$b"
+            echo -e "Press \033[1menter\033[0m to begin Copying trees from\n * \033[1m$s/$b\033[0m\n * \033[1m$sy/$b\033[0m"
         else
-            echo -e "Press enter to begin Copying trees from\n * $s/$b"
+            echo -e "Press \033[1menter\033[0m to begin Copying trees from\n * \033[1m$s/$b\033[0m"
         fi
 		read enterkey
 		echo "---------------------------------------------"
 
 		if [ -d $HOME/workspace/lettuce-trees/$s/$b ];then
-			echo "Copying device/yu/lettuce"
+			echo -e "Copying \033[1mdevice/yu/lettuce\033[0m"
 			mkdir -p $romdir/device/
 			mkdir -p $romdir/device/yu/
 			mkdir -p $romdir/device/yu/lettuce
@@ -684,7 +698,7 @@ case "$1" in
             fi
 			if ! [ -e $romdir/device/yu/lettuce/device.mk ];then dt=1; else dt=0; fi
 			echo "---------------------------------------------"
-			echo "Copying device/cyanogen/msm8916-common"
+			echo -e "Copying \033[1mdevice/cyanogen/msm8916-common\033[0m"
 			mkdir -p $romdir/device/cyanogen
 			mkdir -p $romdir/device/cyanogen/msm8916-common
 			cp -r $HOME/workspace/lettuce-trees/$s/$b/device/cyanogen/msm8916-common/* $romdir/device/cyanogen/msm8916-common
@@ -693,56 +707,56 @@ case "$1" in
 			if ! [ -e $romdir/device/qcom/common/Android.mk ];then
 				mkdir -p $romdir/device/qcom
 				mkdir -p $romdir/device/qcom/common
-				echo "Copying device/qcom/common"
+				echo -e "Copying \033[1mdevice/qcom/common\033[0m"
 				cp -r $HOME/workspace/lettuce-trees/$s/$b/device/qcom/common/* $romdir/device/qcom/common
 				if ! [ -e $romdir/device/qcom/common/Android.mk ];then qc=1;qc=0;fi
 			else
-				echo " * device/qcom/common already available..."
+				echo -e " * \033[1mdevice/qcom/common\033[0m already available..."
 				qc=N
 			fi
 			echo "---------------------------------------------"
 			if [ -d $romdir/device/qcom/common/cryptfs_hw ];then
-				echo " * device/qcom/common/cryptfs_hw available..."
+				echo -e " * device/qcom/common/\033[1mcryptfs_hw\033[0m available..."
 				grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk
 				flg1=1
             else
                 flg1=0
 			fi
 			if [ -d $romdir/vendor/qcom/opensource/cryptfs_hw ];then
-				echo " * vendor/qcom/opensource/cryptfs_hw available..."
+				echo -e " * vendor/qcom/opensource/\033[1mcryptfs_hw\033[0m available..."
 				grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk
 				flg2=1
             else
                 flg2=0
 			fi
 			if [ $flg1 -eq 1 -a $flg2 -eq 1 ];then
-				echo -e " * cryptfs_hw is available on multiple places\n   Please remove one of them."
-				echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
+				echo -e " * \033[1mcryptfs_hw\033[0m is available on \033[1mmultiple places\033[0m\n   Please \033[1mremove one\033[0m of them."
+				echo -e " * \033[1msystem/vold/Android.mk\033[0m --> \033[1m$( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)\033[0m"
             else
                 if [ $flg1 -eq 0 -a $flg2 -eq 0 ];then
-                    echo -e " * NO cryptfs_hw directory found...!!!"
+                    echo -e " * \033[1mNO cryptfs_hw\033[0m directory found...!!!"
                     val=`grep -ci "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk`
                     if [ $val -eq 1 ];then
                         path=`grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk|cut -d "=" -f 2`
-                        echo " * system/vold/Android.mk --> $( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)"
+                        echo -e " * \033[1msystem/vold/Android.mk\033[0m --> \033[1m$( grep -i "TARGET_CRYPTFS_HW_PATH " $romdir/system/vold/Android.mk)\033[0m"
                         if [ "$s" = "CyanogenMod" ];then
                             git clone -qb $b $url/android_device_qcom_common.git $HOME/android_device_qcom_common
                             mkdir -p $path
                             cp -r $HOME/android_device_qcom_common/cryptfs_hw/* $path/ 2>/dev/null
-                            if [ -e $path/cryptfs_hw.c ];then echo " * cryptfs_hw copied to $path";rm -r $HOME/android_device_qcom_common 2>/dev/null;else echo " * unable to copy cryptfs_hw at $path";fi
+                            if [ -e $path/cryptfs_hw.c ];then echo -e " * \033[1mcryptfs_hw\033[0m copied to \033[1m$path\033[0m";rm -r $HOME/android_device_qcom_common 2>/dev/null;else echo -e " * \033[1munable\033[0m to copy \033[1mcryptfs_hw\033[0m at \033[1m$path\033[0m";fi
                         fi
                         if [ "$s" = "LineageOS" ];then
                             git clone -qb $b $url/android_vendor_qcom_opensource_cryptfs_hw.git $path
-                            if [ -e $path/cryptfs_hw.c ];then echo " * cryptfs_hw copied to $path";else echo " * unable to copy cryptfs_hw at $path";fi
+                            if [ -e $path/cryptfs_hw.c ];then echo -e " * \033[1mcryptfs_hw\033[0m copied to \033[1m$path\033[0m";else echo -e " * \033[1munable\033[0m to copy \033[1mcryptfs_hw\033[0m at \033[1m$path\033[0m";fi
                         fi
                     else
-                        echo -e " * TARGET_CRYPTFS_HW_PATH = NULL\n   You have to manually edit system/vold/Android.mk and clone cryptfs_hw"
+                        echo -e " * \033[1mTARGET_CRYPTFS_HW_PATH = NULL\033[0m\n   You have to \033[1mmanually edit system/vold/Android.mk\033[0m and \033[1mclone cryptfs_hw\033[0m"
                     fi
                 fi
 			fi
 			sleep 1
 			echo "---------------------------------------------"
-			echo "Copying vendor/yu"
+			echo -e "Copying \033[1mvendor/yu\033[0m"
 			mkdir -p $romdir/vendor/yu
             if [ "$choi" = "y" -o "$choi" = "Y" ];then
                 cp -r $HOME/workspace/lettuce-trees/$sy/$b/vendor/yu/* $romdir/vendor/yu
@@ -751,9 +765,9 @@ case "$1" in
             fi
 			if ! [ -e $romdir/vendor/yu/lettuce/Android.mk ];then vt=1; else vt=0; fi
 			echo "---------------------------------------------"
-			echo "Copying device/qcom/sepolicy"
+			echo -e "Copying \033[1mdevice/qcom/sepolicy\033[0m"
 			if [ -d $romdir/device/qcom/sepolicy ];then
-				echo " * device/qcom/sepolicy already available..."
+				echo -e " * device/qcom/sepolicy already \033[1mavailable\033[0m..."
 				qs=N
 			else
 			#	mkdir -p $romdir/device/qcom
@@ -763,7 +777,7 @@ case "$1" in
 				if [ -e $romdir/device/qcom/sepolicy/Android.mk ];then qs=0;else qs=1;fi
 			fi
 			echo "---------------------------------------------"
-			echo "Copying kernel/cyanogen/msm8916"
+			echo -e "Copying \033[1mkernel/cyanogen/msm8916\033[0m"
 			mkdir -p $romdir/kernel
 			mkdir -p $romdir/kernel/cyanogen
 			mkdir -p $romdir/kernel/cyanogen/msm8916
@@ -783,10 +797,10 @@ case "$1" in
                 if [ -d $romdir/vendor/$vn ];then
                     find $romdir/vendor/$vn -type f \( -name "*common*.mk" -o -name "*$vn*.mk" -o -name "main.mk" \) | cut --delimiter "/" --fields 6-
                 else
-                    echo "- NO such directory available...!!"
+                    echo -e "* \033[1mNO\033[0m such \033[1mdirectory\033[0m available...!!"
                 fi
                 echo "---------------------------------------------"
-                echo "    (Select from above list)"
+                echo -e "    (\033[1mSelect\033[0m from \033[1mabove list\033[0m)"
                 read -p "Haven't found required file...wanna retry(y/n) : " ctl
                 echo "---------------------------------------------"
             done
@@ -801,24 +815,24 @@ case "$1" in
             fi
 			sleep 1
 			if ! [ -e $romdir/device/yu/lettuce/cm.mk ];then
-				echo -e "- Creating $(echo $vn).mk"
+				echo -e "* Creating \033[1m$(echo $vn).mk\033[0m"
                 mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn).mk
-                echo -e "- Creating AndroidProducts.mk"
+                echo -e "* Creating \033[1mAndroidProducts.mk\033[0m"
 				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn).mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 				echo "s/PRODUCT_NAME := lineage_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
 				sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
 				rm $romdir/tmp
 			else
-                echo -e "- Creating $(echo $vn).mk"
+                echo -e "* Creating \033[1m$(echo $vn).mk\033[0m"
 				mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn).mk
-                echo -e "- Creating AndroidProducts.mk"
+                echo -e "* Creating \033[1mAndroidProducts.mk\033[0m"
 				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn).mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 				echo "s/PRODUCT_NAME := cm_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
 				sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
 				rm $romdir/tmp
 			fi
             if [ -z "$vf" ];then
-                echo " * NO value given for vendor file..."
+                echo -e " * \033[1mNO\033[0m value given for \033[1mvendor file\033[0m..."
             else
                 echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
                 echo "$(echo $vf)">$romdir/tmp2
@@ -828,9 +842,9 @@ case "$1" in
                 sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
                 rm -r $romdir/tmp*
                 flg=`grep -ci $(echo $vf) $romdir/device/yu/lettuce/$(echo $vn).mk`
-                if ! [ $flg -eq 0 ];then echo "- inserted $vf";sleep 1;fi
+                if ! [ $flg -eq 0 ];then echo -e "* inserted \033[1m$vf\033[0m";sleep 1;fi
                 if [ -z "$svf" ];then
-                    echo " * NO value given for 2nd vendor file..."
+                    echo -e " * \033[1mNO\033[0m value given for \033[1m2nd\033[0m vendor file..."
                 else
                     echo $vf>$romdir/tmp1
                     echo $svf>$romdir/tmp2
@@ -842,7 +856,7 @@ case "$1" in
                     sed -f $romdir/tmp5 -i $romdir/device/yu/lettuce/$(echo $vn).mk
                     rm -r $romdir/tmp*
                     flg=`grep -ci $(echo $svf) $romdir/device/yu/lettuce/$(echo $vn).mk`
-                    if ! [ $flg -eq 0 ];then echo "- inserted $svf";fi
+                    if ! [ $flg -eq 0 ];then echo -e "* inserted \033[1m$svf\033[0m";fi
                 fi
                 sleep 1
                 if [ -e $romdir/vendor/$vn/config/common_full_phone.mk ];then
@@ -853,7 +867,7 @@ case "$1" in
                     paste --delimiters "" $romdir/tmp3 $romdir/tmp2>$romdir/tmp4
                     sed -f $romdir/tmp4 -i $romdir/device/yu/lettuce/$(echo $vn).mk
                     flg=`grep -ci vendor/$(echo $vn)/config/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn).mk`
-                    if ! [ $flg -eq 0 ];then echo "- inserted vendor/$(echo $vn)/config/common_full_phone.mk";fi
+                    if ! [ $flg -eq 0 ];then echo -e "* inserted \033[1mvendor/$(echo $vn)/config/common_full_phone.mk\033[0m";fi
                     rm -r $romdir/tmp*
                 fi
                 if [ -e $romdir/vendor/$vn/configs/common_full_phone.mk ];then
@@ -864,7 +878,7 @@ case "$1" in
                     paste --delimiters "" $romdir/tmp3 $romdir/tmp2>$romdir/tmp4
                     sed -f $romdir/tmp4 -i $romdir/device/yu/lettuce/$(echo $vn).mk
                     flg=`grep -ci vendor/$(echo $vn)/configs/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn).mk`
-                    if ! [ $flg -eq 0 ];then echo "- inserted vendor/$(echo $vn)/configs/common_full_phone.mk";fi
+                    if ! [ $flg -eq 0 ];then echo -e "* inserted \033[1mvendor/$(echo $vn)/configs/common_full_phone.mk\033[0m";fi
                     rm -r $romdir/tmp*
                 fi
             fi
@@ -874,7 +888,8 @@ case "$1" in
 				str=`grep -i /data/misc/radio vendor/$vn/sepolicy/file_contexts`
 				flag2=`grep -ci /data/misc/radio device/qcom/sepolicy/common/file_contexts`
 				if [ $flag -gt 0 -a $flag2 -gt 0 ];then
-					echo -e " * Please remove [ $str ]\n   from vendor/$vn/sepolicy/file_contexts to avoid errors."
+					echo -e "* Please \033[1mremove\033[0m [ \033[1m$str\033[0m ]\n  from \033[1mvendor/$vn/sepolicy/file_contexts\033[0m to avoid \033[1merrors\033[0m."
+                    echo "---------------------------------------------"
 				fi
 			fi
             sleep 1
@@ -882,25 +897,25 @@ case "$1" in
 				mv $romdir/build/core/tasks/kernel.mk $romdir/kernel.mk.bak
 				if [ -e $HOME/workspace/lettuce-trees/kernel.mk ];then
 					cp $HOME/workspace/lettuce-trees/kernel.mk $romdir/build/core/tasks/kernel.mk 2>/dev/null
-					if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+					if [ $? -lt 1 ];then echo -e "* \033[1mkernel.mk\033[0m file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
 				else
 					wget --quiet -O $romdir/build/core/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk
-					if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+					if [ $? -lt 1 ];then echo -e "* \033[1mkernel.mk\033[0m file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
 				fi
 			else
 				if [ -e $romdir/vendor/$vn/build/tasks/kernel.mk ];then
 					mv $romdir/vendor/$vn/build/tasks/kernel.mk $romdir/kernel.mk.bak
 					if [ -e $HOME/workspace/lettuce-trees/kernel.mk ];then
 						cp $HOME/workspace/lettuce-trees/kernel.mk $romdir/vendor/$vn/build/tasks/kernel.mk 2>/dev/null
-						if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+						if [ $? -lt 1 ];then echo -e "* \033[1mkernel.mk\033[0m file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
 					else
 						wget -qO $romdir/vendor/$vn/build/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk
-						if [ $? -lt 1 ];then echo -e "- kernel.mk file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+						if [ $? -lt 1 ];then echo -e "* \033[1mkernel.mk\033[0m file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
 					fi
 				fi
 			fi
 			echo "---------------------------------------------"
-			echo -e "- Fixing derps..."
+			echo -e "* Fixing \033[1mderps\033[0m..."
 			sed -i '/PRODUCT_BRAND/D' $romdir/device/yu/lettuce/full_lettuce.mk
 			sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn).mk
 			sleep 1
@@ -911,22 +926,22 @@ case "$1" in
 			fi
 			sleep 1
 			if [ -e $romdir/device/yu/lettuce/board-info.txt ];then
-				echo "- Fixing Assertions..."
+				echo "- Fixing \033[1mAssertions\033[0m..."
 				rm $romdir/device/yu/lettuce/board-info.txt 2>/dev/null
-				if [ $? -eq 0 ];then echo " * device/yu/lettuce/board-info.txt removed";else echo " * unable to remove device/yu/lettuce/board-info.txt";fi
+				if [ $? -eq 0 ];then echo -e " * device/yu/lettuce/board-info.txt removed";else echo -e " * unable to remove device/yu/lettuce/board-info.txt";fi
 				sed -i '/TARGET_BOARD_INFO_FILE/d' $romdir/device/yu/lettuce/BoardConfig.mk
 				er=`grep -ci TARGET_BOARD_INFO_FILE $romdir/device/yu/lettuce/BoardConfig.mk`
-				if [ $er -eq 0 ];then echo " * BoardConfig.mk modified";else echo " * unable to edit BoardConfig.mk";fi
+				if [ $er -eq 0 ];then echo -e " * \033[1mBoardConfig.mk\033[0m modified";else echo -e " * \033[1munable\033[0m to edit \033[1mBoardConfig.mk\033[0m";fi
 			fi
 			echo "---------------------------------------------"
-			echo -e "- Creating vendorsetup.sh"
+			echo -e "* Creating \033[1mvendorsetup.sh\033[0m"
 			if [ -e $romdir/device/yu/lettuce/vendorsetup.sh ]; then rm $romdir/device/yu/lettuce/vendorsetup.sh 2>/dev/null;fi
 			sleep 1
 cat <<EOF>$romdir/device/yu/lettuce/vendorsetup.sh
 add_lunch_combo $(echo $vn)_lettuce-userdebug
 EOF
 			echo "---------------------------------------------"
-			echo -e "- Creating $(echo $vn)-build.sh"
+			echo -e "* Creating \033[1m$(echo $vn)-build.sh\033[0m"
 			if ! [ -e $romdir/$(echo $vn)-build.sh ]; then
 				jobs=$(grep -ci processor /proc/cpuinfo)
 #				jobs=`expr $jobs \* 2`
@@ -964,7 +979,7 @@ EOF
 				chmod a+x $romdir/$(echo $vn)-build.sh
 			fi
 			echo "---------------------------------------------"
-			echo -e "- Creating remove_trees.sh"
+			echo -e "* Creating \033[1mremove_trees.sh\033[0m"
 			if [ -e $romdir/remove_trees.sh ]; then rm -f $romdir/remove_trees.sh &>/dev/null;fi
 cat <<EOF>$romdir/remove_trees.sh
 echo "---------------------------------------------"
@@ -989,48 +1004,49 @@ rm -rf $romdir/hardware/qcom/media-caf/msm8916 &>/dev/null
 echo "---------------------------------------------"
 EOF
 			chmod a+x $romdir/remove_trees.sh
-			echo "- run ./setup_lettuce.sh -c to copy CAF-HAL trees if needed."
-			echo "- also run ./setup_lettuce.sh -f to fix device tree if lunch fails."
+            echo "---------------------------------------------"
+			echo -e "* run \033[1m./setup_lettuce.sh -c\033[0m to copy \033[1mCAF-HAL\033[0m trees if needed."
+			echo -e "* also run \033[1m./setup_lettuce.sh -f\033[0m to \033[1mfix\033[0m device tree if \033[1mlunch\033[0m fails."
 			sleep 1
 			echo "---------------------------------------------"
-			echo -e "\tLOG"
+			echo -e "\t\033[1mLOG\033[0m"
 			echo "---------------------------------------------"
-			if [ "$dt" = "1" ]; then echo -e "- device tree\t\t[FAILED]";else echo -e "- device tree\t\t[SUCCESS]";fi
-			if [ "$st" = "1" ]; then echo -e "- shared tree\t\t[FAILED]";else echo -e "- shared tree\t\t[SUCCESS]";fi
-			if [ "$vt" = "1" ]; then echo -e "- vendor_yu\t\t[FAILED]";else echo -e "- vendor_yu\t\t[SUCCESS]";fi
-			if [ "$kt" = "1" ]; then echo -e "- kernel tree\t\t[FAILED]";else echo -e "- kernel tree\t\t[SUCCESS]";fi
+			if [ "$dt" = "1" ]; then echo -e "- device tree\t\t\033[1m[FAILED]\033[0m";else echo -e "- device tree\t\t\033[1m[SUCCESS]\033[0m";fi
+			if [ "$st" = "1" ]; then echo -e "- shared tree\t\t\033[1m[FAILED]\033[0m";else echo -e "- shared tree\t\t\033[1m[SUCCESS]\033[0m";fi
+			if [ "$vt" = "1" ]; then echo -e "- vendor_yu\t\t\033[1m[FAILED]\033[0m";else echo -e "- vendor_yu\t\t\033[1m[SUCCESS]\033[0m";fi
+			if [ "$kt" = "1" ]; then echo -e "- kernel tree\t\t\033[1m[FAILED]\033[0m";else echo -e "- kernel tree\t\t\033[1m[SUCCESS]\033[0m";fi
 			if [ "$qs" = "1" ]; then
-				echo -e "- qcom-sepolicy tree\t[FAILED]"
+				echo -e "- qcom-sepolicy tree\t\033[1m[FAILED]\033[0m"
 			elif [ "$qs" = "N" ]; then
-				echo -e "- qcom-sepolicy tree\t[NOT REQUIRED]"
+				echo -e "- qcom-sepolicy tree\t\033[1m[NOT REQUIRED]\033[0m"
 			else
-				echo -e "- qcom-sepolicy tree\t[SUCCESS]"
+				echo -e "- qcom-sepolicy tree\t\033[1m[SUCCESS]\033[0m"
 			fi
 			if [ "$qc" = "1" ]; then
-				echo -e "- qcom-common tree\t[FAILED]"
+				echo -e "- qcom-common tree\t\033[1m[FAILED]\033[0m"
 			elif [ "$qc" = "N" ]; then
-				echo -e "- qcom-common tree\t[NOT REQUIRED]"
+				echo -e "- qcom-common tree\t\033[1m[NOT REQUIRED]\033[0m"
 			else
-				echo -e "- qcom-common tree\t[SUCCESS]"
+				echo -e "- qcom-common tree\t\033[1m[SUCCESS]\033[0m"
 			fi
 			echo "---------------------------------------------"
 		else
-			echo -e "- Please setup trees properly.\n- To do run ./setup_lettuce -st"
+			echo -e "- Please \033[1msetup trees\033[0m properly.\n- To do run \033[1m./setup_lettuce -st\033[0m"
 		fi
 		exit 1
 		;;
 	*)
 		echo -e "\t---------------------------------------------"
-		echo -e "\t|               HELP MENU                   |"
+		echo -e "\t|               \033[1mHELP MENU\033[0m                   |"
 		echo -e "\t---------------------------------------------"
-		echo -e "\t|   -j     Switch jdk versions              |"
-		echo -e "\t|   -c     Copy some caf HAL trees          |"
-		echo -e "\t|   -f     To fix lunch error               |"
-		echo -e "\t|   -t     Switch toolchain for compilation |"
-		echo -e "\t|   -st    Download device trees for later  |"
+		echo -e "\t|   \033[1m-j\033[0m     Switch jdk versions              |"
+		echo -e "\t|   \033[1m-c\033[0m     Copy some caf HAL trees          |"
+		echo -e "\t|   \033[1m-f\033[0m     To fix lunch error               |"
+		echo -e "\t|   \033[1m-t\033[0m     Switch toolchain for compilation |"
+		echo -e "\t|   \033[1m-st\033[0m    Download device trees for later  |"
 		echo -e "\t|          use                              |"
-		echo -e "\t|   -ct    Copy device trees to working-dir |"
-		echo -e "\t|   -tc    Download toolchain for later use |"
+		echo -e "\t|   \033[1m-ct\033[0m    Copy device trees to working-dir |"
+		echo -e "\t|   \033[1m-tc\033[0m    Download toolchain for later use |"
 		echo -e "\t---------------------------------------------"
 		exit 1
 		;;

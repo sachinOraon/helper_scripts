@@ -1,9 +1,8 @@
 Some problems that can occur while rom compilation and their solutions(especially for lettuce)
 -------------------------------------------------------------------------------------------------
 [1] No rule to make target "SHARED_LIBRARIES/libaudiopolicymanager_intermediates/export_includes"
-    * insert USE_CUSTOM_AUDIO_POLICY := 0 in device/yu/lettuce/BoardConfig.mk
-	  or modify device/cyanogen/msm8916-common/board/qcom-audio.mk file.
-	  or clone the  hardware/qcom/audio-caf/ repo. If the problem persists after cloning then insert  USE_LEGACY_AUDIO_POLICY := 1  in device/yu/lettuce/BoardConfig.mk
+    * insert USE_CUSTOM_AUDIO_POLICY := 0 in device/cyanogen/msm8916-common/board/qcom-audio.mk file.
+	  or clone the caf-msm8916 branch of hardware/qcom/audio repo into hardware/qcom/audio-caf/msm8916 directory.
 
 [2] No rule to make target "SHARED_LIBRARIES/libcryptfs_hw_intermediates/export_includes"
 	* Comment/delete the following line  common_shared_libraries += libcryptfs_hw   from system/vold/Android.mk
@@ -185,7 +184,8 @@ include $(BUILD_PREBUILT)
 	  it may cause fatal error: 'cryptfs_hw.h' file not found if vendor/qcom/opensource/cryptfs_hw is removed.
 
 [32] ninja: error: out/target/product/lettuce/system/lib64/libfmjni.so missing and no known rule to make it
-	* try adding libfmjni.so manually just as Problem 21
+	* git clone -b cm-13.0 https://github.com/LineageOS/android_hardware_qcom_fm.git hardware/qcom/fm
+    * try adding libfmjni.so manually just as Problem 21
 	* OR rm -r packages/apps/FMRadio
 	* OR add BOARD_HAVE_QCOM_FM := true in device/cyanogen/msm8916-common/board/qcom-fm.mk
 
@@ -478,3 +478,19 @@ int fs_mgr_is_mdtp_activated()
 
       return mdtp_activated;
 }
+
+[72] No rule to make target '/home/sachinoraon55/workspace/du/out/target/product/lettuce/obj_arm/STATIC_LIBRARIES/libqc-art-compiler_intermediates/export_includes'
+    * make changes to art/compiler/Android.mk according to  https://github.com/LineageOS/android_art/commit/ebb3a5e26f19355bbaa00d7da9b993a418c915f9
+      for ref https://github.com/LineageOS/android_art/raw/cm-13.0/compiler/Android.mk
+
+[73] No rule to make target '/home/sachinoraon55/workspace/du/out/target/product/lettuce/obj_arm/STATIC_LIBRARIES/libqc-art_intermediates/export_includes'
+    * edit art/runtime/Android.mk
+      change  ifeq ($(BOARD_USES_QCOM_HARDWARE),true)  to   ifeq ($(TARGET_HAVE_QC_PERF),true)
+      OR cherry pick https://github.com/LineageOS/android_art/commit/ead3f39d3e80a90a1863e79822bf5acfae50e9ca
+
+[74] No rule to make target '/home/sachinoraon55/workspace/caf-du/out/target/common/obj/JAVA_LIBRARIES/sap-api-java-static_intermediates/classes.jack
+    * git clone -b cm-13.0-caf https://github.com/CyanogenMod/android_hardware_ril-caf.git hardware/ril-caf
+
+[75] device/yu/lettuce/camera/QCamera2/HAL/QCamera2HWI.cpp:1293:39: error: 'setCameraLaunchStatus' was not declared
+     device/yu/lettuce/camera/QCamera2/HAL/QCamera2HWI.cpp: In member function 'int qcamera::QCamera2HardwareInterface::closeCamera()':
+    * git clone -b cm-13.0-caf-8916 https://github.com/LineageOS/android_hardware_qcom_camera.git hardware/qcom/display-caf/msm8916
