@@ -23,7 +23,7 @@ case "$1" in
 				b=cm-14.1
 			;;
 			*)
-				echo "Invalid branch...!"
+				echo -e " * \033[1mInvalid\033[0m branch...!"
 				exit 1
 			;;
 		esac
@@ -36,7 +36,7 @@ case "$1" in
 				s="CyanogenMod"
 			;;
 			*)
-				echo "Invalid source...!"
+				echo -e " * \033[1mInvalid\033[0m source...!"
 				exit 1
 			;;
 		esac
@@ -46,7 +46,7 @@ case "$1" in
         rm -rf $romdir/hardware/qcom/display-caf/msm8916 &>/dev/null
         rm -rf $romdir/hardware/qcom/media-caf/msm8916 &>/dev/null
         rm -rf $romdir/hardware/qcom/wlan-caf &>/dev/null
-        rm -rf $romdir/hardware/bt-caf &>/dev/null
+        rm -rf $romdir/hardware/qcom/bt-caf &>/dev/null
         rm -rf $romdir/hardware/ril-caf &>/dev/null
         echo "---------------------------------------------"
 		echo -e "\tCLONING \033[1mcaf\033[0m trees"
@@ -68,16 +68,16 @@ case "$1" in
 		if ! [ $? -lt 1 ];then echo -e "   \033[1mmedia-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1mmedia-caf\033[0m\t\t[DONE]"; fi
         #mkdir -p hardware/qcom/wlan-caf
         #cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/wlan-caf/* hardware/qcom/wlan-caf 2>/dev/null
-        git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_wlan.git hardware/qcom/wlan-caf
+        git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_wlan.git hardware/qcom/wlan-caf 2>/dev/null
         if ! [ $? -lt 1 ];then echo -e "   \033[1mwlan-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1mwlan-caf\033[0m\t\t[DONE]"; fi
         #mkdir -p hardware/qcom/bt-caf
         #cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/bt-caf/* hardware/qcom/bt-caf 2>/dev/null
-        git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_bt.git hardware/qcom/bt-caf
-        if ! [ $? -lt 1 ];then echo -e "   \033[1mbt-caf\033[0m\t\t\t[FAILED]"; else echo -e "   \033[1mbt-caf\033[0m\t\t\t[DONE]"; fi
+        git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_bt.git hardware/qcom/bt-caf 2>/dev/null
+        if ! [ $? -lt 1 ];then echo -e "   \033[1mbt-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1mbt-caf\033[0m\t\t[DONE]"; fi
         #mkdir -p hardware/ril-caf
         #cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
-        git clone -qb $b-caf https://github.com/$s/android_hardware_ril-caf.git hardware/ril-caf
-        if ! [ $? -lt 1 ];then echo -e "   \033[1mril-caf\033[0m\t\t\t[FAILED]"; else echo -e "   \033[1mril-caf\033[0m\t\t\t[DONE]"; fi
+        git clone -qb $b-caf https://github.com/$s/android_hardware_ril-caf.git hardware/ril-caf 2>/dev/null
+        if ! [ $? -lt 1 ];then echo -e "   \033[1mril-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1mril-caf\033[0m\t\t[DONE]"; fi
 		#if [ "$b" = "cm-12.1" -o "$b" = "cm-13.0" ]; then
 		#	rm -r hardware/qcom/ril-caf 2>/dev/null
 		#	cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
@@ -671,7 +671,7 @@ case "$1" in
 			;;
 		esac
         if [ "$b" = "cm-14.1" ];then
-            read -p "Do you want YU-N trees also ?(Y/N) " choi
+            read -p "Do you want YU-N trees also ?(Y/N) : " choi
             if ! [ -e $HOME/workspace/lettuce-trees/$s/$b/device/yu/lettuce/Android.mk ];then
                 echo -e "\033[1mYU-N\033[0m trees \033[1mnot\033[0m found...Please run \033[1m./setup_lettuce -st\033[0m"
                 exit 1
