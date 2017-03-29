@@ -40,9 +40,7 @@ case "$1" in
 				exit 1
 			;;
 		esac
-		echo "---------------------------------------------"
-		echo -e "\tCOPYING \033[1mcaf\033[0m trees"
-		echo "---------------------------------------------"
+        echo "---------------------------------------------"
         echo -e " * \033[1mRemoving\033[0m previous \033[1mcaf\033[0m HAL trees..."
         rm -rf $romdir/hardware/qcom/audio-caf/msm8916 &>/dev/null
         rm -rf $romdir/hardware/qcom/display-caf/msm8916 &>/dev/null
@@ -51,33 +49,35 @@ case "$1" in
         rm -rf $romdir/hardware/bt-caf &>/dev/null
         rm -rf $romdir/hardware/ril-caf &>/dev/null
         echo "---------------------------------------------"
+		echo -e "\tCLONING \033[1mcaf\033[0m trees"
+		echo "---------------------------------------------"
 		#if [ -d $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom ];then
 		#mkdir -p hardware/qcom/audio-caf/msm8916
 		#cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/audio-caf/msm8916/* hardware/qcom/audio-caf/msm8916 2>/dev/null
         git clone -qb $b-caf-8916 https://github.com/$s/android_hardware_qcom_audio.git hardware/qcom/audio-caf/msm8916
-		if ! [ $? -lt 1 ];then echo -e "\033[1maudio-caf\033[0m\t\t[FAILED]"; else echo -e "\033[1maudio-caf\033[0m\t\t[DONE]"; fi
+		if ! [ $? -lt 1 ];then echo -e "   \033[1maudio-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1maudio-caf\033[0m\t\t[DONE]"; fi
 		#sleep 1
 		#mkdir -p hardware/qcom/display-caf/msm8916
 		#cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/display-caf/msm8916/* hardware/qcom/display-caf/msm8916 2>/dev/null
         git clone https://github.com/$s/android_hardware_qcom_display.git -qb $b-caf-8916 hardware/qcom/display-caf/msm8916
-		if ! [ $? -lt 1 ];then echo -e "\033[1mdisplay-caf\033[0m\t\t[FAILED]"; else echo -e "\033[1mdisplay-caf\033[0m\t\t[DONE]"; fi
+		if ! [ $? -lt 1 ];then echo -e "   \033[1mdisplay-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1mdisplay-caf\033[0m\t\t[DONE]"; fi
 		#mkdir -p hardware/qcom/media-caf/msm8916
 		#cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/media-caf/msm8916/* hardware/qcom/media-caf/msm8916 2>/dev/null
         git clone -qb $b-caf-8916 https://github.com/$s/android_hardware_qcom_media.git hardware/qcom/media-caf/msm8916
 		#sleep 1
-		if ! [ $? -lt 1 ];then echo -e "\033[1mmedia-caf\033[0m\t\t[FAILED]"; else echo -e "\033[1mmedia-caf\033[0m\t\t[DONE]"; fi
+		if ! [ $? -lt 1 ];then echo -e "   \033[1mmedia-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1mmedia-caf\033[0m\t\t[DONE]"; fi
         #mkdir -p hardware/qcom/wlan-caf
         #cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/wlan-caf/* hardware/qcom/wlan-caf 2>/dev/null
         git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_wlan.git hardware/qcom/wlan-caf
-        if ! [ $? -lt 1 ];then echo -e "\033[1mwlan-caf\033[0m\t\t[FAILED]"; else echo -e "\033[1mwlan-caf\033[0m\t\t[DONE]"; fi
+        if ! [ $? -lt 1 ];then echo -e "   \033[1mwlan-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1mwlan-caf\033[0m\t\t[DONE]"; fi
         #mkdir -p hardware/qcom/bt-caf
         #cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/bt-caf/* hardware/qcom/bt-caf 2>/dev/null
         git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_bt.git hardware/qcom/bt-caf
-        if ! [ $? -lt 1 ];then echo -e "\033[1mbt-caf\033[0m\t\t\t[FAILED]"; else echo -e "\033[1mbt-caf\033[0m\t\t\t[DONE]"; fi
+        if ! [ $? -lt 1 ];then echo -e "   \033[1mbt-caf\033[0m\t\t\t[FAILED]"; else echo -e "   \033[1mbt-caf\033[0m\t\t\t[DONE]"; fi
         #mkdir -p hardware/ril-caf
         #cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
-        git clone -qb $b-caf https://github.com/$s/android_hardware_ril-caf.git hardware/ril-caf/msm8916
-        if ! [ $? -lt 1 ];then echo -e "\033[1mril-caf\033[0m\t\t\t[FAILED]"; else echo -e "\033[1mril-caf\033[0m\t\t\t[DONE]"; fi
+        git clone -qb $b-caf https://github.com/$s/android_hardware_ril-caf.git hardware/ril-caf
+        if ! [ $? -lt 1 ];then echo -e "   \033[1mril-caf\033[0m\t\t\t[FAILED]"; else echo -e "   \033[1mril-caf\033[0m\t\t\t[DONE]"; fi
 		#if [ "$b" = "cm-12.1" -o "$b" = "cm-13.0" ]; then
 		#	rm -r hardware/qcom/ril-caf 2>/dev/null
 		#	cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
@@ -89,35 +89,35 @@ case "$1" in
 		;;
 	-f)
 		echo "---------------------------------------------"
-		echo -e "\tFixing device makefiles"
+		echo -e "\t\033[1mFixing device makefiles\033[0m"
 		echo "---------------------------------------------"
 		if [ -e $romdir/device/yu/lettuce/vendor.dat ];then
 			file=$(cat $romdir/device/yu/lettuce/vendor.dat)
 			if [ -e $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk ];then
 				mv $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk $romdir/device/yu/lettuce/$(echo $file).mk
-				if [ $? -eq 0 ];then echo -e "- Renaming $(echo $file)_lettuce.mk to $(echo $file).mk";else echo "- Can't rename $(echo $file)_lettuce.mk";fi
+				if [ $? -eq 0 ];then echo -e "- Renaming \033[1m$(echo $file)_lettuce.mk\033[0m to \033[1m$(echo $file).mk\033[0m";else echo "- \033[1mCan't\033[0m rename \033[1m$(echo $file)_lettuce.mk\033[0m";fi
 				sleep 1
 				rm $romdir/device/yu/lettuce/AndroidProducts.mk
-				if [ $? -eq 0 ];then echo "- Old AndroidProducts.mk removed";else echo "- Old AndroidProducts.mk can't be removed";fi
+				if [ $? -eq 0 ];then echo "- Old \033[1mAndroidProducts.mk\033[0m removed";else echo "- Old \033[1mAndroidProducts.mk\033[0m can't be removed";fi
 				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $file).mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 				sleep 1
-				if [ $? -eq 0 ];then echo "- New AndroidProducts.mk created";else echo "- Can't create new AndroidProducts.mk";fi
-				if [ -e $romdir/device/yu/lettuce/$(echo $file).mk ];then echo -e "- Now lunch can run successfully";fi
+				if [ $? -eq 0 ];then echo "- \033[1mNew\033[0m AndroidProducts.mk created";else echo "- \033[1mCan't\033[0m create new AndroidProducts.mk";fi
+				if [ -e $romdir/device/yu/lettuce/$(echo $file).mk ];then echo -e "- Now \033[1mlunch\033[0m can run successfully";fi
 				echo "---------------------------------------------"
 			else
 				mv $romdir/device/yu/lettuce/$(echo $file).mk $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk
-				if [ $? -eq 0 ];then echo -e "- Renaming $file.mk to $(echo $file)_lettuce.mk";else echo "- Can't rename $file.mk";fi
+				if [ $? -eq 0 ];then echo -e "- Renaming \033[1m$file.mk\033[0m to \033[1m$(echo $file)_lettuce.mk\033[0m";else echo "- \033[1mCan't\033[0m rename \033[1m$file.mk\033[0m";fi
 				sleep 1
 				rm $romdir/device/yu/lettuce/AndroidProducts.mk
-				if [ $? -eq 0 ];then echo "- Old AndroidProducts.mk removed";else echo "- Old AndroidProducts.mk can't be removed";fi
+				if [ $? -eq 0 ];then echo "- Old \033[1mAndroidProducts.mk\033[0m removed";else echo "- Old \033[1mAndroidProducts.mk\033[0m can't be removed";fi
 				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $file)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 				sleep 1
-				if [ $? -eq 0 ];then echo "- New AndroidProducts.mk created";else echo "- Can't create new AndroidProducts.mk";fi
-				if [ -e $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk ];then echo -e "- Now lunch can run successfully";fi
+				if [ $? -eq 0 ];then echo "- \033[1mNew\033[0m AndroidProducts.mk created";else echo "- \033[1mCan't\033[0m create new AndroidProducts.mk";fi
+				if [ -e $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk ];then echo -e "- Now \033[1mlunch\033[0m can run successfully";fi
 				echo "---------------------------------------------"
 			fi
 		else
-			echo "- Can't find saved file"
+			echo "- \033[1mCan't\033[0m find \033[1msaved\033[0m file"
 		fi
 		exit 1
 		;;
@@ -844,7 +844,7 @@ case "$1" in
                 flg=`grep -ci $(echo $vf) $romdir/device/yu/lettuce/$(echo $vn).mk`
                 if ! [ $flg -eq 0 ];then echo -e "* inserted \033[1m$vf\033[0m";sleep 1;fi
                 if [ -z "$svf" ];then
-                    echo -e " * \033[1mNO\033[0m value given for \033[1m2nd\033[0m vendor file..."
+                    echo -e "* \033[1mNO\033[0m value given for \033[1m2nd\033[0m vendor file..."
                 else
                     echo $vf>$romdir/tmp1
                     echo $svf>$romdir/tmp2
@@ -926,12 +926,12 @@ case "$1" in
 			fi
 			sleep 1
 			if [ -e $romdir/device/yu/lettuce/board-info.txt ];then
-				echo "- Fixing \033[1mAssertions\033[0m..."
+				echo -e "* Fixing \033[1mAssertions\033[0m..."
 				rm $romdir/device/yu/lettuce/board-info.txt 2>/dev/null
-				if [ $? -eq 0 ];then echo -e " * device/yu/lettuce/board-info.txt removed";else echo -e " * unable to remove device/yu/lettuce/board-info.txt";fi
+				if [ $? -eq 0 ];then echo -e "* device/yu/lettuce/board-info.txt \033[1mremoved\033[0m";else echo -e "* \033[1munable\033[0m to remove device/yu/lettuce/board-info.txt";fi
 				sed -i '/TARGET_BOARD_INFO_FILE/d' $romdir/device/yu/lettuce/BoardConfig.mk
 				er=`grep -ci TARGET_BOARD_INFO_FILE $romdir/device/yu/lettuce/BoardConfig.mk`
-				if [ $er -eq 0 ];then echo -e " * \033[1mBoardConfig.mk\033[0m modified";else echo -e " * \033[1munable\033[0m to edit \033[1mBoardConfig.mk\033[0m";fi
+				if [ $er -eq 0 ];then echo -e "* \033[1mBoardConfig.mk\033[0m modified";else echo -e "* \033[1munable\033[0m to edit \033[1mBoardConfig.mk\033[0m";fi
 			fi
 			echo "---------------------------------------------"
 			echo -e "* Creating \033[1mvendorsetup.sh\033[0m"
