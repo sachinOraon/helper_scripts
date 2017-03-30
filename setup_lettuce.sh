@@ -637,7 +637,8 @@ case "$1" in
 		;;
 	-ct)
 		echo "---------------------------------------------"
-		read -p "BRANCH (L/M/N) = " b
+		echo -en "BRANCH (\033[1mL/M/N\033[0m) = "
+        read b
 		case "$b" in
 			l|L)
 				b=cm-12.1
@@ -653,7 +654,8 @@ case "$1" in
 				exit 1
 			;;
 		esac
-		read -p "SOURCE (L/C)   = " s
+        echo -en "SOURCE (\033[1mL/C\033[0m)   = "
+		read s
 		case "$s" in
 			l|L)
 				s="LineageOS"
@@ -671,7 +673,8 @@ case "$1" in
 			;;
 		esac
         if [ "$b" = "cm-14.1" ];then
-            read -p "Do you want YU-N trees also ?(Y/N) : " choi
+            echo -en "Do you want \033[1mYU-N\033[0m trees also ?(Y/N) : "
+            read choi
             if ! [ -e $HOME/workspace/lettuce-trees/$s/$b/device/yu/lettuce/Android.mk ];then
                 echo -e "\033[1mYU-N\033[0m trees \033[1mnot\033[0m found...Please run \033[1m./setup_lettuce -st\033[0m"
                 exit 1
@@ -679,9 +682,9 @@ case "$1" in
         fi
         echo "---------------------------------------------"
         if [ "$choi" = "y" -o "$choi" = "Y" ];then
-            echo -e "Press \033[1menter\033[0m to begin Copying trees from\n * \033[1m$s/$b\033[0m\n * \033[1m$sy/$b\033[0m"
+            echo -ne "Press \033[1menter\033[0m to begin Copying trees from\n * \033[1m$s/$b\033[0m\n * \033[1m$sy/$b\033[0m"
         else
-            echo -e "Press \033[1menter\033[0m to begin Copying trees from\n * \033[1m$s/$b\033[0m"
+            echo -ne "Press \033[1menter\033[0m to begin Copying trees from\n * \033[1m$s/$b\033[0m"
         fi
 		read enterkey
 		echo "---------------------------------------------"
@@ -792,7 +795,8 @@ case "$1" in
             while [ "$ctl" = "y" -o "$ctl" = "Y" ];do
                 ls $romdir/vendor
                 echo "---------------------------------------------"
-                read -p "Enter name of rom's vendor : " vn
+                echo -en "Enter name of rom's \033[1mvendor\033[0m directory : "
+                read vn
                 echo "---------------------------------------------"
                 if [ -d $romdir/vendor/$vn ];then
                     find $romdir/vendor/$vn -type f \( -name "*common*.mk" -o -name "*$vn*.mk" -o -name "main.mk" \) | cut --delimiter "/" --fields 6-
@@ -801,16 +805,19 @@ case "$1" in
                 fi
                 echo "---------------------------------------------"
                 echo -e "    (\033[1mSelect\033[0m from \033[1mabove list\033[0m)"
-                read -p "Haven't found required file...wanna retry(y/n) : " ctl
+                echo -en "\033[1mHaven't\033[0m found required file...wanna \033[1mretry\033[0m(y/n) : "
+                read ctl
                 echo "---------------------------------------------"
             done
             echo $vn>$romdir/device/yu/lettuce/vendor.dat
-            read -p "Enter path/to/vendor/config/file : " vf
+            echo -en "Enter \033[1mpath/to/vendor/config/file\033[0m : "
+            read vf
             echo "---------------------------------------------"
-            read -p "Want to inject more(y/n) ? " inj
+            read -p "Want to inject \033[1mmore\033[0m(y/n) ? " inj
             echo "---------------------------------------------"
             if [ "$inj" = "y" -o "$inj" = "Y" ];then
-                read -p "Enter path/to/vendor/config/file : " svf
+                echo -en "Enter \033[1mpath/to/vendor/config/file\033[0m : "
+                read svf
                 echo "---------------------------------------------"
             fi
 			sleep 1
@@ -944,7 +951,7 @@ EOF
 			echo -e "* Creating \033[1m$(echo $vn)-build.sh\033[0m"
 			if ! [ -e $romdir/$(echo $vn)-build.sh ]; then
 				jobs=$(grep -ci processor /proc/cpuinfo)
-#				jobs=`expr $jobs \* 2`
+				jobs=`expr $jobs \* 2`
 cat <<EOF>$romdir/$(echo $vn)-build.sh
 err=\$(echo \$PATH|grep -c -i aarch64)
 case "\$1" in
@@ -960,8 +967,7 @@ case "\$1" in
 		sleep 1
 		make clean && make clobber
 		sleep 1
-#		make otapackage -j$(echo $jobs)
-        make -j$(echo $jobs)
+		make otapackage -j$(echo $jobs)
 		;;
 	*)
 		. build/envsetup.sh
@@ -971,8 +977,7 @@ case "\$1" in
 			lunch $(echo $vn)_lettuce-userdebug
 		fi
 		sleep 1
-#		make otapackage -j$(echo $jobs)
-        make -j$(echo $jobs)
+		make otapackage -j$(echo $jobs)
 		;;
 esac
 EOF
