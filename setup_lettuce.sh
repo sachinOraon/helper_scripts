@@ -11,7 +11,8 @@ case "$1" in
 		;;
 	-c)
 		echo "---------------------------------------------"
-		read -p "BRANCH (L/M/N) = " b
+		echo -en "BRANCH (\033[1mL/M/N\033[0m) = "
+        read b
 		case "$b" in
 			l|L)
 				b=cm-12.1
@@ -27,7 +28,8 @@ case "$1" in
 				exit 1
 			;;
 		esac
-		read -p "SOURCE (L/C)   = " s
+		echo -en "SOURCE (\033[1mL/C\033[0m)   = "
+        read s
 		case "$s" in
 			l|L)
 				s="LineageOS"
@@ -48,6 +50,7 @@ case "$1" in
         rm -rf $romdir/hardware/qcom/wlan-caf &>/dev/null
         rm -rf $romdir/hardware/qcom/bt-caf &>/dev/null
         rm -rf $romdir/hardware/ril-caf &>/dev/null
+        sleep 1
         echo "---------------------------------------------"
 		echo -e "\tCLONING \033[1mcaf\033[0m trees"
 		echo "---------------------------------------------"
@@ -55,33 +58,33 @@ case "$1" in
 		#mkdir -p hardware/qcom/audio-caf/msm8916
 		#cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/audio-caf/msm8916/* hardware/qcom/audio-caf/msm8916 2>/dev/null
         git clone -qb $b-caf-8916 https://github.com/$s/android_hardware_qcom_audio.git hardware/qcom/audio-caf/msm8916
-		if ! [ $? -lt 1 ];then echo -e "   \033[1maudio-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1maudio-caf\033[0m\t\t[DONE]"; fi
+		if ! [ $? -lt 1 ];then echo -e "   \033[1maudio-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1maudio-caf\033[0m\t\t[DONE]"; fi
 		#sleep 1
 		#mkdir -p hardware/qcom/display-caf/msm8916
 		#cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/display-caf/msm8916/* hardware/qcom/display-caf/msm8916 2>/dev/null
         git clone https://github.com/$s/android_hardware_qcom_display.git -qb $b-caf-8916 hardware/qcom/display-caf/msm8916
-		if ! [ $? -lt 1 ];then echo -e "   \033[1mdisplay-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1mdisplay-caf\033[0m\t\t[DONE]"; fi
+		if ! [ $? -lt 1 ];then echo -e "   \033[1mdisplay-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mdisplay-caf\033[0m\t\t[DONE]"; fi
 		#mkdir -p hardware/qcom/media-caf/msm8916
 		#cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/media-caf/msm8916/* hardware/qcom/media-caf/msm8916 2>/dev/null
         git clone -qb $b-caf-8916 https://github.com/$s/android_hardware_qcom_media.git hardware/qcom/media-caf/msm8916
 		#sleep 1
-		if ! [ $? -lt 1 ];then echo -e "   \033[1mmedia-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1mmedia-caf\033[0m\t\t[DONE]"; fi
+		if ! [ $? -lt 1 ];then echo -e "   \033[1mmedia-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mmedia-caf\033[0m\t\t[DONE]"; fi
         #mkdir -p hardware/qcom/wlan-caf
         #cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/wlan-caf/* hardware/qcom/wlan-caf 2>/dev/null
         git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_wlan.git hardware/qcom/wlan-caf 2>/dev/null
-        if ! [ $? -lt 1 ];then echo -e "   \033[1mwlan-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1mwlan-caf\033[0m\t\t[DONE]"; fi
+        if ! [ $? -lt 1 ];then echo -e "   \033[1mwlan-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mwlan-caf\033[0m\t\t[DONE]"; fi
         #mkdir -p hardware/qcom/bt-caf
         #cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/qcom/bt-caf/* hardware/qcom/bt-caf 2>/dev/null
         git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_bt.git hardware/qcom/bt-caf 2>/dev/null
-        if ! [ $? -lt 1 ];then echo -e "   \033[1mbt-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1mbt-caf\033[0m\t\t[DONE]"; fi
+        if ! [ $? -lt 1 ];then echo -e "   \033[1mbt-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mbt-caf\033[0m\t\t[DONE]"; fi
         #mkdir -p hardware/ril-caf
         #cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
         git clone -qb $b-caf https://github.com/$s/android_hardware_ril-caf.git hardware/ril-caf 2>/dev/null
-        if ! [ $? -lt 1 ];then echo -e "   \033[1mril-caf\033[0m\t\t[FAILED]"; else echo -e "   \033[1mril-caf\033[0m\t\t[DONE]"; fi
+        if ! [ $? -lt 1 ];then echo -e "   \033[1mril-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mril-caf\033[0m\t\t[DONE]"; fi
 		#if [ "$b" = "cm-12.1" -o "$b" = "cm-13.0" ]; then
 		#	rm -r hardware/qcom/ril-caf 2>/dev/null
 		#	cp -r $HOME/workspace/lettuce-trees/$s/$b/hardware/ril-caf/* hardware/ril-caf 2>/dev/null
-		#	if ! [ $? -lt 1 ];then echo -e "ril-caf\t\t\t[FAILED]"; else echo -e "ril-caf\t\t\t[DONE]"; fi
+		#	if ! [ $? -lt 1 ];then echo -e "ril-caf\t\t\t[\033[1mFAILED\033[0m]"; else echo -e "ril-caf\t\t\t[DONE]"; fi
 		#fi
 		echo "---------------------------------------------"
 		#else echo -e "- Please setup trees properly.\n- To do run ./setup_lettuce -st";fi
@@ -123,7 +126,8 @@ case "$1" in
 		;;
 	-st)
 		echo "---------------------------------------------"
-		read -p "BRANCH (L/M/N) = " b
+		echo -en "BRANCH (\033[1mL/M/N\033[0m) = "
+        read b
 		case "$b" in
 			l|L)
 				b=cm-12.1
@@ -141,7 +145,7 @@ case "$1" in
                 brc=cm-14.1-caf
 			;;
 			*)
-				echo "Invalid branch...!"
+				echo -e " * \033[1mInvalid\033[0m branch...!"
 				exit 1
 			;;
 		esac
@@ -157,13 +161,15 @@ case "$1" in
 		mkdir -p $HOME/workspace/lettuce-trees/LineageOS/cm-14.1
         mkdir -p $HOME/workspace/lettuce-trees/YU-N
         mkdir -p $HOME/workspace/lettuce-trees/YU-N/cm-14.1
-		read -p "SOURCE (L/C)   = " s
+		echo -en "SOURCE (\033[1mL/C\033[0m)   = "
+        read s
 		case "$s" in
 			l|L)
 				s="https://github.com/LineageOS"
 				src="$HOME/workspace/lettuce-trees/LineageOS"
                 if [ "$b" = "cm-14.1" ];then
-                    read -p "Do you want to have YU-N trees also ?(y/n) " cho
+                    echo -en "Do you want to have \033[1mYU-N\033[0m trees also (\033[1my/n\033[0m)? "
+                    read cho
                     if [ "$cho" = "y" -o "$cho" = "Y" ];then
                         sy="https://github.com/YU-N"
                         srcy="$HOME/workspace/lettuce-trees/YU-N"
@@ -174,7 +180,8 @@ case "$1" in
 				s="https://github.com/CyanogenMod"
 				src="$HOME/workspace/lettuce-trees/CyanogenMod"
                 if [ "$b" = "cm-14.1" ];then
-                    read -p "Do you want to have YU-N trees also ?(y/n) " cho
+                    echo -en "Do you want to have \033[1mYU-N\033[0m trees also (\033[1my/n\033[0m)? "
+                    read cho
                     if [ "$cho" = "y" -o "$cho" = "Y" ];then
                         sy="https://github.com/YU-N"
                         srcy="$HOME/workspace/lettuce-trees/YU-N"
@@ -182,7 +189,7 @@ case "$1" in
                 fi
 			;;
 			*)
-				echo "Invalid source...!"
+				echo -e " * \033[1mInvalid\033[0m source...!"
 				exit 1
 			;;
 		esac
@@ -195,7 +202,8 @@ case "$1" in
 		if [ -e $src/$b/device/yu/lettuce/Android.mk ];then
 			echo "---------------------------------------------"
 			echo -e "\033[1mPrevious\033[0m trees have been \033[1mfound\033[0m..."
-			read -p "Do you want to re-sync ?(Y/N) : " x
+			echo -en "Do you want to \033[1mre-sync\033[0m (\033[1mY/N\033[0m)? : "
+            read x
 			echo "---------------------------------------------"
 			if [ "$x" = "y" -o "$x" = "Y" ];then
 				echo -e "- Removing \033[1m$src/$b\033[0m ..."
@@ -208,7 +216,8 @@ case "$1" in
 				fi
                 if [ "$cho" = "y" -o "$cho" = "Y" ];then
                     if [ -e $srcy/$b/device/yu/lettuce/Android.mk ];then
-                        read -p "Do you want to update YU-N trees also ?(Y/N)" var
+                        echo -en "Do you want to update \033[1mYU-N\033[0m trees also (\033[1mY/N\033[0m)? :"
+                        read var
                         if [ "$var" = "y" -o "$var" = "Y" ];then
                             echo -e "- Removing \033[1m$srcy/$b\033[0m ..."
                             rm -rf $srcy/$b/ 2>/dev/null
@@ -222,45 +231,45 @@ case "$1" in
 			fi
 		fi
         echo "---------------------------------------------"
-        echo -e "Press \033[1menter\033[0m to begin cloning ..."
+        echo -ne "Press \033[1menter\033[0m to begin cloning ..."
 		read enterkey
         if [ "$cho" = "y" -o "$cho" = "Y" ];then
             echo "---------------------------------------------"
-            echo -e "Cloning device tree..."
+            echo -e "Cloning \033[1mdevice\033[0m tree..."
             echo "---------------------------------------------"
             git clone -b $b --single-branch $sy/android_device_yu_lettuce.git $srcy/$b/device/yu/lettuce
             echo "---------------------------------------------"
-            echo -e "Cloning kernel tree..."
+            echo -e "Cloning \033[1mkernel\033[0m tree..."
             echo "---------------------------------------------"
             git clone -b $b --single-branch $sy/android_kernel_cyanogen_msm8916.git $srcy/$b/kernel/cyanogen/msm8916
             echo "---------------------------------------------"
-            echo -e "Cloning vendor_yu tree..."
+            echo -e "Cloning \033[1mvendor_yu\033[0m tree..."
             echo "---------------------------------------------"
             git clone -b $b --single-branch $sy/proprietary_vendor_yu.git $srcy/$b/vendor/yu
         else
             echo "---------------------------------------------"
-            echo -e "Cloning device tree..."
+            echo -e "Cloning \033[1mdevice\033[0m tree..."
             echo "---------------------------------------------"
             git clone -b $b --single-branch $s/android_device_yu_lettuce.git $src/$b/device/yu/lettuce
             echo "---------------------------------------------"
-            echo -e "Cloning kernel tree..."
+            echo -e "Cloning \033[1mkernel\033[0m tree..."
             echo "---------------------------------------------"
             git clone -b $b --single-branch $s/android_kernel_cyanogen_msm8916.git $src/$b/kernel/cyanogen/msm8916
             echo "---------------------------------------------"
-            echo -e "Cloning vendor_yu tree..."
+            echo -e "Cloning \033[1mvendor_yu\033[0m tree..."
             echo "---------------------------------------------"
             git clone -b $b --single-branch https://github.com/TheMuppets/proprietary_vendor_yu.git $src/$b/vendor/yu
         fi
 		echo "---------------------------------------------"
-		echo -e "Cloning Shared tree..."
+		echo -e "Cloning \033[1mShared\033[0m tree..."
 		echo "---------------------------------------------"
 		git clone -b $b --single-branch $s/android_device_cyanogen_msm8916-common.git $src/$b/device/cyanogen/msm8916-common
 		echo "---------------------------------------------"
-		echo -e "Cloning android_device_qcom_sepolicy..."
+		echo -e "Cloning \033[1mandroid_device_qcom_sepolicy\033[0m..."
 		echo "---------------------------------------------"
 		git clone -b $b --single-branch $s/android_device_qcom_sepolicy.git $src/$b/device/qcom/sepolicy
 		echo "---------------------------------------------"
-		echo -e "Cloning qcom_common tree..."
+		echo -e "Cloning \033[1mqcom_common\033[0m tree..."
 		echo "---------------------------------------------"
 		git clone -b $b --single-branch $s/android_device_qcom_common.git $src/$b/device/qcom/common
 		#if ! [ "$b" = "cm-13.0" -o "$b" = "cm-12.1" ];then
@@ -271,7 +280,7 @@ case "$1" in
 		#fi
 		if [ "$s" = "https://github.com/LineageOS" ];then
 			#echo "---------------------------------------------"
-			echo "Cloning qcom_opensource..."
+			echo -e "Cloning \033[1mqcom_opensource\033[0m..."
 			echo "---------------------------------------------"
 			if [ "$b" = "cm-13.0" ];then
 				git clone -b cm-13.0 https://github.com/LineageOS/android_vendor_qcom_opensource_cryptfs_hw.git $src/cm-13.0/vendor/qcom/opensource/cryptfs_hw
@@ -288,50 +297,51 @@ case "$1" in
 				fi
 			fi
 		fi
-		echo "---------------------------------------------"
-		echo "Cloning audio-caf tree..."
-		echo "---------------------------------------------"
-		git clone -b $br --single-branch $s/android_hardware_qcom_audio.git $src/$b/hardware/qcom/audio-caf/msm8916
-		echo "---------------------------------------------"
-		echo "Cloning display-caf tree..."
-		echo "---------------------------------------------"
-		git clone -b $br --single-branch $s/android_hardware_qcom_display.git $src/$b/hardware/qcom/display-caf/msm8916
-		echo "---------------------------------------------"
-		echo "Cloning media-caf tree..."
-		echo "---------------------------------------------"
-		git clone -b $br --single-branch $s/android_hardware_qcom_media.git $src/$b/hardware/qcom/media-caf/msm8916
-		echo "---------------------------------------------"
-		echo "Cloning ril-caf tree..."
-		echo "---------------------------------------------"
-		git clone -b $brc --single-branch $s/android_hardware_ril.git $src/$b/hardware/ril-caf
-		echo "---------------------------------------------"
-        echo "Cloning wlan-caf tree..."
+#		echo "---------------------------------------------"
+#		echo -e "Cloning \033[1maudio-caf\033[0m tree..."
+#		echo "---------------------------------------------"
+#		git clone -b $br --single-branch $s/android_hardware_qcom_audio.git $src/$b/hardware/qcom/audio-caf/msm8916
+#		echo "---------------------------------------------"
+#		echo -e "Cloning \033[1mdisplay-caf\033[0m tree..."
+#		echo "---------------------------------------------"
+#		git clone -b $br --single-branch $s/android_hardware_qcom_display.git $src/$b/hardware/qcom/display-caf/msm8916
+#		echo "---------------------------------------------"
+#		echo "Cloning media-caf tree..."
+#		echo "---------------------------------------------"
+#		git clone -b $br --single-branch $s/android_hardware_qcom_media.git $src/$b/hardware/qcom/media-caf/msm8916
+#		echo "---------------------------------------------"
+#		echo "Cloning ril-caf tree..."
+#		echo "---------------------------------------------"
+#		git clone -b $brc --single-branch $s/android_hardware_ril.git $src/$b/hardware/ril-caf
+#		echo "---------------------------------------------"
+#       echo "Cloning wlan-caf tree..."
+#        echo "---------------------------------------------"
+#        git clone -b $brc --single-branch $s/android_hardware_qcom_wlan.git $src/$b/hardware/qcom/wlan-caf
+#        echo "---------------------------------------------"
+#        echo "Cloning bt-caf tree..."
+#        echo "---------------------------------------------"
+#        git clone -b $brc --single-branch $s/android_hardware_qcom_bt.git $src/$b/hardware/qcom/bt-caf
         echo "---------------------------------------------"
-        git clone -b $brc --single-branch $s/android_hardware_qcom_wlan.git $src/$b/hardware/qcom/wlan-caf
-        echo "---------------------------------------------"
-        echo "Cloning bt-caf tree..."
-        echo "---------------------------------------------"
-        git clone -b $brc --single-branch $s/android_hardware_qcom_bt.git $src/$b/hardware/qcom/bt-caf
-        echo "---------------------------------------------"
-		if ! [ -e $HOME/workspace/lettuce-trees/kernel.mk ]; then
-			wget -qO $HOME/workspace/lettuce-trees/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk
-		fi
+#		if ! [ -e $HOME/workspace/lettuce-trees/kernel.mk ]; then
+#			wget -qO $HOME/workspace/lettuce-trees/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk
+#		fi
 	exit 1
 	;;
 	-tc)
-		echo -e "\tToolchains Available for Download"
+		echo -e "\t\033[1mToolchains\033[0m Available for Download"
 		echo "---------------------------------------------"
-		echo -e "1.\tSabermod v4.9\n2.\tUber v4.9\n3.\tLinaro v4.9\n4.\tSDClang v3.8"
+		echo -e "1.\t\033[1mSabermod\033[0m v4.9\n2.\t\033[1mUber\033[0m v4.9\n3.\t\033[1mLinaro\033[0m v4.9\n4.\t\033[1mSDClang\033[0m v3.8"
 		echo "---------------------------------------------"
-		read -p "Which toolchain do you want (1/2/3/4)? " tc
+		echo -en "Which \033[1mtoolchain\033[0m do you want (\033[1m1/2/3/4\033[0m)? "
+        read tc
 		echo "---------------------------------------------"
 		case "$tc" in
 			4)
 				if [ -d $HOME/workspace/toolchains/sdclang-3.8 ];then
-					echo "SDClang v3.8 already available..."
+					echo -e "\033[1mSDClang v3.8\033[0m already available..."
 					exit 1
 				else
-					echo "Cloning SDClang v3.8..."
+					echo -e "Cloning \033[1mSDClang\033[0m v3.8..."
 					echo "---------------------------------------------"
 					git clone https://github.com/sachinOraon/sdclang.git $HOME/workspace/toolchains/sdclang-3.8
 					echo "---------------------------------------------"
@@ -340,45 +350,45 @@ case "$1" in
 				;;
 			1)
 				if ! [ -e $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9/sb.dat ]; then
-					echo "Cloning SaberMod 4.9 Toolchain..."
+					echo -e "Cloning \033[1mSaberMod 4.9\033[0m Toolchain..."
 					echo "---------------------------------------------"
 					git clone -b sabermod --single-branch https://bitbucket.org/xanaxdroid/aarch64-linux-android-4.9.git $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9
 					touch $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9/sb.dat
 					echo "---------------------------------------------"
 				else
-					echo "SaberMod 4.9 Toolchain already available..."
+					echo -e "\033[1mSaberMod 4.9\033[0m Toolchain already available..."
 					echo "---------------------------------------------"
 				fi
 				exit 1
 				;;
 			2)
 				if ! [ -e $HOME/workspace/toolchains/ubertc-aarch64-linux-android-4.9/ub.dat ]; then
-					echo "Cloning Uber 4.9 Toolchain..."
+					echo -e "Cloning \033[1mUber 4.9\033[0m Toolchain..."
 					echo "---------------------------------------------"
 					git clone https://bitbucket.org/UBERTC/aarch64-linux-android-4.9.git $HOME/workspace/toolchains/ubertc-aarch64-linux-android-4.9
 					touch $HOME/workspace/toolchains/ubertc-aarch64-linux-android-4.9/ub.dat
 					echo "---------------------------------------------"
 				else
-					echo "Uber 4.9 Toolchain already available..."
+					echo -e "\033[1mUber 4.9\033[0m Toolchain already available..."
 					echo "---------------------------------------------"
 				fi
 				exit 1
 				;;
 			3)
 				if ! [ -e $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9/ln.dat ]; then
-					echo "Cloning Linaro 4.9 Toolchain..."
+					echo -e "Cloning \033[1mLinaro 4.9\033[0m Toolchain..."
 					echo "---------------------------------------------"
 					git clone -b linaro --single-branch https://bitbucket.org/xanaxdroid/aarch64-linux-android-4.9.git $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9
 					touch $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9/ln.dat
 					echo "---------------------------------------------"
 				else
-					echo "Linaro 4.9 Toolchain already available..."
+					echo -e "\033[1mLinaro 4.9\033[0m Toolchain already available..."
 					echo "---------------------------------------------"
 				fi
 				exit 1
 				;;
 			*)
-				echo -e "Invaild Choice !"
+				echo -e " * \033[1mInvaild\033[0m Choice !"
 				exit 1
 				;;
 		esac
@@ -389,108 +399,110 @@ case "$1" in
 			touch $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat 2>/dev/null
 		fi
 		echo "---------------------------------------------"
-		echo -e "\tToolchains Selection"
+		echo -e "\t\033[1mToolchains Selection\033[0m"
 		echo "---------------------------------------------"
-		echo -e "1.\tSabermod v4.9\n2.\tUber v4.9\n3.\tLinaro v4.9\n4.\tSDClang v3.8.8\n5.\tRestore Toolchain"
+		echo -e "1.\t\033[1mSabermod\033[0m v4.9\n2.\t\033[1mUber\033[0m v4.9\n3.\t\033[1mLinaro\033[0m v4.9\n4.\t\033[1mSDClang\033[0m v3.8.8\n5.\t\033[1mRestore\033[0m Toolchain"
 		echo "---------------------------------------------"
 		curr=$(ls $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/*.dat|cut -d "/" -f 11-)
 		case "$curr" in
-			def.dat) echo -e "Current Toolchain\t[DEFAULT]";;
-			sb.dat) echo -e "Current Toolchain\t[SABERMOD]";;
-			ln.dat) echo -e "Current Toolchain\t[LINARO]";;
-			ub.dat) echo -e "Current Toolchain\t[UBERTC]";;
-			*) echo -e "Current Toolchain\t[UNABLE TO FIND]";;
+			def.dat) echo -e "Current Toolchain\t[\033[1mDEFAULT\033[0m]";;
+			sb.dat) echo -e "Current Toolchain\t[\033[1mSABERMOD\033[0m]";;
+			ln.dat) echo -e "Current Toolchain\t[\033[1mLINARO\033[0m]";;
+			ub.dat) echo -e "Current Toolchain\t[\033[1mUBERTC\033[0m]";;
+			*) echo -e "Current Toolchain\t[\033[1mUNABLE TO FIND\033[0m]";;
 		esac
 		sdc=`grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk`
 		if [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 ];then
 			if [ $sdc -gt 0 ];then
 				if [ -e $romdir/device/qcom/common/sdllvm-lto-defs.mk ];then
-					echo -e "SDclang 3.8\t\t[ENABLED]"
+					echo -e "\033[1mSDclang\033[0m 3.8\t\t[\033[1mENABLED\033[0m]"
 				fi
 			fi
 		else
-			echo -e "SDclang 3.8\t\t[DISABLED]"
+			echo -e "\033[1mSDclang\033[0m 3.8\t\t[\033[1mDISABLED\033[0m]"
 		fi
 		echo "---------------------------------------------"
-		read -p "Which toolchain do you want (1/2/3/4/5)? " ch
+		echo -en "Which \033[1mtoolchain\033[0m do you want (\033[1m1/2/3/4/5\033[0m)? "
+        read ch
 		echo "---------------------------------------------"
 		case "$ch" in
 			4)
 				if ! [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 ];then
 					if ! [ -e $HOME/workspace/toolchains/sdclang-3.8 ];then
-						echo -e " * SDClang not found\n  Please run ./setup_lettuce.sh -tc to download..."
+						echo -e " * SDClang \033[1mnot\033[0m found\n  Please run \033[1m./setup_lettuce.sh -tc\033[0m to download..."
 						exit 1
 					else
-						echo "Enabling Snapdragon LLVM ARM Compiler 3.8.8"
+						echo -e "Enabling \033[1mSnapdragon LLVM ARM Compiler\033[0m 3.8.8"
 						mkdir -p $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8
 						cp -r $HOME/workspace/toolchains/sdclang-3.8/* $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8
-						if [ $? -eq 0 ];then echo " * SDClang copied successfully";else echo " * Unable to copy SDClang !!";fi
+						if [ $? -eq 0 ];then echo -e " * \033[1mSDClang\033[0m copied successfully";else echo -e " * \033[1mUnable\033[0m to copy SDClang !!";fi
 						if ! [ -e $romdir/device/qcom/common/sdllvm-lto-defs.mk ];then
-							echo " * Creating sdllvm-lto-defs.mk in device/qcom/common"
+							echo -e " * Creating \033[1msdllvm-lto-defs.mk\033[0m in \033[1mdevice/qcom/common\033[0m"
 							wget -qO $romdir/device/qcom/common/sdllvm-lto-defs.mk https://github.com/LineageOS/android_device_qcom_common/raw/cm-14.1/sdllvm-lto-defs.mk
-							if [ $? -eq 0 ];then echo " * sdllvm-lto-defs.mk created";else echo " * Failed to create sdllvm-lto-defs.mk";fi
+							if [ $? -eq 0 ];then echo -e " * sdllvm-lto-defs.mk \033[1mcreated\033[0m";else echo -e " * \033[1mFailed\033[0m to create sdllvm-lto-defs.mk";fi
 						else
-							echo " * sdllvm-lto-defs.mk Found"
+							echo -e " * \033[1msdllvm-lto-defs.mk\033[0m Found"
 						fi
 						chk=`grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk`
 						if [ $chk -eq 0 ];then
-							echo " * Creating backup of Boardconfig.mk"
+							echo -e " * Creating backup of \033[1mBoardconfig.mk\033[0m"
 							cp $romdir/device/yu/lettuce/BoardConfig.mk $romdir/device/yu/lettuce/BoardConfig.mk.bak 2>/dev/null
-							echo " * Modifying Boardconfig.mk"
+							echo -e " * \033[1mModifying\033[0m Boardconfig.mk"
 							echo -e "\nSDCLANG := true\nSDCLANG_PATH := prebuilts/clang/linux-x86/host/sdclang-3.8/bin\nSDCLANG_LTO_DEFS := device/qcom/common/sdllvm-lto-defs.mk">>$romdir/device/yu/lettuce/BoardConfig.mk
-							if ! [ `grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk` ]; then echo " * Unable to modify BoardConfig.mk";fi
+							if ! [ `grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk` ]; then echo -e " * \033[1mUnable\033[0m to modify BoardConfig.mk";fi
 						else
-							echo " * BoardConfig already modified"
+							echo -e " * \033[1mBoardConfig.mk\033[0m already modified"
 						fi
 					fi
 				else
-					read -p "Do you want to Disable SDClang (Y/N)? " y
+					echo -en "Do you want to Disable \033[1mSDClang\033[0m (\033[1mY/N\033[0m)? "
+                    read y
 					if [ "$y" = "Y" -o "$y" = "y" ];then
-						echo " * Removing prebuilts/clang/linux-x86/host/sdclang-3.8"
+						echo -e " * Removing \033[1mprebuilts/clang/linux-x86/host/sdclang-3.8\033[0m"
 						rm -rf $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 2>/dev/null
-						echo " * Removing sdllvm-lto-defs.mk"
+						echo -e " * Removing \033[0msdllvm-lto-defs.mk\033[0m"
 						rm -f $romdir/device/qcom/common/sdllvm-lto-defs.mk 2>/dev/null
-						echo " * Restoring BoardConfig.mk"
+						echo -e " * Restoring \033[1mBoardConfig.mk\033[0m"
 						if [ -e $romdir/device/yu/lettuce/BoardConfig.mk.bak ];then
 							rm $romdir/device/yu/lettuce/BoardConfig.mk
 							mv $romdir/device/yu/lettuce/BoardConfig.mk.bak $romdir/device/yu/lettuce/BoardConfig.mk
-							if [ $? -eq 0 ];then echo " * DONE";else echo " * FAILED";fi
+							if [ $? -eq 0 ];then echo -e " * \033[1mDONE\033[0m";else echo -e " * \033[1mFAILED\033[0m";fi
 						else
-							" * NO backup found.."
+							echo -e " * \033[1mNO\033[0m backup found.."
 						fi
 					else
-						echo "Okay...let that survive !!"
+						echo -e "Okay...let that \033[1msurvive\033[0m !!"
 					fi
 				fi
 				exit 1
 			;;
 			1)
 				if [ -e $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9/sb.dat ];then
-					echo "Copying SaberMod toolchain..."
+					echo -e "Copying \033[1mSaberMod\033[0m toolchain..."
 					echo "---------------------------------------------"
 					if ! [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat ];then
 						if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/sb.dat ];then
-							echo -e "Sabermod\t[ACTIVATED]"
+							echo -e "Sabermod\t[\033[1mACTIVATED\033[0m]"
 							echo "---------------------------------------------"
 						else
 							if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ub.dat ];then
 								mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9 &>/dev/null
 								if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9/sb.dat ];then
 									mv $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-									if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
+									if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[\033[1mFAILED\033[0m]";else echo -e "- SaberMod\t\t[\033[1mSUCCESS\033[0m]";fi
 								else
 									cp -r $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-									if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
+									if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[\033[1mFAILED\033[0m]";else echo -e "- SaberMod\t\t[\033[1mSUCCESS\033[0m]";fi
 								fi
 							else
 								if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ln.dat ];then
 									mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9 &>/dev/null
 									if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9/sb.dat ];then
 										mv $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-										if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
+										if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[\033[1mFAILED\033[0m]";else echo -e "- SaberMod\t\t[\033[1mSUCCESS\033[0m]";fi
 									else
 										cp -r $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-										if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
+										if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[\033[1mFAILED\033[0m]";else echo -e "- SaberMod\t\t[\033[1mSUCCESS\033[0m]";fi
 									fi
 								fi
 							fi
@@ -499,44 +511,44 @@ case "$1" in
 						mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/default-aarch64-linux-android-4.9 &>/dev/null
 						if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9/sb.dat ];then
 							mv $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-							if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
+							if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[\033[1mFAILED\033[0m]";else echo -e "- SaberMod\t\t[\033[1mSUCCESS\033[0m]";fi
 						else
 							cp -r $HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-							if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[FAILED]";else echo -e "- SaberMod\t\t[SUCCESS]";fi
+							if [ $? -gt 0 ];then echo -e "- SaberMod\t\t[\033[1mFAILED\033[0m]";else echo -e "- SaberMod\t\t[\033[1mSUCCESS\033[0m]";fi
 						fi
 					fi
 				else
-					echo -e "Sabermod TC isn't available on $HOME/workspace/toolchain...\nPlease run ./lettuce.sh -tc and select SaberMod from there to download.\n---------------------------------------------"
+					echo -e "\033[1mSabermod\033[0m TC isn't available on \033[1m$HOME/workspace/toolchain\033[0m...\nPlease run \033[1m./lettuce.sh -tc\033[0m and select \033[1mSaberMod\033[0m from there to \033[1mdownload\033[0m.\n---------------------------------------------"
 				fi
 				exit 1
 				;;
 			2)
 			if [ -e $HOME/workspace/toolchains/ubertc-aarch64-linux-android-4.9/ub.dat ];then
-				echo "Copying Uber Toolchain..."
+				echo -e "Copying Uber Toolchain..."
 				echo "---------------------------------------------"
 				if ! [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat ];then
 					if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ub.dat ];then
-						echo -e "UberTC\t\t[ACTIVATED]"
+						echo -e "UberTC\t\t[\033[1mACTIVATED\033[0m]"
 						echo "---------------------------------------------"
 					else
 						if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/sb.dat ];then
 							mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 &>/dev/null
 							if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9/ub.dat ];then
 								mv $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-								if [ $? -gt 0 ];then echo -e "- UberTC\t\t[FAILED]";else echo -e "- UberTC\t\t[SUCCESS]";fi
+								if [ $? -gt 0 ];then echo -e "- UberTC\t\t[\033[1mFAILED\033[0m]";else echo -e "- UberTC\t\t[\033[1mSUCCESS\033[0m]";fi
 							else
 								cp -r $HOME/workspace/toolchains/ubertc-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-								if [ $? -gt 0 ];then echo -e "- UberTC\t\t[FAILED]";else echo -e "- UberTC\t\t[SUCCESS]";fi
+								if [ $? -gt 0 ];then echo -e "- UberTC\t\t[\033[1mFAILED\033[0m]";else echo -e "- UberTC\t\t[\033[1mSUCCESS\033[0m]";fi
 							fi
 						else
 							if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ln.dat ];then
 								mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9 &>/dev/null
 								if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9/ub.dat ];then
 									mv $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-									if [ $? -gt 0 ];then echo -e "- UberTC\t\t[FAILED]";else echo -e "- UberTC\t\t[SUCCESS]";fi
+									if [ $? -gt 0 ];then echo -e "- UberTC\t\t[\033[1mFAILED\033[0m]";else echo -e "- UberTC\t\t[\033[1mSUCCESS\033[0m]";fi
 								else
 									cp -r $HOME/workspace/toolchains/ubertc-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-									if [ $? -gt 0 ];then echo -e "- UberTC\t\t[FAILED]";else echo -e "- UberTC\t\t[SUCCESS]";fi
+									if [ $? -gt 0 ];then echo -e "- UberTC\t\t[\033[1mFAILED\033[0m]";else echo -e "- UberTC\t\t[\033[1mSUCCESS\033[0m]";fi
 								fi
 							fi
 						fi
@@ -545,10 +557,10 @@ case "$1" in
 					mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/default-aarch64-linux-android-4.9 &>/dev/null
 					if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9/ub.dat ];then
 						mv $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-						if [ $? -gt 0 ];then echo -e "- UberTC\t\t[FAILED]";else echo -e "- UberTC\t\t[SUCCESS]";fi
+						if [ $? -gt 0 ];then echo -e "- UberTC\t\t[\033[1mFAILED\033[0m]";else echo -e "- UberTC\t\t[\033[1mSUCCESS\033[0m]";fi
 					else
 						cp -r $HOME/workspace/toolchains/ubertc-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-						if [ $? -gt 0 ];then echo -e "- UberTC\t\t[FAILED]";else echo -e "- UberTC\t\t[SUCCESS]";fi
+						if [ $? -gt 0 ];then echo -e "- UberTC\t\t[\033[1mFAILED\033[0m]";else echo -e "- UberTC\t\t[\033[1mSUCCESS\033[0m]";fi
 					fi
 				fi
 			else
@@ -558,31 +570,31 @@ case "$1" in
 				;;
 			3)
 			if [ -e $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9/ln.dat ];then
-				echo "Copying Linaro Toolchain..."
+				echo -e "Copying Linaro Toolchain..."
 				echo "---------------------------------------------"
 				if ! [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat ];then
 					if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ub.dat ];then
 						mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9 &>/dev/null
 						if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9/ln.dat ];then
 							mv $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-							if [ $? -gt 0 ];then echo -e "- Linaro\t\t[FAILED]";else echo -e "- Linaro\t\t[SUCCESS]";fi
+							if [ $? -gt 0 ];then echo -e "- Linaro\t\t[\033[1mFAILED\033[0m]";else echo -e "- Linaro\t\t[\033[1mSUCCESS\033[0m]";fi
 						else
 							cp -r $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-							if [ $? -gt 0 ];then echo -e "- Linaro\t\t[FAILED]";else echo -e "- Linaro\t\t[SUCCESS]";fi
+							if [ $? -gt 0 ];then echo -e "- Linaro\t\t[\033[1mFAILED\033[0m]";else echo -e "- Linaro\t\t[\033[1mSUCCESS\033[0m]";fi
 						fi
 					else
 						if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/sb.dat ];then
 							mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 &>/dev/null
 							if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9/ln.dat ];then
 								mv $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-								if [ $? -gt 0 ];then echo -e "- Linaro\t\t[FAILED]";else echo -e "- Linaro\t\t[SUCCESS]";fi
+								if [ $? -gt 0 ];then echo -e "- Linaro\t\t[\033[1mFAILED\033[0m]";else echo -e "- Linaro\t\t[\033[1mSUCCESS\033[0m]";fi
 							else
 								cp -r $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-								if [ $? -gt 0 ];then echo -e "- Linaro\t\t[FAILED]";else echo -e "- Linaro\t\t[SUCCESS]";fi
+								if [ $? -gt 0 ];then echo -e "- Linaro\t\t[\033[1mFAILED\033[0m]";else echo -e "- Linaro\t\t[\033[1mSUCCESS\033[0m]";fi
 							fi
 						else
 							if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ln.dat ];then
-								echo -e "Linaro\t\t[ACTIVATED]"
+								echo -e "Linaro\t\t[\033[1mACTIVATED\033[0m]"
 								echo "---------------------------------------------"
 							fi
 						fi
@@ -591,10 +603,10 @@ case "$1" in
 					mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/default-aarch64-linux-android-4.9 &>/dev/null
 					if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9/ln.dat ];then
 						mv $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-						if [ $? -gt 0 ];then echo -e "- Linaro\t\t[FAILED]";else echo -e "- Linaro\t\t[SUCCESS]";fi
+						if [ $? -gt 0 ];then echo -e "- Linaro\t\t[\033[1mFAILED\033[0m]";else echo -e "- Linaro\t\t[\033[1mSUCCESS\033[0m]";fi
 					else
 						cp -r $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-						if [ $? -gt 0 ];then echo -e "- Linaro\t\t[FAILED]";else echo -e "- Linaro\t\t[SUCCESS]";fi
+						if [ $? -gt 0 ];then echo -e "- Linaro\t\t[\033[1mFAILED\033[0m]";else echo -e "- Linaro\t\t[\033[1mSUCCESS\033[0m]";fi
 					fi
 				fi
 			else
@@ -603,33 +615,33 @@ case "$1" in
 				exit 1
 				;;
 			5)
-				echo "Restoring Toolchain..."
+				echo -e "Restoring Toolchain..."
 				echo "---------------------------------------------"
 				if ! [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat ];then
 					if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ub.dat ];then
 						mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/ubertc-aarch64-linux-android-4.9 &>/dev/null
 						mv $romdir/prebuilts/gcc/linux-x86/aarch64/default-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-						if [ $? -gt 0 ];then echo -e "- Default\t\t[FAILED]";else echo -e "- Default\t\t[RESTORED]";fi
+						if [ $? -gt 0 ];then echo -e "- Default\t\t[\033[1mFAILED\033[0m]";else echo -e "- Default\t\t[\033[1mRESTORED\033[0m]";fi
 					else
 						if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/sb.dat ];then
 							mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/sabermod-aarch64-linux-android-4.9 &>/dev/null
 							mv $romdir/prebuilts/gcc/linux-x86/aarch64/default-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-							if [ $? -gt 0 ];then echo -e "- Default\t\t[FAILED]";else echo -e "- Default\t\t[RESTORED]";fi
+							if [ $? -gt 0 ];then echo -e "- Default\t\t[\033[1mFAILED\033[0m]";else echo -e "- Default\t\t[\033[1mRESTORED\033[0m]";fi
 						else
 							if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ln.dat ];then
 								mv $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/linaro-aarch64-linux-android-4.9 &>/dev/null
 								mv $romdir/prebuilts/gcc/linux-x86/aarch64/default-aarch64-linux-android-4.9 $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 &>/dev/null
-								if [ $? -gt 0 ];then echo -e "- Default\t\t[FAILED]";else echo -e "- Default\t\t[RESTORED]";fi
+								if [ $? -gt 0 ];then echo -e "- Default\t\t[\033[1mFAILED\033[0m]";else echo -e "- Default\t\t[\033[1mRESTORED\033[0m]";fi
 							fi
 						fi
 					fi
 				else
-					echo -e "- Default Toolchain\t\t[ACTIVATED]"
+					echo -e "- Default Toolchain\t\t[\033[1mACTIVATED\033[0m]"
 				fi
 				exit 1
 				;;
 			*)
-				echo -e "Invaild Choice !"
+				echo -e " * \033[1mInvaild\033[0m Choice !"
 				exit 1
 				;;
 		esac
@@ -650,7 +662,7 @@ case "$1" in
 				b=cm-14.1
 			;;
 			*)
-				echo -e "\033[1mInvalid\033[0m branch...!"
+				echo -e " * \033[1mInvalid\033[0m branch...!"
 				exit 1
 			;;
 		esac
@@ -668,7 +680,7 @@ case "$1" in
                 sy="YU-N"
 			;;
 			*)
-				echo -e "\033[1mInvalid\033[0m source...!"
+				echo -e " * \033[1mInvalid\033[0m source...!"
 				exit 1
 			;;
 		esac
@@ -813,7 +825,8 @@ case "$1" in
             echo -en "Enter \033[1mpath/to/vendor/config/file\033[0m : "
             read vf
             echo "---------------------------------------------"
-            read -p "Want to inject \033[1mmore\033[0m(y/n) ? " inj
+            echo -en "Want to inject \033[1mmore\033[0m(y/n) : "
+            read inj
             echo "---------------------------------------------"
             if [ "$inj" = "y" -o "$inj" = "Y" ];then
                 echo -en "Enter \033[1mpath/to/vendor/config/file\033[0m : "
@@ -1016,23 +1029,23 @@ EOF
 			echo "---------------------------------------------"
 			echo -e "\t\033[1mLOG\033[0m"
 			echo "---------------------------------------------"
-			if [ "$dt" = "1" ]; then echo -e "- device tree\t\t\033[1m[FAILED]\033[0m";else echo -e "- device tree\t\t\033[1m[SUCCESS]\033[0m";fi
-			if [ "$st" = "1" ]; then echo -e "- shared tree\t\t\033[1m[FAILED]\033[0m";else echo -e "- shared tree\t\t\033[1m[SUCCESS]\033[0m";fi
-			if [ "$vt" = "1" ]; then echo -e "- vendor_yu\t\t\033[1m[FAILED]\033[0m";else echo -e "- vendor_yu\t\t\033[1m[SUCCESS]\033[0m";fi
-			if [ "$kt" = "1" ]; then echo -e "- kernel tree\t\t\033[1m[FAILED]\033[0m";else echo -e "- kernel tree\t\t\033[1m[SUCCESS]\033[0m";fi
+			if [ "$dt" = "1" ]; then echo -e "- device tree\t\t\033[1m[\033[1mFAILED\033[0m]\033[0m";else echo -e "- device tree\t\t\033[1m[\033[1mSUCCESS\033[0m]\033[0m";fi
+			if [ "$st" = "1" ]; then echo -e "- shared tree\t\t\033[1m[\033[1mFAILED\033[0m]\033[0m";else echo -e "- shared tree\t\t\033[1m[\033[1mSUCCESS\033[0m]\033[0m";fi
+			if [ "$vt" = "1" ]; then echo -e "- vendor_yu\t\t\033[1m[\033[1mFAILED\033[0m]\033[0m";else echo -e "- vendor_yu\t\t\033[1m[\033[1mSUCCESS\033[0m]\033[0m";fi
+			if [ "$kt" = "1" ]; then echo -e "- kernel tree\t\t\033[1m[\033[1mFAILED\033[0m]\033[0m";else echo -e "- kernel tree\t\t\033[1m[\033[1mSUCCESS\033[0m]\033[0m";fi
 			if [ "$qs" = "1" ]; then
-				echo -e "- qcom-sepolicy tree\t\033[1m[FAILED]\033[0m"
+				echo -e "- qcom-sepolicy tree\t\033[1m[\033[1mFAILED\033[0m]\033[0m"
 			elif [ "$qs" = "N" ]; then
 				echo -e "- qcom-sepolicy tree\t\033[1m[NOT REQUIRED]\033[0m"
 			else
-				echo -e "- qcom-sepolicy tree\t\033[1m[SUCCESS]\033[0m"
+				echo -e "- qcom-sepolicy tree\t\033[1m[\033[1mSUCCESS\033[0m]\033[0m"
 			fi
 			if [ "$qc" = "1" ]; then
-				echo -e "- qcom-common tree\t\033[1m[FAILED]\033[0m"
+				echo -e "- qcom-common tree\t\033[1m[\033[1mFAILED\033[0m]\033[0m"
 			elif [ "$qc" = "N" ]; then
 				echo -e "- qcom-common tree\t\033[1m[NOT REQUIRED]\033[0m"
 			else
-				echo -e "- qcom-common tree\t\033[1m[SUCCESS]\033[0m"
+				echo -e "- qcom-common tree\t\033[1m[\033[1mSUCCESS\033[0m]\033[0m"
 			fi
 			echo "---------------------------------------------"
 		else
