@@ -983,10 +983,11 @@ case "\$1" in
 		make otapackage -j$(echo $jobs)
         sleep 1
         if [ -e $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip ];then
+            source build/envsetup.sh &>/dev/null
             rom=\`lunch $(echo $vn)_lettuce-userdebug|grep -i $(echo $vn)_version|cut -d "=" -f 2\`
             l=\`echo \$rom|grep -ic lettuce\`
             if [ \$l -eq 0 ];then
-                mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom)-lettuce.zip
+                mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom)_lettuce.zip
             else
                 mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom).zip
             fi
@@ -1002,6 +1003,7 @@ case "\$1" in
 		sleep 1
 		make otapackage -j$(echo $jobs)
         if [ -e $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip ];then
+            source build/envsetup.sh &>/dev/null
             rom=\`lunch (echo $vn)_lettuce-userdebug|grep -i $(echo $vn)_version|cut -d "=" -f 2\`
             l=\`echo \$rom|grep -ic lettuce\`
             if [ \$l -eq 0 ];then
