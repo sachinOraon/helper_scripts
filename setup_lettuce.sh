@@ -460,7 +460,7 @@ case "$1" in
 					if [ "$y" = "Y" -o "$y" = "y" ];then
 						echo -e " * Removing \033[1mprebuilts/clang/linux-x86/host/sdclang-3.8\033[0m"
 						rm -rf $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 2>/dev/null
-						echo -e " * Removing \033[0msdllvm-lto-defs.mk\033[0m"
+						echo -e " * Removing \033[1msdllvm-lto-defs.mk\033[0m"
 						rm -f $romdir/device/qcom/common/sdllvm-lto-defs.mk 2>/dev/null
 						echo -e " * Restoring \033[1mBoardConfig.mk\033[0m"
 						if [ -e $romdir/device/yu/lettuce/BoardConfig.mk.bak ];then
@@ -981,6 +981,16 @@ case "\$1" in
 		make clean && make clobber
 		sleep 1
 		make otapackage -j$(echo $jobs)
+        sleep 1
+        if [ -e $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip ];then
+            rom=\`lunch $(echo $vn)_lettuce-userdebug|grep -i $(echo $vn)_version|cut -d "=" -f 2\`
+            l=\`echo \$rom|grep -ic lettuce\`
+            if [ \$l -eq 0 ];then
+                mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom)-lettuce.zip
+            else
+                mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom).zip
+            fi
+        fi
 		;;
 	*)
 		. build/envsetup.sh
@@ -991,6 +1001,15 @@ case "\$1" in
 		fi
 		sleep 1
 		make otapackage -j$(echo $jobs)
+        if [ -e $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip ];then
+            rom=\`lunch (echo $vn)_lettuce-userdebug|grep -i $(echo $vn)_version|cut -d "=" -f 2\`
+            l=\`echo \$rom|grep -ic lettuce\`
+            if [ \$l -eq 0 ];then
+                mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$( echo \$rom)-lettuce.zip
+            else
+                mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$( echo \$rom).zip
+            fi
+        fi
 		;;
 esac
 EOF
@@ -1013,13 +1032,13 @@ echo "- Removing vendor/yu tree..."
 rm -rf $romdir/vendor/yu &>/dev/null
 echo "---------------------------------------------"
 echo "- Removing kernel tree..."
-rm -rf $romdir/kernel/ &>/dev/null
+rm -rf $romdir/kernel/cyanogen/msm8916 &>/dev/null
 echo "---------------------------------------------"
-echo "- Removing caf HAL trees..."
-rm -rf $romdir/hardware/qcom/audio-caf/msm8916 &>/dev/null
-rm -rf $romdir/hardware/qcom/display-caf/msm8916 &>/dev/null
-rm -rf $romdir/hardware/qcom/media-caf/msm8916 &>/dev/null
-echo "---------------------------------------------"
+#echo "- Removing caf HAL trees..."
+#rm -rf $romdir/hardware/qcom/audio-caf/msm8916 &>/dev/null
+#rm -rf $romdir/hardware/qcom/display-caf/msm8916 &>/dev/null
+#rm -rf $romdir/hardware/qcom/media-caf/msm8916 &>/dev/null
+#echo "---------------------------------------------"
 EOF
 			chmod a+x $romdir/remove_trees.sh
             echo "---------------------------------------------"
