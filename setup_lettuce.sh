@@ -98,29 +98,29 @@ case "$1" in
 			file=$(cat $romdir/device/yu/lettuce/vendor.dat)
 			if [ -e $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk ];then
 				mv $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk $romdir/device/yu/lettuce/$(echo $file).mk
-				if [ $? -eq 0 ];then echo -e "- Renaming \033[1m$(echo $file)_lettuce.mk\033[0m to \033[1m$(echo $file).mk\033[0m";else echo "- \033[1mCan't\033[0m rename \033[1m$(echo $file)_lettuce.mk\033[0m";fi
+				if [ $? -eq 0 ];then echo -e "- Renaming \033[1m$(echo $file)_lettuce.mk\033[0m to \033[1m$(echo $file).mk\033[0m";else echo -e "- \033[1mCan't\033[0m rename \033[1m$(echo $file)_lettuce.mk\033[0m";fi
 				sleep 1
 				rm $romdir/device/yu/lettuce/AndroidProducts.mk
-				if [ $? -eq 0 ];then echo "- Old \033[1mAndroidProducts.mk\033[0m removed";else echo "- Old \033[1mAndroidProducts.mk\033[0m can't be removed";fi
+				if [ $? -eq 0 ];then echo -e "- Old \033[1mAndroidProducts.mk\033[0m removed";else echo -e "- Old \033[1mAndroidProducts.mk\033[0m can't be removed";fi
 				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $file).mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 				sleep 1
-				if [ $? -eq 0 ];then echo "- \033[1mNew\033[0m AndroidProducts.mk created";else echo "- \033[1mCan't\033[0m create new AndroidProducts.mk";fi
+				if [ $? -eq 0 ];then echo -e "- \033[1mNew\033[0m AndroidProducts.mk created";else echo -e "- \033[1mCan't\033[0m create new AndroidProducts.mk";fi
 				if [ -e $romdir/device/yu/lettuce/$(echo $file).mk ];then echo -e "- Now \033[1mlunch\033[0m can run successfully";fi
 				echo "---------------------------------------------"
 			else
 				mv $romdir/device/yu/lettuce/$(echo $file).mk $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk
-				if [ $? -eq 0 ];then echo -e "- Renaming \033[1m$file.mk\033[0m to \033[1m$(echo $file)_lettuce.mk\033[0m";else echo "- \033[1mCan't\033[0m rename \033[1m$file.mk\033[0m";fi
+				if [ $? -eq 0 ];then echo -e "- Renaming \033[1m$file.mk\033[0m to \033[1m$(echo $file)_lettuce.mk\033[0m";else echo -e "- \033[1mCan't\033[0m rename \033[1m$file.mk\033[0m";fi
 				sleep 1
 				rm $romdir/device/yu/lettuce/AndroidProducts.mk
-				if [ $? -eq 0 ];then echo "- Old \033[1mAndroidProducts.mk\033[0m removed";else echo "- Old \033[1mAndroidProducts.mk\033[0m can't be removed";fi
+				if [ $? -eq 0 ];then echo -e "- Old \033[1mAndroidProducts.mk\033[0m removed";else echo -e "- Old \033[1mAndroidProducts.mk\033[0m can't be removed";fi
 				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $file)_lettuce.mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 				sleep 1
-				if [ $? -eq 0 ];then echo "- \033[1mNew\033[0m AndroidProducts.mk created";else echo "- \033[1mCan't\033[0m create new AndroidProducts.mk";fi
+				if [ $? -eq 0 ];then echo -e "- \033[1mNew\033[0m AndroidProducts.mk created";else echo -e "- \033[1mCan't\033[0m create new AndroidProducts.mk";fi
 				if [ -e $romdir/device/yu/lettuce/$(echo $file)_lettuce.mk ];then echo -e "- Now \033[1mlunch\033[0m can run successfully";fi
 				echo "---------------------------------------------"
 			fi
 		else
-			echo "- \033[1mCan't\033[0m find \033[1msaved\033[0m file"
+			echo -e "- \033[1mCan't\033[0m find \033[1msaved\033[0m file"
 		fi
 		exit 1
 		;;
