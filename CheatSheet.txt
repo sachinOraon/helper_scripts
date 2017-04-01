@@ -77,12 +77,13 @@ attribute qti_debugfs_domain;
 	* insert TW_THEME := portrait_hdpi
 	  in device/yu/lettuce/BoardConfig.mk
 
-[15] system/core/fs_mgr/fs_mgr_verity.cpp:127: error: undefined reference to 'SHA256_hash'
-     system/core/fs_mgr/fs_mgr_verity.cpp:644: error: undefined reference to 'SHA256_hash'
-
+[15] frameworks/av/media/libstagefright/FFMPEGSoftCodec.cpp:45:10: fatal error: 'OMX_QCOMExtns.h' file not found
+    * git clone -b cm-13.0-caf-8916 https://github.com/CyanogenMod/android_hardware_qcom_media.git hardware/qcom/media-caf/msm8916
+    * git clone -b cm-14.1-caf-8916 https://github.com/CyanogenMod/android_hardware_qcom_media.git hardware/qcom/media-caf/msm8916
 
 [16] obj/STATIC_LIBRARIES/lib_driver_cmd_qcwcn_intermediates/export_includes', needed by '/home/sachinoraon55/workspace/eucos/out/target/product/lettuce/obj/EXECUTABLES/hostapd_intermediates/import_includes', missing and no known rule to make it
-	* 
+	* git clone -b cm-13.0-caf https://github.com/LineageOS/android_hardware_qcom_wlan.git hardware/qcom/wlan-caf
+    * git clone -b cm-14.1-caf https://github.com/LineageOS/android_hardware_qcom_wlan.git hardware/qcom/wlan-caf
 
 [17] No rule to make target 'out/target/product/lettuce/kernel', needed by 'out/target/product/lettuce/boot.img'
 	* download kernel.mk and dt_image.mk from cm repo and put them to build/core/tasks/
