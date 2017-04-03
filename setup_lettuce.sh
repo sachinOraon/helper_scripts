@@ -395,7 +395,7 @@ case "$1" in
 		exit 1
 		;;
 	-t)
-		if ! [ `ls $romdir/prebuilts/gcc/linux-x86/aarch64/*.*|grep def.dat` ]; then
+		if ! [ `ls $romdir/prebuilts/gcc/linux-x86/aarch64/*.*|grep def.dat 2>/dev/null` ]; then
 			touch $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat 2>/dev/null
 		fi
 		echo "---------------------------------------------"
@@ -403,7 +403,7 @@ case "$1" in
 		echo "---------------------------------------------"
 		echo -e "1.\t\033[1mSabermod\033[0m v4.9\n2.\t\033[1mUber\033[0m v4.9\n3.\t\033[1mLinaro\033[0m v4.9\n4.\t\033[1mSDClang\033[0m v3.8.8\n5.\t\033[1mRestore\033[0m Toolchain"
 		echo "---------------------------------------------"
-		curr=$(ls $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/*.dat|cut -d "/" -f 11-)
+		curr=$(ls $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/*.dat|cut -d "/" -f 11- 2>/dev/null)
 		case "$curr" in
 			def.dat) echo -e "Current Toolchain\t[\033[1mDEFAULT\033[0m]";;
 			sb.dat) echo -e "Current Toolchain\t[\033[1mSABERMOD\033[0m]";;
@@ -427,8 +427,13 @@ case "$1" in
 		echo "---------------------------------------------"
 		case "$ch" in
 			4)
-				if ! [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 ];then
-					if ! [ -e $HOME/workspace/toolchains/sdclang-3.8 ];then
+                br=`cat $romdir/device/yu/lettuce/branch`
+                if ! [ "$br" = "cm-14.1" ];then
+                    echo -e "\033[1mSnapdragon LLVM ARM Compiler\033[0m is \033[1mNOT\033[0m for \033[1mcm-13.0\033[0m or \033[1mcm-12.1\033[0m"
+                    exit 1
+                else
+                if ! [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 ];then
+					if ! [ -d $HOME/workspace/toolchains/sdclang-3.8 ];then
 						echo -e " * SDClang \033[1mnot\033[0m found\n  Please run \033[1m./setup_lettuce.sh -tc\033[0m to download..."
 						exit 1
 					else
@@ -474,6 +479,7 @@ case "$1" in
 						echo -e "Okay...let that \033[1msurvive\033[0m !!"
 					fi
 				fi
+                fi
 				exit 1
 			;;
 			1)
@@ -700,7 +706,7 @@ case "$1" in
         fi
 		read enterkey
 		echo "---------------------------------------------"
-
+        echo $b>$romdir/device/yu/lettuce/branch
 		if [ -d $HOME/workspace/lettuce-trees/$s/$b ];then
 			echo -e "Copying \033[1mdevice/yu/lettuce\033[0m"
 			mkdir -p $romdir/device/
@@ -986,7 +992,7 @@ case "\$1" in
             source build/envsetup.sh &>/dev/null
             rom=\`lunch $(echo $vn)_lettuce-userdebug|grep -i $(echo $vn)_version|cut -d "=" -f 2\`
             l=\`echo \$rom|grep -ic lettuce\`
-            if [ -n \$rom ];then
+            if [ -n "\$rom" ];then
                 if [ \$l -eq 0 ];then
                     mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom)_lettuce.zip
                 else
