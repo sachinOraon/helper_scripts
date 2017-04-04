@@ -395,7 +395,7 @@ case "$1" in
 		exit 1
 		;;
 	-t)
-		if ! [ `ls $romdir/prebuilts/gcc/linux-x86/aarch64/*.*|grep def.dat 2>/dev/null` ]; then
+		if ! [ `ls $romdir/prebuilts/gcc/linux-x86/aarch64/*.*|grep def.dat` ]; then
 			touch $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat 2>/dev/null
 		fi
 		echo "---------------------------------------------"
@@ -427,7 +427,8 @@ case "$1" in
 		echo "---------------------------------------------"
 		case "$ch" in
 			4)
-                br=`cat $romdir/device/yu/lettuce/branch`
+                if [ -e $romdir/device/yu/lettuce/branch.dat ];then
+                br=`cat $romdir/device/yu/lettuce/branch.dat`
                 if ! [ "$br" = "cm-14.1" ];then
                     echo -e "\033[1mSnapdragon LLVM ARM Compiler\033[0m is \033[1mNOT\033[0m for \033[1mcm-13.0\033[0m or \033[1mcm-12.1\033[0m"
                     exit 1
@@ -454,9 +455,9 @@ case "$1" in
 							cp $romdir/device/yu/lettuce/BoardConfig.mk $romdir/device/yu/lettuce/BoardConfig.mk.bak 2>/dev/null
 							echo -e " * \033[1mModifying\033[0m Boardconfig.mk"
 							echo -e "\nSDCLANG := true\nSDCLANG_PATH := prebuilts/clang/linux-x86/host/sdclang-3.8/bin\nSDCLANG_LTO_DEFS := device/qcom/common/sdllvm-lto-defs.mk">>$romdir/device/yu/lettuce/BoardConfig.mk
-							if ! [ `grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk` ]; then echo -e " * \033[1mUnable\033[0m to modify BoardConfig.mk";fi
+							if ! [ `grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk` ]; then echo -e " * \033[1mUnable\033[0m to modify BoardConfig.mk";else echo -e " * \033[1mDONE\033[1m";fi
 						else
-							echo -e " * \033[1mBoardConfig.mk\033[0m already modified"
+							echo -e " * \033[1mBoardConfig.mk\033[0m already modified\n * \033[1mDONE\033[1m"
 						fi
 					fi
 				else
@@ -480,6 +481,9 @@ case "$1" in
 					fi
 				fi
                 fi
+            else
+                echo -e " * Please run \033[1m./setup_lettuce -ct\033[0m first."
+            fi
 				exit 1
 			;;
 			1)
@@ -706,7 +710,7 @@ case "$1" in
         fi
 		read enterkey
 		echo "---------------------------------------------"
-        echo $b>$romdir/device/yu/lettuce/branch
+        echo $b>$romdir/device/yu/lettuce/branch.dat
 		if [ -d $HOME/workspace/lettuce-trees/$s/$b ];then
 			echo -e "Copying \033[1mdevice/yu/lettuce\033[0m"
 			mkdir -p $romdir/device/
@@ -842,7 +846,7 @@ case "$1" in
 			sleep 1
 			if ! [ -e $romdir/device/yu/lettuce/cm.mk ];then
 				echo -e "* Creating \033[1m$(echo $vn).mk\033[0m"
-                mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn).mk
+                mv $romdir/device/yu/lettuce/lineage.mk $romdir/device/yu/lettuce/$(echo $vn).mk 2>/dev/null
                 echo -e "* Creating \033[1mAndroidProducts.mk\033[0m"
 				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn).mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 				echo "s/PRODUCT_NAME := lineage_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
@@ -850,7 +854,7 @@ case "$1" in
 				rm $romdir/tmp
 			else
                 echo -e "* Creating \033[1m$(echo $vn).mk\033[0m"
-				mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn).mk
+				mv $romdir/device/yu/lettuce/cm.mk $romdir/device/yu/lettuce/$(echo $vn).mk 2>/dev/null
                 echo -e "* Creating \033[1mAndroidProducts.mk\033[0m"
 				echo "PRODUCT_MAKEFILES := device/yu/lettuce/$(echo $vn).mk" > $romdir/device/yu/lettuce/AndroidProducts.mk
 				echo "s/PRODUCT_NAME := cm_lettuce/PRODUCT_NAME := $(echo $vn)_lettuce/">$romdir/tmp
@@ -1016,7 +1020,7 @@ case "\$1" in
             source build/envsetup.sh &>/dev/null
             rom=\`lunch $(echo $vn)_lettuce-userdebug|grep -i $(echo $vn)_version|cut -d "=" -f 2\`
             l=\`echo \$rom|grep -ic lettuce\`
-            if [ -n \$rom ];then
+            if [ -n "\$rom" ];then
                 if [ \$l -eq 0 ];then
                     mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom)_lettuce.zip
                 else
