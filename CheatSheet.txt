@@ -73,7 +73,7 @@ attribute qti_debugfs_domain;
 	* config_deviceHardwareKeys  device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
 	* config_deviceHardwareWakeKeys   device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
 
-[14] error regarding TWRP
+[14] error regarding TWRP. TW_THEME is not valid
 	* insert TW_THEME := portrait_hdpi
 	  in device/yu/lettuce/BoardConfig.mk
 
@@ -490,8 +490,26 @@ int fs_mgr_is_mdtp_activated()
       OR cherry pick https://github.com/LineageOS/android_art/commit/ead3f39d3e80a90a1863e79822bf5acfae50e9ca
 
 [74] No rule to make target '/home/sachinoraon55/workspace/caf-du/out/target/common/obj/JAVA_LIBRARIES/sap-api-java-static_intermediates/classes.jack
-    * git clone -b cm-13.0-caf https://github.com/CyanogenMod/android_hardware_ril-caf.git hardware/ril-caf
+    * clone the caf branch of android_hardware_ril repo present in rom's repo. For omnirom  git clone -b android-6.0-caf https://github.com/omnirom/android_hardware_ril.git hardware/ril-caf
+    * OR  git clone -b cm-13.0-caf https://github.com/CyanogenMod/android_hardware_ril-caf.git hardware/ril-caf
 
 [75] device/yu/lettuce/camera/QCamera2/HAL/QCamera2HWI.cpp:1293:39: error: 'setCameraLaunchStatus' was not declared
      device/yu/lettuce/camera/QCamera2/HAL/QCamera2HWI.cpp: In member function 'int qcamera::QCamera2HardwareInterface::closeCamera()':
     * git clone -b cm-13.0-caf-8916 https://github.com/LineageOS/android_hardware_qcom_camera.git hardware/qcom/display-caf/msm8916
+
+============================================
+PROBLEMS 76,77,78,79 occur due to a check present on Android.mk files spread across frameworks directory. So its better to search and remove them.
+for x in `find frameworks/ -type f -iname android.mk`; do y=`cat $x|grep -ic BOARD_USES_QCOM_HARDWARE`; if [ $y -gt 0 ]; then echo "$x -- `cat $x|wc --lines`"; fi; done
+for x in `find frameworks/ -type f -iname android.mk`; do y=`cat $x|grep -ic BOARD_USES_QCOM_HARDWARE`; if [ $y -gt 0 ]; then file=`cat $x|wc --lines`;if [ $file -eq 16 ];then rm $x;fi; fi; done
+============================================
+[76] No rule to make target '/home/sachinoraon55/workspace/omni-mm/out/target/product/lettuce/obj/STATIC_LIBRARIES/libbatteryservice_intermediates/export_includes'
+    * Remove/comment the following check  ifneq ($(BOARD_USES_QCOM_HARDWARE),true)  from  frameworks/native/Android.mk  and  frameworks/native/services/Android.mk
+
+[77] No rule to make target '/home/sachinoraon55/workspace/omni-mm/out/target/product/lettuce/obj/STATIC_LIBRARIES/libbinder_intermediates/export_includes
+    * Remove/comment the following check  ifneq ($(BOARD_USES_QCOM_HARDWARE),true)  from  frameworks/native/libs/Android.mk
+
+[78] No rule to make target '/home/sachinoraon55/workspace/omni-mm/out/target/product/lettuce/obj_arm/SHARED_LIBRARIES/libcamera_client_intermediates/export_includes
+    * Remove/comment the following check  ifneq ($(BOARD_USES_QCOM_HARDWARE),true)  from  frameworks/av/Android.mk
+
+[79] No rule to make target '/home/sachinoraon55/workspace/omni-mm/out/target/product/lettuce/obj_arm/SHARED_LIBRARIES/libEGL_intermediates/export_includes
+    * Remove/comment the following check  ifneq ($(BOARD_USES_QCOM_HARDWARE),true)  from  frameworks/native/opengl/Android.mk
