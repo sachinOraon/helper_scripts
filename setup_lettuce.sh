@@ -957,6 +957,7 @@ case "$1" in
             sleep 1
             sed -i '/config_deviceHardwareKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
             sed -i '/config_deviceHardwareWakeKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
+            sed -i '/config_comboNetworkLocationProvider/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
             if ! [ `grep -i "MEASUREMENT_COUNT" $romdir/system/media/audio_effects/include/audio_effects/effect_visualizer.h|cut -d " " -f 2` ];then
                 sed -i '/#define MEASUREMENT_IDX_RMS  1/a #define MEASUREMENT_COUNT 2' $romdir/system/media/audio_effects/include/audio_effects/effect_visualizer.h
             fi
@@ -994,7 +995,7 @@ case "\$1" in
             lunch $(echo $vn)_lettuce-userdebug
         fi
         sleep 1
-        make clean && make clobber
+        make clean && make installclean && make clobber
         sleep 1
         make otapackage -j$(echo $jobs)
         sleep 1

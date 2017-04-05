@@ -33,8 +33,8 @@ Some problems that can occur while rom compilation and their solutions(especiall
     * wget -qO frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/build/phone-xxhdpi-2048-hwui-memory.mk
     * wget -qO frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/build/phone-xxhdpi-2048-dalvik-heap.mk
 
-[7] impicit declaration of "uiPrintf()"
-    * comment the "uiPrintf()"
+[7] device/cyanogen/msm8916-common/recovery/recovery_updater.c:210:9: error: implicit declaration of function 'uiPrintf'
+    * comment all the occurences of "uiPrintf()"
 
 [8] implicit declaration of "strcmp()" or "strerror()"
     * insert #include <string.h>
@@ -46,12 +46,12 @@ Some problems that can occur while rom compilation and their solutions(especiall
 |#####################################################
 
 [9] Unknown type "proc_dirty_ratio"
-    * insert   allow vold { proc_sysrq proc_dirty_ratio }:file rw_file_perms;
-      in external/sepolicy/vold.te
+    * insert   allow vold { proc_sysrq proc_dirty_ratio }:file rw_file_perms;  OR  allow vold proc_dirty_ratio:file rw_file_perms;
+      in external/sepolicy/vold.te  https://github.com/LineageOS/android_external_sepolicy/raw/cm-13.0/vold.te
     * insert   genfscon proc /sys/vm/dirty_ratio  u:object_r:proc_dirty_ratio:s0
-      in external/sepolicy/genfs_contexts
+      in external/sepolicy/genfs_contexts  https://github.com/LineageOS/android_external_sepolicy/raw/cm-13.0/genfs_contexts
     * insert   type proc_dirty_ratio, fs_type;
-      in external/sepolicy/file.te
+      in external/sepolicy/file.te  https://github.com/LineageOS/android_external_sepolicy/raw/cm-13.0/file.te
 
 [10] device/qcom/sepolicy/common/audioserver.te:63:ERROR 'attribute qti_debugfs_domain is not declared'
     * insert the following into system/sepolicy/attributes
@@ -76,6 +76,7 @@ attribute qti_debugfs_domain;
     * comment the respective entries in corresponding .xml files
     * config_deviceHardwareKeys  device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
     * config_deviceHardwareWakeKeys   device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
+    * config_comboNetworkLocationProvider   device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
 
 [14] error regarding TWRP. TW_THEME is not valid
     * insert TW_THEME := portrait_hdpi
@@ -216,8 +217,9 @@ include $(BUILD_PREBUILT)
      device/qcom/common/power/power.c:205:14: error: use of undeclared identifier 'POWER_HINT_AUDIO'
      device/qcom/common/power/power.c:204:14: error: duplicate case value 'POWER_HINT_CPU_BOOST'
      device/qcom/common/power/power-8916.c:403:17: error: use of undeclared identifier 'POWER_HINT_LAUNCH_BOOST'
-    * mkdir -p ~/trash && mv device/qcom/common/power ~/trash && git clone -b cm-14.1 https://github.com/LineageOS/android_device_qcom_common.git ~/trash/device_qcom_common
-    * cp -r ~/trash/device_qcom_common/power device/qcom/common/
+    * Look for their declarations on  https://github.com/LineageOS/android_hardware_libhardware/raw/cm-13.0/include/hardware/power.h
+    * In case of OMNIROM-6, use their android_device_qcom_common tree
+      git clone -b android-6.0 https://github.com/omnirom/android_device_qcom_common.git device/qcom/common
 
 [36] Please install ImageMagick
     * https://gist.github.com/rodleviton/74e22e952bd6e7e5bee1
@@ -230,21 +232,22 @@ include $(BUILD_PREBUILT)
      packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp:729:65: error: unknown type name 'bthf_hf_ind_type_t'; did you mean 'bthf_bind_type_t'
      packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp:730:33: error: use of undeclared identifier 'BTHF_HF_IND_ENABLED'
      packages/apps/Bluetooth/jni/com_android_bluetooth_hfp.cpp:730:55: error: use of undeclared identifier 'BTHF_HF_IND_DISABLED'
-     
-    * mkdir -p ~/trash;mv packages/apps/Bluetooth ~/trash/;git clone -b cm-14.1 https://github.com/LineageOS/android_packages_apps_Bluetooth.git ~/trash/packages_apps_Bluetooth;mv ~/trash/packages_apps_Bluetooth packages/apps/Bluetooth;
+    * git clone -b cm-13.0 https://github.com/LineageOS/android_packages_apps_Bluetooth.git packages/apps/Bluetooth
+    * git clone -b cm-14.1 https://github.com/LineageOS/android_packages_apps_Bluetooth.git packages/apps/Bluetooth
 
 [38] system/bt/btif/src/btif_hf.c:739:44: error: no member named 'bind_cb' in 'bthf_callbacks_t'
      system/bt/btif/src/btif_hf.c:747:44: error: no member named 'biev_cb' in 'bthf_callbacks_t'
      system/bt/btif/src/btif_hf.c:747:54: error: use of undeclared identifier 'bthf_hf_ind_type_t'
      system/bt/btif/src/btif_hf.c:1236:34: error: unknown type name 'bthf_hf_ind_type_t'
      system/bt/btif/src/btif_hf.c:1248:43: error: use of undeclared identifier 'BTHF_HF_IND_ENABLED'
-     
-    * mkdir -p ~/trash;mv system/bt ~/trash/sys_bt;git clone -b cm-14.1 https://github.com/LineageOS/android_system_bt.git ~/trash/system_bt;mv ~/trash/system_bt system/bt
+    * git clone -b cm-13.0 https://github.com/LineageOS/android_system_bt.git system/bt
+    * git clone -b cm-14.1 https://github.com/LineageOS/android_system_bt.git system/bt
 
 [39] system/keymaster/keymaster_tags.cpp:23:13: error: 9 enumeration values not handled in switch: 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY', 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY_BLOB', 'KM_TAG_SOTER_UID'
      system/keymaster/attestation_record.cpp:224:17: error: 9 enumeration values not handled in switch: 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY', 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY_BLOB', 'KM_TAG_SOTER_UID'
      system/keymaster/keymaster_enforcement.cpp:235:17: error: 9 enumeration values not handled in switch: 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET
-    * mv system/keymaster/keymaster_tags.cpp ~/trash/;wget -O system/keymaster/keymaster_tags.cpp  https://github.com/LineageOS/android_system_keymaster/raw/cm-14.1/keymaster_tags.cpp
+    * wget -qO system/keymaster/keymaster_tags.cpp  https://github.com/LineageOS/android_system_keymaster/raw/cm-14.1/keymaster_tags.cpp
+    OR
     * git clone -b cm-14.1 https://github.com/LineageOS/android_system_keymaster.git system/keymaster
 
 [40] system/keymaster/attestation_record.cpp:224:17: error: 9 enumeration values not handled in switch: 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY', 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY_BLOB', 'KM_TAG_SOTER_UID'
@@ -288,13 +291,12 @@ include $(BUILD_PREBUILT)
      system/core/healthd/BatteryMonitor.cpp:75:12: error: no member named 'dockBatteryStatus' in 'android::BatteryProperties'
      system/core/healthd/BatteryMonitor.cpp:76:12: error: no member named 'dockBatteryHealth' in 'android::BatteryProperties'
      system/core/healthd/BatteryMonitor.cpp:274:11: error: no member named 'dockBatterySupported' in 'android::BatteryProperties'
-     system/core/healthd/BatteryMonitor.cpp:277:19: error: no member named 'dockBatteryPresent' in 'android::BatteryProperties'
-     system/core/healthd/BatteryMonitor.cpp:281:15: error: no member named 'dockBatteryLevel' in 'android::BatteryProperties'
-     system/core/healthd/BatteryMonitor.cpp:284:15: error: no member named 'dockBatteryVoltage' in 'android::BatteryProperties'
-     system/core/healthd/BatteryMonitor.cpp:297:19: error: no member named 'dockBatteryTechnology' in 'android::BatteryProperties'
-     system/core/healthd/BatteryMonitor.cpp:347:43: error: no member named 'chargerDockAcOnline' in 'android::BatteryProperties'
-     
-     * wget -O frameworks/native/include/batteryservice/BatteryService.h https://github.com/LineageOS/android_frameworks_native/raw/cm-14.1/include/batteryservice/BatteryService.h
+     system/core/healthd/BatteryMonitor.cpp:189:11: error: 'struct android::BatteryProperties' has no member named 'maxChargingCurrent'
+     system/core/healthd/BatteryMonitor.cpp:416:49: error: 'struct android::BatteryProperties' has no member named 'maxChargingCurrent'
+     * wget -qO frameworks/native/include/batteryservice/BatteryService.h https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/include/batteryservice/BatteryService.h
+     * wget -qO frameworks/native/include/batteryservice/BatteryService.h https://github.com/LineageOS/android_frameworks_native/raw/cm-14.1/include/batteryservice/BatteryService.h
+     * FOR OMNIROM-6
+       wget -qO frameworks/native-caf/include/batteryservice/BatteryService.h https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/include/batteryservice/BatteryService.h
 
 [46] Errors due to libcrypto_utils being used instead of libmincrypt
      system/core/include/mincrypt/rsa.h:48:5: error: conflicting types for 'RSA_verify' present in external/boringssl/src/include/openssl/rsa.h
@@ -447,48 +449,7 @@ typedef enum {
     * cherry-pick https://github.com/LineageOS/android_system_core/commit/8fea6d25b32a826758879b78b9ea43685630bfbc
     * insert  int fs_mgr_is_mdtp_activated(void);
       in system/core/fs_mgr/include/fs_mgr.h
-    * insert following lines in system/core/fs_mgr/fs_mgr.c:490  for ref https://github.com/LineageOS/android_system_core/blob/cm-14.1/fs_mgr/fs_mgr.c
-int fs_mgr_is_mdtp_activated()
-{
-      char cmdline[2048];
-      char *ptr;
-      int fd;
-      static int mdtp_activated = 0;
-      static int mdtp_activated_set = 0;
-
-      if (mdtp_activated_set) {
-          return mdtp_activated;
-      }
-
-      fd = open("/proc/cmdline", O_RDONLY);
-      if (fd >= 0) {
-          int n = read(fd, cmdline, sizeof(cmdline) - 1);
-          if (n < 0) n = 0;
-
-          /* get rid of trailing newline, it happens */
-          if (n > 0 && cmdline[n-1] == '\n') n--;
-
-          cmdline[n] = 0;
-          close(fd);
-      } else {
-          cmdline[0] = 0;
-      }
-
-      ptr = cmdline;
-      while (ptr && *ptr) {
-          char *x = strchr(ptr, ' ');
-          if (x != 0) *x++ = 0;
-          if (!strcmp(ptr,"mdtp")) {
-            mdtp_activated = 1;
-            break;
-          }
-          ptr = x;
-      }
-
-      mdtp_activated_set = 1;
-
-      return mdtp_activated;
-}
+    * insert the method fs_mgr_is_mdtp_activated() in system/core/fs_mgr/fs_mgr.c:490  for ref https://github.com/LineageOS/android_system_core/blob/cm-14.1/fs_mgr/fs_mgr.c
 
 [72] No rule to make target '/home/sachinoraon55/workspace/du/out/target/product/lettuce/obj_arm/STATIC_LIBRARIES/libqc-art-compiler_intermediates/export_includes'
     * make changes to art/compiler/Android.mk according to  https://github.com/LineageOS/android_art/commit/ebb3a5e26f19355bbaa00d7da9b993a418c915f9
@@ -516,3 +477,27 @@ int fs_mgr_is_mdtp_activated()
     * OMNIROM-6 requires caf branch of android_frameworks_av repo also. So clone that branch
       git clone -b android-6.0-caf https://github.com/omnirom/android_frameworks_av.git frameworks/av-caf
 
+[77] frameworks/base/core/jni/android_view_SurfaceControl.cpp:406:22: error: 'const struct android::DisplayInfo' has no member named 'colorTransform'
+    * FOR omnirom-6
+      wget -qO frameworks/native-caf/include/ui/DisplayInfo.h https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/include/ui/DisplayInfo.h
+
+[78] frameworks/base/core/jni/android_os_Parcel.cpp:125:24: error: 'class android::Parcel' has no member named 'getOpenAshmemSize'
+     frameworks/base/core/jni/android_os_Parcel.cpp:562:24: error: 'class android::Parcel' has no member named 'getOpenAshmemSize'
+    * FOR omnirom-6
+      wget -qO frameworks/native-caf/include/binder/Parcel.h https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/include/binder/Parcel.h
+
+[79] frameworks/native-caf/libs/binder/Parcel.cpp:926:5: error: 'mBlobAshmemSize' was not declared in this scope
+     frameworks/native-caf/libs/binder/Parcel.cpp: In member function 'void android::Parcel::initState()':
+     frameworks/native-caf/libs/binder/Parcel.cpp:1893:5: error: 'mBlobAshmemSize' was not declared in this scope
+    * FOR omnirom-6
+      wget -qO frameworks/native-caf/libs/binder/Parcel.cpp https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/libs/binder/Parcel.cpp
+
+[80] frameworks/native-caf/opengl/libs/GLES_trace/src/gltrace_transport.h:22:71: fatal error: frameworks/native/opengl/libs/GLES_trace/proto/gltrace.pb.h: No such file or directory
+      FOR omnirom-6
+    * Modify following files. for x in `find frameworks -type f \( -iname "*.h" -o -iname "*.cpp" -o -iname "*.c" \)`;do y=`cat $x|grep -ic "proto/gltrace.pb.h"`;if [ $y -gt 0 ];then echo $x;fi;done
+      frameworks/native-caf/opengl/libs/GLES_trace/src/gltrace_egl.cpp
+      frameworks/native-caf/opengl/libs/GLES_trace/src/gltrace_api.cpp
+      frameworks/native-caf/opengl/libs/GLES_trace/src/gltrace_fixup.cpp
+      frameworks/native-caf/opengl/libs/GLES_trace/src/gltrace_transport.h
+      frameworks/native-caf/opengl/libs/GLES_trace/src/gltrace_fixup.h
+      Change  #include "frameworks/native/opengl/libs/GLES_trace/proto/gltrace.pb.h"  to  #include "frameworks/native-caf/opengl/libs/GLES_trace/proto/gltrace.pb.h"
