@@ -2,15 +2,32 @@ Some problems that can occur while rom compilation and their solutions(especiall
 -------------------------------------------------------------------------------------------------
 [1] No rule to make target "SHARED_LIBRARIES/libaudiopolicymanager_intermediates/export_includes"
     * insert USE_CUSTOM_AUDIO_POLICY := 0 in device/cyanogen/msm8916-common/board/qcom-audio.mk file.
-      or clone the caf-msm8916 branch of hardware/qcom/audio repo into hardware/qcom/audio-caf/msm8916 directory.
+    OR
+    * git clone -b cm-13.0-caf-8916 https://github.com/LineageOS/android_hardware_qcom_audio.git hardware/qcom/audio-caf/msm8916
+    * git clone -b cm-14.1-caf-8916 https://github.com/LineageOS/android_hardware_qcom_audio.git hardware/qcom/audio-caf/msm8916
+    FOR OMNIROM-6
+    * Remove hardware/qcom/audio and hardware/qcom/audio-caf/msm8916
+    * git clone -b cm-13.0-caf-8916 https://github.com/LineageOS/android_hardware_qcom_audio.git hardware/qcom/audio
+    * Remove all lines from hardware/qcom/audio/Android.mk and insert the following line.
+      include $(call all-subdir-makefiles)
 
 [2] No rule to make target "SHARED_LIBRARIES/libcryptfs_hw_intermediates/export_includes"
+    * insert TARGET_HW_DISK_ENCRYPTION := false in device/cyanogen/msm8916-common/board/qcom-crypto.mk
+    OR
     * Comment/delete the following line  common_shared_libraries += libcryptfs_hw   from system/vold/Android.mk
-      add this line   TARGET_CRYPTFS_HW_PATH ?= device/qcom/common/cryptfs_hw  to system/vold/Android.mk:113 for ref  https://github.com/CyanogenMod/android_system_vold/raw/cm-14.1/Android.mk
-      copy cryptfs_hw folder to device/qcom/common
-    * insert TARGET_HW_DISK_ENCRYPTION := false in device/yu/lettuce/BoardConfig.mk
-      or modify device/cyanogen/msm8916-common/board/qcom-crypto.mk file.
-    * check for TARGET_CRYPTFS_HW_PATH ?=  in system/vold/Android.mk
+    * Check for this line  TARGET_CRYPTFS_HW_PATH ?=  in system/vold/Android.mk
+      If the above line isn't present then add this line
+      TARGET_CRYPTFS_HW_PATH ?= device/qcom/common/cryptfs_hw  to system/vold/Android.mk:113 for ref  https://github.com/CyanogenMod/android_system_vold/raw/cm-14.1/Android.mk
+    * Clone cryptfs_hw folder to device/qcom/common
+      git clone -b cm-13.0 https://github.com/LineageOS/android_vendor_qcom_opensource_cryptfs_hw.git device/qcom/common/cryptfs_hw
+      git clone -b cm-14.1 https://github.com/LineageOS/android_vendor_qcom_opensource_cryptfs_hw.git device/qcom/common/cryptfs_hw
+    ========================================================================================
+     IN CASE OF OMNIROM-6, MODIFYING system/vold/Android.mk file gives following errors, so leave the file as it is.
+     PLACE cryptfs_hw directory in device/qcom/common or use the android_device_qcom_common repo provided by OMNIROM.
+     git clone -b android-6.0 https://github.com/omnirom/android_device_qcom_common.git device/qcom/common
+     system/vold/cryptfs.c:1251:ERROR undefined reference to 'is_hw_disk_encryption'
+     system/vold/cryptfs.c:3573:ERROR undefined reference to 'update_hw_device_encryption_key'
+    =========================================================================================
 
 [3] No rule to make target "SHARED_LIBRARIES/libqmiservices_intermediates/export_includes"
     * See solution for PROBLEM 16
@@ -501,3 +518,9 @@ typedef enum {
       frameworks/native-caf/opengl/libs/GLES_trace/src/gltrace_transport.h
       frameworks/native-caf/opengl/libs/GLES_trace/src/gltrace_fixup.h
       Change  #include "frameworks/native/opengl/libs/GLES_trace/proto/gltrace.pb.h"  to  #include "frameworks/native-caf/opengl/libs/GLES_trace/proto/gltrace.pb.h"
+
+[81] omni-mm/system/core/include/utils/Mutex.h:123: undefined reference to `android::SensorManager::sLock'
+    * FOR Omnirom-6
+      wget -qO frameworks/native-caf/include/gui/SensorManager.h https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/include/gui/SensorManager.h
+      wget -qO frameworks/native-caf/libs/gui/SensorManager.cpp https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/libs/gui/SensorManager.cpp
+
