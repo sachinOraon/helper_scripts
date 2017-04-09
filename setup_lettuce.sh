@@ -670,6 +670,7 @@ case "$1" in
                     echo -e " * \033[1mvoLTE\033[0m added"
                 else
                     echo -e " * \033[1mUnable\033[0m to add \033[1mvoLTE\033[0m !"
+                fi
             fi
             echo $b>$romdir/device/yu/lettuce/branch.dat 2>/dev/null
             if ! [ -e $romdir/device/yu/lettuce/device.mk ];then dt=1; else dt=0; fi
