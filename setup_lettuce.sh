@@ -639,7 +639,9 @@ case "$1" in
         if [ "$b" = "cm-14.1" ];then
             echo -en "Do you want \033[1mYU-N\033[0m trees also ?(Y/N) : "
             read choi
-            if ! [ -e $HOME/workspace/lettuce-trees/$s/$b/device/yu/lettuce/Android.mk ];then
+            echo -en "Do you want to add \033[1mvoLTE\033[0m ?(Y/N) : "
+            read vol
+            if ! [ -e $HOME/workspace/lettuce-trees/$sy/$b/device/yu/lettuce/Android.mk ];then
                 echo -e "\033[1mYU-N\033[0m trees \033[1mnot\033[0m found...Please run \033[1m./setup_lettuce -st\033[0m"
                 exit 1
             fi
@@ -659,6 +661,15 @@ case "$1" in
                 cp -r $HOME/workspace/lettuce-trees/$sy/$b/device/yu/lettuce/* $romdir/device/yu/lettuce
             else
                 cp -r $HOME/workspace/lettuce-trees/$s/$b/device/yu/lettuce/* $romdir/device/yu/lettuce
+            fi
+            if [ "$vol" = "Y" -o "$vol" = "y" ];then
+                rm -r $romdir/device/yu/lettuce 2>/dev/null
+                git clone -qb cyos-7.1 https://github.com/yu-community-os/android_device_yu_lettuce.git $romdir/device/yu/lettuce
+                git clone -qb cyos-7.1 https://github.com/yu-community-os/android_vendor_volte.git $romdir/vendor/volte
+                if [ $? -eq 0 ];then
+                    echo -e " * \033[1mvoLTE\033[0m added"
+                else
+                    echo -e " * \033[1mUnable\033[0m to add \033[1mvoLTE\033[0m !"
             fi
             echo $b>$romdir/device/yu/lettuce/branch.dat 2>/dev/null
             if ! [ -e $romdir/device/yu/lettuce/device.mk ];then dt=1; else dt=0; fi
