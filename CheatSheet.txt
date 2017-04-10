@@ -136,13 +136,13 @@ attribute qti_debugfs_domain;
     * insert  PRODUCT_BRAND := YU
       in device/yu/lettuce/<rom>.mk then delete PRODUCT_BRAND := YU from device/yu/lettuce/full_lettuce.mk
 
-######### FOR PROBLEM 21,22,23 ##############
-|
-|  clone hardware/qcom/display-caf/msm8916
-|
-#############################################
 [21] No rule to make obj/SHARED_LIBRARIES/libqdutils_intermediates/export_includes
-    * copy libqdutils.so file from /system/lib and /system/lib64 and paste it to vendor/yu/lettuce/proprietary/lib and lib64
+     No rule to make /obj/SHARED_LIBRARIES/libqdMetaData_intermediates/
+     No rule to make /obj_arm/SHARED_LIBRARIES/libqservice_intermediates/
+    * git clone -b cm-13.0-caf-8916 https://github.com/CyanogenMod/android_hardware_qcom_media.git hardware/qcom/display-caf/msm8916
+      git clone -b cm-14.1-caf-8916 https://github.com/LineageOS/android_hardware_qcom_media.git hardware/qcom/display-caf/msm8916
+    OR
+    * copy libqdutils.so, libqdMetaData.so and libqservice.so files from /system/lib and /system/lib64 and paste it to vendor/yu/lettuce/proprietary/lib and lib64
     * add the following lines to vendor/yu/lettuce/Android.mk file
 include $(CLEAR_VARS)
 LOCAL_MODULE := libqdutils
@@ -154,34 +154,17 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 LOCAL_MODULE_SUFFIX := .so
 include $(BUILD_PREBUILT)
+    * Similarly do for libqdMetaData.so and libqservice.so
 
-[22] No rule to make /obj/SHARED_LIBRARIES/libqdMetaData_intermediates/
-    * copy libqdMetaData.so file from /system/lib and /system/lib64 and paste it to vendor/yu/lettuce/proprietary/lib and lib64
-    * add the following lines to vendor/yu/lettuce/Android.mk file
-include $(CLEAR_VARS)
-LOCAL_MODULE := libqdMetaData
-LOCAL_MODULE_OWNER := yu
-LOCAL_SRC_FILES_64 := proprietary/lib64/libqdMetaData.so
-LOCAL_SRC_FILES_32 := proprietary/lib/libqdMetaData.so
-LOCAL_MULTILIB := both
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_CLASS := SHARED_LIBRARIES
-LOCAL_MODULE_SUFFIX := .so
-include $(BUILD_PREBUILT)
+[22] frameworks/av/media/libeffects/lvm/wrapper/Bundle/EffectBundle.cpp:3137:17: error: use of undeclared identifier 'EFFECT_PARAM_SIZE_MAX'
+     frameworks/av/media/libeffects/lvm/wrapper/Bundle/EffectBundle.cpp:3145:18: error: use of undeclared identifier 'EFFECT_PARAM_SIZE_MAX'
+    * Insert  #define EFFECT_PARAM_SIZE_MAX       65536
+      into frameworks/av/media/libeffects/lvm/wrapper/Bundle/EffectBundle.cpp  For ref : https://github.com/AOSP-CAF/platform_frameworks_av/raw/n-mr1/media/libmedia/IEffect.cpp
 
-[23] No rule to make /obj_arm/SHARED_LIBRARIES/libqservice_intermediates/
-    * copy libqservice.so file from /system/lib and /system/lib64 and paste it to vendor/yu/lettuce/proprietary/lib and lib64
-    * add the following lines to vendor/yu/lettuce/Android.mk file
-include $(CLEAR_VARS)
-LOCAL_MODULE := libqservice
-LOCAL_MODULE_OWNER := yu
-LOCAL_SRC_FILES_64 := proprietary/lib64/libqservice.so
-LOCAL_SRC_FILES_32 := proprietary/lib/libqservice.so
-LOCAL_MULTILIB := both
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_CLASS := SHARED_LIBRARIES
-LOCAL_MODULE_SUFFIX := .so
-include $(BUILD_PREBUILT)
+[23] packages/apps/Bluetooth/src/com/android/bluetooth/hfp/AtPhonebook.java:143: ERROR: unable to reach 'Calls.OUTGOING_IMS_TYPE'
+    * Revert this commit https://github.com/AOSP-CAF/platform_packages_apps_Bluetooth/commit/6cf4ec338ba35a7586f906c14965f7d03d9fc4ac
+    OR
+    * wget -qO packages/apps/Bluetooth/src/com/android/bluetooth/hfp/AtPhonebook.java https://github.com/LineageOS/android_packages_apps_Bluetooth/raw/cm-14.1/src/com/android/bluetooth/hfp/AtPhonebook.java
 
 [24] Communication error with jack (52)
     * use fuckjack script
