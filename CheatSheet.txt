@@ -85,9 +85,11 @@ attribute qti_debugfs_domain;
       remove kernel source files
       and copy KERNEL_OBJ from successfully generated rom dir.
 
-[12] No rule to make *.so files
-    * copy *.so files from device and put them in vendor/yu/lettuce/proprietary/lib and lib64 folders
-      add entries in vendor/yu/lettuce/Android.mk
+[12] vendor/zos/sepolicy/file.te:16:ERROR 'duplicate declaration of type/attribute' at token ';' on line 38424:
+     type theme_data_file, file_type, data_file_type;
+    * Check for the declaration on system/sepolicy/file_contexts and vendor/zos/sepolicy/file_contexts. If present on both files then comment/remove following lines.
+      /data/system/theme(/.*)?  u:object_r:theme_data_file:s0  from   vendor/zos/sepolicy/file_contexts
+      type theme_data_file, file_type, data_file_type;         from   vendor/zos/sepolicy/file.te
 
 [13] errors like "appears in overlay but not in the base package; use <add-resource> to add"
     * comment the respective entries in corresponding .xml files
@@ -122,10 +124,13 @@ attribute qti_debugfs_domain;
     *  git clone -b cm-13.0 https://github.com/LineageOS/android_external_ant-wireless_antradio-library.git external/ant-wireless/antradio-library
     *  git clone -b cm-14.1 https://github.com/LineageOS/android_external_ant-wireless_antradio-library.git external/ant-wireless/antradio-library
 
-[19] output directory "out/target/product/lettuce/obj/KERNEL_OBJ" does not exist.
-    * mkdir -p out/target/product/lettuce/obj/KERNEL_OBJ
-    * then do a DIRTY build
-    * if the problem persists then use prebuilt kernel
+[19] ld.qcld: Unknown command line argument '--fix-cortex-a53-835769'.  Try: 'prebuilts/clang/linux-x86/host/sdclang-3.8/bin/ld.qcld -help'
+    For Zephyr-OS
+    * Use the sdllvm-lto-defs.mk of Zephyr-OS present at vendor/zos/sdclang/sdllvm-lto-defs.mk
+    * Insert following into device/yu/lettuce/BoardConfig.mk
+      SDCLANG_LTO_DEFS := vendor/zos/sdclang/sdllvm-lto-defs.mk
+    * OR insert this into device/yu/lettuce/BoardConfig.mk
+      include vendor/zos/sdclang/sdclang.mk
 
 [20] BUILD_FINGERPRINT cannot contain spaces
     * insert  PRODUCT_BRAND := YU
@@ -233,8 +238,9 @@ include $(BUILD_PREBUILT)
 [35] device/qcom/common/power/power.c:204:14: error: use of undeclared identifier 'POWER_HINT_LAUNCH_BOOST
      device/qcom/common/power/power.c:205:14: error: use of undeclared identifier 'POWER_HINT_AUDIO'
      device/qcom/common/power/power.c:204:14: error: duplicate case value 'POWER_HINT_CPU_BOOST'
-     device/qcom/common/power/power-8916.c:403:17: error: use of undeclared identifier 'POWER_HINT_LAUNCH_BOOST'
+     device/qcom/common/power/power.c:461:20: error: 'POWER_FEATURE_SUPPORTED_PROFILES' undeclared (first use in this function)
     * Look for their declarations on  https://github.com/LineageOS/android_hardware_libhardware/raw/cm-13.0/include/hardware/power.h
+      wget -qO hardware/libhardware/include/hardware/power.h https://github.com/LineageOS/android_hardware_libhardware/raw/cm-13.0/include/hardware/power.h
     * In case of OMNIROM-6, use their android_device_qcom_common tree
       git clone -b android-6.0 https://github.com/omnirom/android_device_qcom_common.git device/qcom/common
 
