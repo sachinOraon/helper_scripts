@@ -168,7 +168,7 @@ case "$1" in
         exit 1
         ;;
     -t)
-        if ! [ `ls $romdir/prebuilts/gcc/linux-x86/aarch64/*.*|grep def.dat` ]; then
+        if ! [ `ls $romdir/prebuilts/gcc/linux-x86/aarch64/*.* 2>/dev/null|grep def.dat` ]; then
             touch $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat 2>/dev/null
         fi
         echo "---------------------------------------------"
@@ -176,7 +176,7 @@ case "$1" in
         echo "---------------------------------------------"
         echo -e "1.\t\033[1mSabermod\033[0m v4.9\n2.\t\033[1mUber\033[0m v4.9\n3.\t\033[1mLinaro\033[0m v4.9\n4.\t\033[1mSDClang\033[0m v3.8.8\n5.\t\033[1mRestore\033[0m Toolchain"
         echo "---------------------------------------------"
-        curr=$(ls $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/*.dat|cut -d "/" -f 11- 2>/dev/null)
+        curr=$(ls $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/*.dat 2>/dev/null|cut -d "/" -f 11-)
         case "$curr" in
             def.dat) echo -e "Current Toolchain\t[\033[1mDEFAULT\033[0m]";;
             sb.dat) echo -e "Current Toolchain\t[\033[1mSABERMOD\033[0m]";;
@@ -303,13 +303,13 @@ case "$1" in
                         fi
                     fi
                 else
-                    echo -e "\033[1mSabermod\033[0m TC isn't available on \033[1m$HOME/workspace/toolchain\033[0m...\nPlease run \033[1m./lettuce.sh -tc\033[0m and select \033[1mSaberMod\033[0m from there to \033[1mdownload\033[0m.\n---------------------------------------------"
+                    echo -e "\033[1mSabermod\033[0m TC isn't available on \033[1m$HOME/workspace/toolchain\033[0m...\nPlease run \033[1m./setup_lettuce.sh -tc\033[0m and select \033[1mSaberMod\033[0m from there to \033[1mdownload\033[0m.\n---------------------------------------------"
                 fi
                 exit 1
                 ;;
             2)
             if [ -e $HOME/workspace/toolchains/ubertc-aarch64-linux-android-4.9/ub.dat ];then
-                echo -e "Fetching Uber Toolchain..."
+                echo -e "Fetching \033[1mUber\033[0m Toolchain..."
                 echo "---------------------------------------------"
                 if ! [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat ];then
                     if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ub.dat ];then
@@ -349,13 +349,13 @@ case "$1" in
                     fi
                 fi
             else
-                echo -e "UberTC isn't available on $HOME/workspace/toolchain...\nPlease run ./lettuce.sh -tc and select UberTC from there to download.\n---------------------------------------------"
+                echo -e "\033[1mUberTC\033[0m isn't available on \033[1m$HOME/workspace/toolchain\033[0m...\nPlease run \033[1m./setup_lettuce.sh -tc\033[0m and select \033[1mUberTC\033[0m from there to download.\n---------------------------------------------"
             fi
                 exit 1
                 ;;
             3)
             if [ -e $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9/ln.dat ];then
-                echo -e "Fetching Linaro Toolchain..."
+                echo -e "Fetching \033[1mLinaro\033[0m Toolchain..."
                 echo "---------------------------------------------"
                 if ! [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat ];then
                     if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ub.dat ];then
@@ -395,12 +395,12 @@ case "$1" in
                     fi
                 fi
             else
-                echo -e "Linaro TC isn't available on $HOME/workspace/toolchain...\nPlease run ./lettuce.sh -tc and select Linaro from there to download.\n---------------------------------------------"
+                echo -e "\033[1mLinaro\033[0m TC isn't available on \033[1m$HOME/workspace/toolchain\033[0m...\nPlease run \033[1m./setup_lettuce.sh -tc\033[0m and select \033[1mLinaro\033[0m from there to download.\n---------------------------------------------"
             fi
                 exit 1
                 ;;
             5)
-                echo -e "Restoring Toolchain..."
+                echo -e "\033[1mRestoring\033[0m Toolchain..."
                 echo "---------------------------------------------"
                 if ! [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/def.dat ];then
                     if [ -e $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ub.dat ];then
