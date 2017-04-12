@@ -218,6 +218,8 @@ case "$1" in
                         exit 1
                     else
                         echo -e "Enabling \033[1mSnapdragon LLVM ARM Compiler\033[0m 3.8.8"
+                        
+                        
                         mkdir -p $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8
                         cp -r $HOME/workspace/toolchains/sdclang-3.8/* $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8
                         if [ $? -eq 0 ];then echo -e " * \033[1mSDClang\033[0m copied successfully";else echo -e " * \033[1mUnable\033[0m to copy SDClang !!";fi
@@ -229,14 +231,19 @@ case "$1" in
                             echo -e " * \033[1msdllvm-lto-defs.mk\033[0m Found"
                         fi
                         chk=`grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk`
-                        if [ $chk -eq 0 ];then
-                            echo -e " * Creating backup of \033[1mBoardconfig.mk\033[0m"
-                            cp $romdir/device/yu/lettuce/BoardConfig.mk $romdir/device/yu/lettuce/BoardConfig.mk.bak 2>/dev/null
-                            echo -e " * \033[1mModifying\033[0m Boardconfig.mk"
-                            echo -e "\nSDCLANG := true\nSDCLANG_PATH := prebuilts/clang/linux-x86/host/sdclang-3.8/bin\nSDCLANG_LTO_DEFS := device/qcom/common/sdllvm-lto-defs.mk">>$romdir/device/yu/lettuce/BoardConfig.mk
-                            if ! [ `grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk` ]; then echo -e " * \033[1mUnable\033[0m to modify BoardConfig.mk";else echo -e " * \033[1mDONE\033[1m";fi
+                        clng=`find $romdir/vendor/ -type f -iname "*sdclang*.mk"|wc --lines`
+                        if [ $clng -gt 0 ];then
+                            echo -e " * \033[1mSDClang\033[0m makefile \033[1mfound\033[0m... Please use that in \033[1mBoardConfig.mk\033[0m"
                         else
-                            echo -e " * \033[1mBoardConfig.mk\033[0m already modified\n * \033[1mDONE\033[1m"
+                            if [ $chk -eq 0 ];then
+                                echo -e " * Creating backup of \033[1mBoardconfig.mk\033[0m"
+                                cp $romdir/device/yu/lettuce/BoardConfig.mk $romdir/device/yu/lettuce/BoardConfig.mk.bak 2>/dev/null
+                                echo -e " * \033[1mModifying\033[0m Boardconfig.mk"
+                                echo -e "\nSDCLANG := true\nSDCLANG_PATH := prebuilts/clang/linux-x86/host/sdclang-3.8/bin\nSDCLANG_LTO_DEFS := device/qcom/common/sdllvm-lto-defs.mk">>$romdir/device/yu/lettuce/BoardConfig.mk
+                                if ! [ `grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk` ]; then echo -e " * \033[1mUnable\033[0m to modify BoardConfig.mk";else echo -e " * \033[1mDONE\033[1m";fi
+                            else
+                                echo -e " * \033[1mBoardConfig.mk\033[0m already modified\n * \033[1mDONE\033[1m"
+                            fi
                         fi
                     fi
                 else
@@ -495,6 +502,7 @@ case "$1" in
             rm -r $romdir/vendor/yu/lettuce 2>/dev/null
             if [ "$b" = "cm-14.1" ];then
                 git clone -qb cyos-7.1 https://github.com/yu-community-os/android_device_yu_lettuce.git $romdir/device/yu/lettuce
+                echo "---------------------------------------------"
                 git clone -qb cyos-7.1 https://github.com/yu-community-os/android_vendor_volte.git $romdir/vendor/volte
                 if [ $? -eq 0 ];then
                     echo -e " * \033[1mvoLTE\033[0m added"
@@ -504,8 +512,9 @@ case "$1" in
             else
                 if [ "$b" = "cm-13.0" ];then
                     git clone -qb cm-13.0 https://github.com/sachinOraon/device_yu_lettuce.git $romdir/device/yu/lettuce
+                    echo "---------------------------------------------"
                     git clone -qb cm-13.0 https://github.com/sachinOraon/vendor_yu_lettuce.git $romdir/vendor/yu/lettuce
-                    if [ -e $romdir/vendor/yu/lettuce/Android.mk ];then skip_v=yes;echo -e echo -e " * \033[1mvoLTE\033[0m added";
+                    if [ -e $romdir/vendor/yu/lettuce/Android.mk ];then skip_v=yes;echo -e " * \033[1mvoLTE\033[0m added";
                     else echo -e " * \033[1mUnable\033[0m to add \033[1mvoLTE\033[0m !";
                     fi
                 fi
@@ -826,7 +835,7 @@ case "\$1" in
             fi
         fi
         else
-            echo -e "\\033[1mLunch FAILED\\033[1m"
+            echo -e "\\033[1mLunch FAILED\\033[0m"
         fi
         ;;
     *)
@@ -853,7 +862,7 @@ case "\$1" in
             fi
         fi
         else
-            echo -e "\\033[1mLunch FAILED\\033[1m"
+            echo -e "\\033[1mLunch FAILED\\033[0m"
         fi
         ;;
 esac
