@@ -184,7 +184,11 @@ case "$1" in
             ub.dat) echo -e "\033[1mCurrent\033[0m Toolchain\t[\033[1mUBERTC\033[0m]";;
             *) echo -e "\033[1mCurrent\033[0m Toolchain\t[\033[1mUNABLE TO FIND\033[0m]";;
         esac
-        sdc=`grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk`
+        if [ -e $romdir/device/yu/lettuce/BoardConfig.mk ];then
+            sdc=`grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk`
+        else
+            sdc=0
+        fi
         if [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 ];then
             if [ $sdc -gt 0 ];then
                 if [ -e $romdir/device/qcom/common/sdllvm-lto-defs.mk ];then
@@ -873,6 +877,15 @@ rm -rf $romdir/vendor/yu &>/dev/null
 echo "---------------------------------------------"
 echo "- Removing kernel tree..."
 rm -rf $romdir/kernel/cyanogen/msm8916 &>/dev/null
+echo "---------------------------------------------"
+echo "- Removing qcom/sepolicy tree..."
+rm -rf $romdir/device/qcom/sepolicy &>/dev/null
+echo "---------------------------------------------"
+echo "- Removing qcom/common tree..."
+rm -rf $romdir/device/qcom/common &>/dev/null
+rm -r $romdir/*.log 2>/dev/null
+rm $romdir/kernel.mk.bak 2>/dev/null
+rm $romdir/$(echo $vn)-build.sh 2>/dev/null
 echo "---------------------------------------------"
 EOF
             chmod a+x $romdir/remove_trees.sh
