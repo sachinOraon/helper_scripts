@@ -178,11 +178,11 @@ case "$1" in
         echo "---------------------------------------------"
         curr=$(ls $romdir/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/*.dat 2>/dev/null|cut -d "/" -f 11-)
         case "$curr" in
-            def.dat) echo -e "Current Toolchain\t[\033[1mDEFAULT\033[0m]";;
-            sb.dat) echo -e "Current Toolchain\t[\033[1mSABERMOD\033[0m]";;
-            ln.dat) echo -e "Current Toolchain\t[\033[1mLINARO\033[0m]";;
-            ub.dat) echo -e "Current Toolchain\t[\033[1mUBERTC\033[0m]";;
-            *) echo -e "Current Toolchain\t[\033[1mUNABLE TO FIND\033[0m]";;
+            def.dat) echo -e "\033[1mCurrent\033[0m Toolchain\t[\033[1mDEFAULT\033[0m]";;
+            sb.dat) echo -e "\033[1mCurrent\033[0m Toolchain\t[\033[1mSABERMOD\033[0m]";;
+            ln.dat) echo -e "\033[1mCurrent\033[0m Toolchain\t[\033[1mLINARO\033[0m]";;
+            ub.dat) echo -e "\033[1mCurrent\033[0m Toolchain\t[\033[1mUBERTC\033[0m]";;
+            *) echo -e "\033[1mCurrent\033[0m Toolchain\t[\033[1mUNABLE TO FIND\033[0m]";;
         esac
         sdc=`grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk`
         if [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 ];then
@@ -469,9 +469,9 @@ case "$1" in
         if [ "$b" = "cm-14.1" ];then
             echo -en "Do you want \033[1mYU-N\033[0m trees also ?(Y/N) : "
             read choi
-            echo -en "Do you want to add \033[1mvoLTE\033[0m ?(Y/N) : "
-            read vol
         fi
+        echo -en "Do you want to add \033[1mvoLTE\033[0m ?(Y/N) : "
+        read vol
         echo "---------------------------------------------"
         if [ "$choi" = "y" -o "$choi" = "Y" ];then
             echo -ne "Press \033[1menter\033[0m to begin Fetching trees from\n * \033[1m$url/$b\033[0m\n * \033[1m$yurl/$b\033[0m"
@@ -488,12 +488,23 @@ case "$1" in
         fi
         if [ "$vol" = "Y" -o "$vol" = "y" ];then
             rm -r $romdir/device/yu/lettuce 2>/dev/null
-            git clone -qb cyos-7.1 https://github.com/yu-community-os/android_device_yu_lettuce.git $romdir/device/yu/lettuce
-            git clone -qb cyos-7.1 https://github.com/yu-community-os/android_vendor_volte.git $romdir/vendor/volte
-            if [ $? -eq 0 ];then
-                echo -e " * \033[1mvoLTE\033[0m added"
+            rm -r $romdir/vendor/yu/lettuce 2>/dev/null
+            if [ "$b" = "cm-14.1" ];then
+                git clone -qb cyos-7.1 https://github.com/yu-community-os/android_device_yu_lettuce.git $romdir/device/yu/lettuce
+                git clone -qb cyos-7.1 https://github.com/yu-community-os/android_vendor_volte.git $romdir/vendor/volte
+                if [ $? -eq 0 ];then
+                    echo -e " * \033[1mvoLTE\033[0m added"
+                else
+                    echo -e " * \033[1mUnable\033[0m to add \033[1mvoLTE\033[0m !"
+                fi
             else
-                echo -e " * \033[1mUnable\033[0m to add \033[1mvoLTE\033[0m !"
+                if [ "$b" = "cm-13.0" ];then
+                    git clone -qb cm-13.0 https://github.com/sachinOraon/device_yu_lettuce.git $romdir/device/yu/lettuce
+                    git clone -qb cm-13.0 https://github.com/sachinOraon/vendor_yu_lettuce.git $romdir/vendor/yu/lettuce
+                    if [ -e $romdir/vendor/yu/lettuce/Android.mk ];then skip_v=yes;echo -e echo -e " * \033[1mvoLTE\033[0m added";
+                    else echo -e " * \033[1mUnable\033[0m to add \033[1mvoLTE\033[0m !";
+                    fi
+                fi
             fi
         fi
         echo $b>$romdir/device/yu/lettuce/branch.dat 2>/dev/null
@@ -566,14 +577,18 @@ case "$1" in
         sleep 1
         echo "---------------------------------------------"
         echo -e "Fetching \033[1mvendor/yu\033[0m"
-        if [ "$choi" = "y" -o "$choi" = "Y" ];then
-            git clone -qb $b https://github.com/YU-N/proprietary_vendor_yu.git $romdir/vendor/yu
-        else
-            if [ "$b" = "cm-14.1" ];then
-                git clone -qb $b https://github.com/YU-N/proprietary_vendor_yu.git $romdir/vendor/yu;
+        if [ -z $skip_v ];then
+            if [ "$choi" = "y" -o "$choi" = "Y" ];then
+                git clone -qb $b https://github.com/YU-N/proprietary_vendor_yu.git $romdir/vendor/yu
             else
-                git clone -qb $b https://github.com/TheMuppets/proprietary_vendor_yu.git $romdir/vendor/yu
+                if [ "$b" = "cm-14.1" ];then
+                    git clone -qb $b https://github.com/YU-N/proprietary_vendor_yu.git $romdir/vendor/yu;
+                else
+                    git clone -qb $b https://github.com/TheMuppets/proprietary_vendor_yu.git $romdir/vendor/yu
+                fi
             fi
+        else
+            echo -e " * Already \033[1mfetched\033[0m..."
         fi
         if ! [ -e $romdir/vendor/yu/lettuce/Android.mk ];then vt=1; else vt=0; fi
         echo "---------------------------------------------"
@@ -809,7 +824,6 @@ case "\$1" in
         else
             echo -e "\\033[1mLunch FAILED\\033[1m"
         fi
-        $(echo exit 1)
         ;;
     *)
         source build/envsetup.sh
@@ -837,7 +851,6 @@ case "\$1" in
         else
             echo -e "\\033[1mLunch FAILED\\033[1m"
         fi
-        $(echo exit 1)
         ;;
 esac
 EOF
