@@ -11,12 +11,9 @@ case "$1" in
         ;;
     -c)
         echo "---------------------------------------------"
-        echo -en "BRANCH (\033[1mL/M/N\033[0m) = "
+        echo -en "BRANCH (\033[1mM/N\033[0m) = "
         read b
         case "$b" in
-            l|L)
-                b=cm-12.1
-            ;;
             m|M)
                 b=cm-13.0
             ;;
@@ -437,12 +434,9 @@ case "$1" in
         ;;
     -ct)
         echo "---------------------------------------------"
-        echo -en "BRANCH (\033[1mL/M/N\033[0m) = "
+        echo -en "BRANCH (\033[1mM/N\033[0m) = "
         read b
         case "$b" in
-            l|L)
-                b=cm-12.1
-            ;;
             m|M)
                 b=cm-13.0
             ;;
@@ -745,6 +739,9 @@ case "$1" in
             sed -i '/#define MEASUREMENT_IDX_RMS  1/a #define MEASUREMENT_COUNT 2' $romdir/system/media/audio_effects/include/audio_effects/effect_visualizer.h
         fi
         if [ "$b" = "cm-14.1" ];then
+            echo -e "* Fetching some \033[1mstuffs\033[0m..."
+            wget -qO frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-14.1/build/phone-xxhdpi-2048-hwui-memory.mk
+            wget -qO frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-14.1/build/phone-xxhdpi-2048-dalvik-heap.mk
             if ! [ "$choi" = "y" -o "$choi" = "Y" ];then
                 rm $romdir/device/yu/lettuce/audio/mixer_paths.xml 2>/dev/null
                 wget -qO $romdir/device/yu/lettuce/audio/mixer_paths.xml https://github.com/YU-N/android_device_yu_lettuce/raw/cm-14.1/audio/mixer_paths.xml
@@ -754,6 +751,10 @@ case "$1" in
                     echo -e "* \033[1mUnable\033[0m to fix \033[1maudio\033[0m..."
                 fi
             fi
+        else
+            echo -e "* Fetching some \033[1mstuffs\033[0m..."
+            wget -qO frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/build/phone-xxhdpi-2048-hwui-memory.mk
+            wget -qO frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/build/phone-xxhdpi-2048-dalvik-heap.mk
         fi
         sleep 1
         if [ -e $romdir/device/yu/lettuce/board-info.txt ];then
@@ -778,23 +779,22 @@ cat <<EOF>$romdir/$(echo $vn)-build.sh
 err=\$(echo \$PATH|grep -c -i aarch64)
 case "\$1" in
     -c)
-        . build/envsetup.sh
+        source build/envsetup.sh
         sleep 1
-        rm -rf $HOME/.ccache &>/dev/null
-        rm -rf $HOME/.cache &>/dev/null
-        if [ \$err -eq 0 ]
-        then
-            lunch $(echo $vn)_lettuce-userdebug
-            if [ \$? -eq 1 ];then exit 1;fi
-        fi
-        sleep 1
+        rm -rf $HOME/.ccache 2>/dev/null
+        rm -rf $HOME/.cache 2>/dev/null
         make clean && make installclean && make clobber
+        if [ \$err -eq 0 ];then
+            lunch $(echo $vn)_lettuce-userdebug
+            lf=\$?
+        fi
+        if [ "\$lf" -eq 0 ];then
         sleep 1
-        make otapackage -j$(echo $jobs)
+        make otapackage -j$(echo $jobs) | tee $(echo $romdir)/make.log
         sleep 1
         if [ -e $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip ];then
-            source build/envsetup.sh &>/dev/null
-            rom=\`lunch $(echo $vn)_lettuce-userdebug|grep -i $(echo $vn)_version|cut -d "=" -f 2\`
+            lunch $(echo $vn)_lettuce-userdebug &> $(echo $romdir)/lunch.log
+            rom=\`cat $(echo $romdir)/lunch.log | grep -i $(echo $vn)_version|cut -d "=" -f 2\`
             l=\`echo \$rom|grep -ic lettuce\`
             if [ -n "\$rom" ];then
                 if [ \$l -eq 0 ];then
@@ -806,20 +806,23 @@ case "\$1" in
                 mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/
             fi
         fi
+        else
+            echo -e "\\033[1mLunch FAILED\\033[1m"
+        fi
+        $(echo exit 1)
         ;;
     *)
-        . build/envsetup.sh
+        source build/envsetup.sh
         sleep 1
-        if [ \$err -eq 0 ]
-        then
+        if [ \$err -eq 0 ];then
             lunch $(echo $vn)_lettuce-userdebug
-            if [ \$? -eq 1 ];then exit 1;fi
+            lf=\$?
         fi
+        if [ "\$lf" -eq 0 ];then
         sleep 1
-        make otapackage -j$(echo $jobs)
+        make otapackage -j$(echo $jobs) | tee $(echo $romdir)/make.log
         if [ -e $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip ];then
-            source build/envsetup.sh &>/dev/null
-            rom=\`lunch $(echo $vn)_lettuce-userdebug|grep -i $(echo $vn)_version|cut -d "=" -f 2\`
+            rom=\`cat $(echo $romdir)/lunch.log|grep -i $(echo $vn)_version|cut -d "=" -f 2\`
             l=\`echo \$rom|grep -ic lettuce\`
             if [ -n "\$rom" ];then
                 if [ \$l -eq 0 ];then
@@ -831,6 +834,10 @@ case "\$1" in
                 mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/
             fi
         fi
+        else
+            echo -e "\\033[1mLunch FAILED\\033[1m"
+        fi
+        $(echo exit 1)
         ;;
 esac
 EOF
@@ -882,18 +889,20 @@ EOF
                 echo -e "- qcom-common tree\t\033[1m[\033[1mSUCCESS\033[0m]\033[0m"
             fi
             echo "---------------------------------------------"
+            java -version
+            echo "---------------------------------------------"
         exit 1
         ;;
     *)
         echo -e "\t---------------------------------------------"
-        echo -e "\t|               \033[1mHELP MENU\033[0m                   |"
+        echo -e "\t|               \033[1mHELP MENU\033[0m                    |"
         echo -e "\t---------------------------------------------"
-        echo -e "\t|   \033[1m-j\033[0m     Switch jdk versions              |"
-        echo -e "\t|   \033[1m-c\033[0m     Copy some caf HAL trees          |"
-        echo -e "\t|   \033[1m-f\033[0m     To fix lunch error               |"
-        echo -e "\t|   \033[1m-t\033[0m     Switch toolchain for compilation |"
-        echo -e "\t|   \033[1m-ct\033[0m    Copy device trees to working-dir |"
-        echo -e "\t|   \033[1m-tc\033[0m    Download toolchain for later use |"
+        echo -e "\t|   \033[1m-j\033[0m     Switch jdk versions               |"
+        echo -e "\t|   \033[1m-c\033[0m     Copy some caf HAL trees           |"
+        echo -e "\t|   \033[1m-f\033[0m     To fix lunch error                |"
+        echo -e "\t|   \033[1m-t\033[0m     Switch toolchain for compilation  |"
+        echo -e "\t|   \033[1m-ct\033[0m    Clone device trees to working-dir |"
+        echo -e "\t|   \033[1m-tc\033[0m    Download toolchain for later use  |"
         echo -e "\t---------------------------------------------"
         exit 1
         ;;

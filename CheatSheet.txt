@@ -56,12 +56,6 @@ Some problems that can occur while rom compilation and their solutions(especiall
 [8] implicit declaration of "strcmp()" or "strerror()"
     * insert #include <string.h>
 
-######################################################
-|    FOR PROBLEMS RELATED TO system/sepolicy
-|    It's better to replace that with 
-|    git clone -b cm-14.1 https://github.com/LineageOS/android_system_sepolicy.git system/sepolicy
-|#####################################################
-
 [9] Unknown type "proc_dirty_ratio"
     * insert   allow vold { proc_sysrq proc_dirty_ratio }:file rw_file_perms;  OR  allow vold proc_dirty_ratio:file rw_file_perms;
       in external/sepolicy/vold.te  https://github.com/LineageOS/android_external_sepolicy/raw/cm-13.0/vold.te
@@ -161,7 +155,7 @@ include $(BUILD_PREBUILT)
     * Insert  #define EFFECT_PARAM_SIZE_MAX       65536
       into frameworks/av/media/libeffects/lvm/wrapper/Bundle/EffectBundle.cpp  For ref : https://github.com/AOSP-CAF/platform_frameworks_av/raw/n-mr1/media/libmedia/IEffect.cpp
 
-[23] packages/apps/Bluetooth/src/com/android/bluetooth/hfp/AtPhonebook.java:143: ERROR: unable to reach 'Calls.OUTGOING_IMS_TYPE'
+[23] packages/apps/Bluetooth/src/com/android/bluetooth/hfp/AtPhonebook.java:143: ERROR: The field 'Calls.OUTGOING_IMS_TYPE' is not visible
     * Revert this commit https://github.com/AOSP-CAF/platform_packages_apps_Bluetooth/commit/6cf4ec338ba35a7586f906c14965f7d03d9fc4ac
     OR
     * wget -qO packages/apps/Bluetooth/src/com/android/bluetooth/hfp/AtPhonebook.java https://github.com/LineageOS/android_packages_apps_Bluetooth/raw/cm-14.1/src/com/android/bluetooth/hfp/AtPhonebook.java
@@ -513,3 +507,39 @@ typedef enum {
       wget -qO frameworks/native-caf/include/gui/SensorManager.h https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/include/gui/SensorManager.h
       wget -qO frameworks/native-caf/libs/gui/SensorManager.cpp https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/libs/gui/SensorManager.cpp
 
+[82] frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java:6104: flags cannot be resolved to a variable
+     frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java:6123: isCustomSource cannot be resolved to a variable
+     frameworks/base/services/core/java/com/android/server/policy/PhoneWindowManager.java:6196: The method RepeatCount() is undefined for the type PhoneWindowManager
+    * Revert the commit https://github.com/Zephyr-OS/platform_frameworks_base/commit/ae78d17c0c4cbad265650de0bcd93a36f18a04db
+
+[83] packages/providers/MediaProvider/src/com/android/providers/media/MtpService.java:101: config_enableBoostForMtp cannot be resolved or is not a field
+     packages/providers/MediaProvider/src/com/android/providers/media/MtpService.java:103: mtpboost_param_value cannot be resolved or is not a field
+    * Revert the commit https://github.com/AOSP-CAF/platform_packages_providers_MediaProvider/commit/72d67dbde949c6c2bd53543b9796d9368e4e39e7
+
+[84] frameworks/base/obex/javax/obex/ServerSession.java:134:ERROR: undefined method reduceMTU
+     frameworks/base/obex/javax/obex/ServerSession.java:89: setMTU cannot be resolved to a variable
+    * cherry-pick this commit https://github.com/AOSP-CAF/platform_frameworks_base/commit/265ed3fdbfdf41db718838244a370f027bef9bbd
+    OR
+    * manually add its definition https://github.com/AOSP-CAF/platform_frameworks_base/raw/n-mr1/obex/javax/obex/ServerSession.java
+
+[85] packages/apps/Settings/src/com/android/settings/fuelgauge/PowerUsageDetail.java:492: power_usage_ab_icon_tint cannot be resolved or is not a field
+    * Revert the commit https://github.com/Zephyr-OS/platform_packages_apps_Settings/commit/e838ddd80c2f10937102f13146032cbc1717f80e
+
+[86] packages/services/Telecomm/src/com/android/server/telecom/CallLogManager.java:499: The field CallLog.Calls.OUTGOING_IMS_TYPE is not visible
+     packages/services/Telecomm/src/com/android/server/telecom/CallLogManager.java:506: The field CallLog.Calls.MISSED_IMS_TYPE is not visible
+    * Revert the commit https://github.com/Zephyr-OS/platform_packages_services_Telecomm/commit/1d90e29f029b4d3cb4678bf58a3bbf30c4001f0d
+
+[87] packages/services/Telecomm/src/com/android/server/telecom/CallLogManager.java:302: FEATURES_ENRICHED cannot be resolved or is not a field
+    * Revert the commit https://github.com/Zephyr-OS/platform_packages_services_Telecomm/commit/1491ddf7114aae0d429f2424d76e89818fcd34e1
+
+[88] packages/apps/Settings/src/com/android/settings/wifi/ManagerPasspointReceiver.java:129: WIFI_HOTSPOT2_REL1_ENABLED cannot be resolved or is not a field
+     packages/apps/Settings/src/com/android/settings/wifi/ConfigureWifiSettings.java:80: WIFI_HOTSPOT2_REL1_ENABLED cannot be resolved or is not a field
+    * Add their definitions on frameworks/base/core/java/android/provider/Settings.java
+      For ref : https://github.com/AOSP-CAF/platform_frameworks_base/blob/n-mr1/core/java/android/provider/Settings.java
+
+[89] packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java:89: Duplicate field DeviceInfoSettings.QGP_VERSION_PATH
+     packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java:91: Duplicate field DeviceInfoSettings.QGP_VERSION_PATH
+    * Here multiple assignments of QGP_VERSION_PATH are present in packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java
+      Therefore comment/delete this     private static final String QGP_VERSION_PATH = "/persist/speccfg/qgpversion";
+
+[90]
