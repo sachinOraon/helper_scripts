@@ -25,7 +25,7 @@ case "$1" in
                 exit 1
             ;;
         esac
-        echo -en "SOURCE (\033[1mL/C\033[0m)   = "
+        echo -en "SOURCE (\033[1mL/C\033[0m) = "
         read s
         case "$s" in
             l|L)
@@ -461,7 +461,7 @@ case "$1" in
                 exit 1
             ;;
         esac
-        echo -en "SOURCE (\033[1mL/C\033[0m)   = "
+        echo -en "SOURCE (\033[1mL/C\033[0m) = "
         read s
         case "$s" in
             l|L)
@@ -483,7 +483,7 @@ case "$1" in
             echo -en "Do you want \033[1mYU-N\033[0m trees also ?(Y/N) : "
             read choi
         fi
-        echo -en "Do you want to add \033[1mvoLTE\033[0m ?(Y/N) : "
+        echo -en "Do you want to add \033[1mvoLTE\033[0m    ?(Y/N) : "
         read vol
         echo "---------------------------------------------"
         if [ "$choi" = "y" -o "$choi" = "Y" ];then
@@ -516,13 +516,13 @@ case "$1" in
                 if [ "$b" = "cm-13.0" ];then
                     git clone -qb cm-13.0 https://github.com/sachinOraon/device_yu_lettuce.git $romdir/device/yu/lettuce
                     echo "---------------------------------------------"
-                    if [ -e $romdir/workspace/LETTUCE/vendor/Volte/cm-13.0/lettuce/Android.mk ];then
+                    if [ -e $HOME/workspace/LETTUCE/vendor/Volte/cm-13.0/lettuce/Android.mk ];then
                         mkdir -p $romdir/vendor/yu/lettuce
-                        cp -r $romdir/workspace/LETTUCE/vendor/Volte/cm-13.0/lettuce/* $romdir/vendor/yu/lettuce 2>/dev/null
+                        cp -r $HOME/workspace/LETTUCE/vendor/Volte/cm-13.0/lettuce/* $romdir/vendor/yu/lettuce 2>/dev/null
                     else
                         git clone -qb cm-13.0 https://github.com/sachinOraon/vendor_yu_lettuce.git $romdir/vendor/yu/lettuce
-                        mkdir -p $romdir/workspace/LETTUCE/vendor/Volte/cm-13.0
-                        cp -r $romdir/vendor/yu/lettuce $romdir/workspace/LETTUCE/vendor/Volte/cm-13.0 2>/dev/null
+                        mkdir -p $HOME/workspace/LETTUCE/vendor/Volte/cm-13.0
+                        cp -r $romdir/vendor/yu/lettuce $HOME/workspace/LETTUCE/vendor/Volte/cm-13.0 2>/dev/null
                     fi
                     if [ -e $romdir/vendor/yu/lettuce/Android.mk ];then skip_v=yes;echo -e " * \033[1mvoLTE\033[0m added";
                         else echo -e " * \033[1mUnable\033[0m to add \033[1mvoLTE\033[0m !";
@@ -602,32 +602,32 @@ case "$1" in
         echo -e "Fetching \033[1mvendor/yu\033[0m"
         if [ -z $skip_v ];then
             if [ "$choi" = "y" -o "$choi" = "Y" ];then
-                if [ -e $romdir/workspace/LETTUCE/vendor/$sy/$b/lettuce/Android.mk ];then
+                if [ -e $HOME/workspace/LETTUCE/vendor/$sy/$b/lettuce/Android.mk ];then
                     mkdir -p $romdir/vendor/yu
-                    cp -r $romdir/workspace/LETTUCE/vendor/$sy/$b/lettuce $romdir/vendor/yu 2>/dev/null
+                    cp -r $HOME/workspace/LETTUCE/vendor/$sy/$b/lettuce $romdir/vendor/yu 2>/dev/null
                 else
                     git clone -qb $b https://github.com/YU-N/proprietary_vendor_yu.git $romdir/vendor/yu
-                    mkdir -p $romdir/workspace/LETTUCE/vendor/$sy/$b
-                    cp -r $romdir/vendor/yu $romdir/workspace/LETTUCE/vendor/$sy/$b 2>/dev/null
+                    mkdir -p $HOME/workspace/LETTUCE/vendor/$sy/$b
+                    cp -r $romdir/vendor/yu $HOME/workspace/LETTUCE/vendor/$sy/$b 2>/dev/null
                 fi
             else
                 if [ "$b" = "cm-14.1" ];then
-                    if [ -e $romdir/workspace/LETTUCE/vendor/$sy/$b/lettuce/Android.mk ];then
+                    if [ -e $HOME/workspace/LETTUCE/vendor/$sy/$b/lettuce/Android.mk ];then
                         mkdir -p $romdir/vendor/yu
-                        cp -r $romdir/workspace/LETTUCE/vendor/$sy/$b/lettuce $romdir/vendor/yu 2>/dev/null
+                        cp -r $HOME/workspace/LETTUCE/vendor/$sy/$b/lettuce $romdir/vendor/yu 2>/dev/null
                     else
                         git clone -qb $b https://github.com/YU-N/proprietary_vendor_yu.git $romdir/vendor/yu
-                        mkdir -p $romdir/workspace/LETTUCE/vendor/$sy/$b
-                        cp -r $romdir/vendor/yu $romdir/workspace/LETTUCE/vendor/$sy/$b 2>/dev/null
+                        mkdir -p $HOME/workspace/LETTUCE/vendor/$sy/$b
+                        cp -r $romdir/vendor/yu $HOME/workspace/LETTUCE/vendor/$sy/$b 2>/dev/null
                     fi
                 else
-                    if [ -e $romdir/workspace/LETTUCE/vendor/muppets/$b/lettuce/Android.mk ];then
+                    if [ -e $HOME/workspace/LETTUCE/vendor/muppets/$b/lettuce/Android.mk ];then
                         mkdir -p $romdir/vendor/yu/lettuce
-                        cp -r $romdir/workspace/LETTUCE/vendor/muppets/$b/lettuce/* $romdir/vendor/yu/lettuce 2>/dev/null
+                        cp -r $HOME/workspace/LETTUCE/vendor/muppets/$b/lettuce/* $romdir/vendor/yu/lettuce 2>/dev/null
                     else
                         git clone -qb $b https://github.com/TheMuppets/proprietary_vendor_yu.git $romdir/vendor/yu
-                        mkdir -p $romdir/workspace/LETTUCE/vendor/muppets/$b
-                        cp -r $romdir/vendor/yu/lettuce $romdir/workspace/LETTUCE/vendor/muppets/$b 2>/dev/null
+                        mkdir -p $HOME/workspace/LETTUCE/vendor/muppets/$b
+                        cp -r $romdir/vendor/yu/lettuce $HOME/workspace/LETTUCE/vendor/muppets/$b 2>/dev/null
                     fi
                 fi
             fi
@@ -726,11 +726,11 @@ case "$1" in
             sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
             rm $romdir/tmp
         fi
+        string=`grep -ic "device/yu/lettuce/device.mk" $romdir/device/yu/lettuce/$(echo $vn).mk`
+        if ! [ $string -gt 0 ];then
         if [ -z "$vf" ];then
             echo -e " * \033[1mNO\033[0m value given for \033[1mvendor file\033[0m..."
         else
-            string=`grep -ic "device/yu/lettuce/device.mk" $romdir/device/yu/lettuce/$(echo $vn).mk`
-            if ! [ $string -gt 0 ];then
             echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
             echo "$(echo $vf)">$romdir/tmp2
             sed -i 's/\//\\\//g' $romdir/tmp2
@@ -778,9 +778,9 @@ case "$1" in
                 if ! [ $flg -eq 0 ];then echo -e "* inserted \033[1mvendor/$(echo $vn)/configs/common_full_phone.mk\033[0m";fi
                 rm -r $romdir/tmp*
             fi
-            else
-            echo -e "* Manually edit device/yu/lettuce/\033[1m$(echo $vn).mk\033[0m for now..."
-            fi
+        fi
+        else
+            echo -e "* Manually \033[1medit\033[0m device/yu/lettuce/\033[1m$(echo $vn).mk\033[0m for now..."
         fi
         echo "---------------------------------------------"
         if [ -e $romdir/vendor/$vn/sepolicy/file_contexts ];then
@@ -804,9 +804,11 @@ case "$1" in
             if [ $? -lt 1 ];then echo -e "* \033[1mkernel.mk\033[0m file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
         fi
         echo -e "* Fixing \033[1mderps\033[0m..."
-        sed -i '/PRODUCT_BRAND/D' $romdir/device/yu/lettuce/full_lettuce.mk
-        if ! [ `grep -ic "PRODUCT_BRAND" $romdir/device/yu/lettuce/$(echo $vn).mk` ];then
-        sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn).mk
+        if [ -e $romdir/device/yu/lettuce/full_lettuce.mk ];then
+            sed -i '/PRODUCT_BRAND/D' $romdir/device/yu/lettuce/full_lettuce.mk
+            if ! [ `grep -ic "PRODUCT_BRAND" $romdir/device/yu/lettuce/$(echo $vn).mk` ];then
+            sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn).mk
+            fi
         fi
         sleep 1
         sed -i '/config_deviceHardwareKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
