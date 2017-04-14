@@ -53,8 +53,15 @@ Some problems that can occur while rom compilation and their solutions(especiall
 [7] device/cyanogen/msm8916-common/recovery/recovery_updater.c:210:9: error: implicit declaration of function 'uiPrintf'
     * comment all the occurences of "uiPrintf()"
 
+    frameworks/av/media/libmediaplayerservice/MediaPlayerService.cpp:240:13: error: no matching function for call to 'utf16_to_utf8'
+    * wget -qO system/core/include/utils/Unicode.h https://github.com/LineageOS/android_system_core/raw/cm-13.0/include/utils/Unicode.h
+    * git clone -b cm-13.0 https://github.com/LineageOS/android_external_exfat.git external/exfat
+
 [8] implicit declaration of "strcmp()" or "strerror()"
     * insert #include <string.h>
+
+    bootable/recovery/minzip/Zip.c:516:5: error: implicit declaration of function 'xz_crc64_init' is invalid in C99
+    * git clone -b cm-13.0 https://github.com/LineageOS/android_external_lzma.git external/lzma
 
 [9] Unknown type "proc_dirty_ratio"
     * insert   allow vold { proc_sysrq proc_dirty_ratio }:file rw_file_perms;  OR  allow vold proc_dirty_ratio:file rw_file_perms;
@@ -246,6 +253,7 @@ include $(BUILD_PREBUILT)
 [39] system/keymaster/keymaster_tags.cpp:23:13: error: 9 enumeration values not handled in switch: 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY', 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY_BLOB', 'KM_TAG_SOTER_UID'
      system/keymaster/attestation_record.cpp:224:17: error: 9 enumeration values not handled in switch: 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY', 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY_BLOB', 'KM_TAG_SOTER_UID'
      system/keymaster/keymaster_enforcement.cpp:235:17: error: 9 enumeration values not handled in switch: 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET
+    * cherry-pick this commit https://github.com/LineageOS/android_system_keymaster/commit/dc06a0f1f26ff5431d13c544b0603c32d97ba2e9
     * wget -qO system/keymaster/keymaster_tags.cpp  https://github.com/LineageOS/android_system_keymaster/raw/cm-14.1/keymaster_tags.cpp
     OR
     * git clone -b cm-14.1 https://github.com/LineageOS/android_system_keymaster.git system/keymaster
@@ -356,6 +364,7 @@ typedef enum {
 
 [54] frameworks/av/media/libstagefright/FFMPEGSoftCodec.cpp   OMX_FFMPEG_Extn.h file not found.
     * wget -O frameworks/av/media/libstagefright/OMX_FFMPEG_Extn.h https://github.com/LineageOS/android_external_stagefright-plugins/raw/cm-14.1/include/OMX_FFMPEG_Extn.h
+    * wget -O frameworks/av/media/libstagefright/OMX_FFMPEG_Extn.h https://github.com/LineageOS/android_external_stagefright-plugins/raw/cm-13.0/include/OMX_FFMPEG_Extn.h
 
 [55] frameworks/av/services/audioflinger/AudioFlinger.cpp:1937:25: error: use of undeclared identifier AUDIO_OUTPUT_FLAG_DIRECT_PCM
     *This occurred due to replacing the repo android_frameworks_av. Therefore replace the file with original one.
@@ -542,4 +551,52 @@ typedef enum {
     * Here multiple assignments of QGP_VERSION_PATH are present in packages/apps/Settings/src/com/android/settings/DeviceInfoSettings.java
       Therefore comment/delete this     private static final String QGP_VERSION_PATH = "/persist/speccfg/qgpversion";
 
-[90]
+[90] No rule to make target '/home/sachinoraon55/workspace/f-aosp/out/target/product/lettuce/obj_arm/EXECUTABLES/updater_intermediates/updater'
+    * Remove bootable/recovery and clone this
+      git clone -b cm-13.0 https://github.com/LineageOS/android_bootable_recovery.git bootable/recovery
+      git clone -b cm-14.1 https://github.com/LineageOS/android_bootable_recovery.git bootable/recovery
+
+[91] out/target/product/lettuce/obj/STATIC_LIBRARIES/libminui_intermediates/export_includes', needed by '/home/sachinoraon55/workspace/f-aosp/out/target/product/lettuce/obj/EXECUTABLES/healthd_intermediates/import_includes'
+    * Check for the presence of bootable/recovery/minui. If it's present then Remove this check from bootable/recovery/Android.mk
+      ifeq ($(call my-dir),$(call project-path-for,recovery))
+      . . . .
+      endif
+
+[92] out/target/product/lettuce/obj/STATIC_LIBRARIES/libfuse_static_intermediates/export_includes', needed by '/home/sachinoraon55/workspace/f-aosp/out/target/product/lettuce/obj/EXECUTABLES/fstools_intermediates/import_includes
+     git clone -b cm-13.0 https://github.com/LineageOS/android_external_fuse external/fuse
+
+     out/target/product/lettuce/obj/STATIC_LIBRARIES/libntfs-3g_static_intermediates/export_includes'
+     git clone -b cm-13.0 https://github.com/LineageOS/android_external_ntfs-3g external/ntfs-3g
+
+     out/target/product/lettuce/obj/STATIC_LIBRARIES/libf2fs_static_intermediates/export_includes'
+     git clone -b cm-13.0 https://github.com/LineageOS/android_external_f2fs-tools external/f2fs-tools
+
+     out/target/product/lettuce/obj/STATIC_LIBRARIES/libsgdisk_static_intermediates/export_includes'
+     git clone -b cm-13.0 https://github.com/LineageOS/android_external_gptfdisk external/gptfdisk
+
+     out/target/product/lettuce/obj/STATIC_LIBRARIES/libtar_intermediates/export_includes
+     git clone -b cm-13.0 https://github.com/LineageOS/android_external_libtar external/libtar
+
+     out/target/product/lettuce/obj/STATIC_LIBRARIES/libminivold_static_intermediates/export_includes'
+    * git clone -b cm-13.0 https://github.com/LineageOS/android_system_vold.git system/vold
+      git clone -b cm-13.0 https://github.com/LineageOS/android_vendor_qcom_opensource_cryptfs_hw.git vendor/qcom/opensource/cryptfs_hw
+      rm -r device/qcom/common/cryptfs_hw
+
+     out/target/product/lettuce/obj/STATIC_LIBRARIES/libfsck_msdos_intermediates/export_includes'
+     git clone -b cm-13.0 https://github.com/LineageOS/android_external_fsck_msdos.git external/fsck_msdos
+
+     out/target/product/lettuce/obj/STATIC_LIBRARIES/libminipigz_static_intermediates/export_includes'
+     git clone -b cm-13.0 https://github.com/LineageOS/android_external_pigz.git external/pigz
+
+     out/target/product/lettuce/obj/STATIC_LIBRARIES/libmksh_static_intermediates/export_includes'
+     git clone -b cm-13.0 https://github.com/LineageOS/android_external_mksh.git external/mksh
+
+
+[93] external/zlib/src/contrib/minizip/ioapi.c:21:45: error: call to 'fseeko' declared with attribute error
+     external/zlib/src/contrib/minizip/ioapi.c:20:29: error: call to 'ftello' declared with attribute error
+     external/zlib/src/contrib/minizip/minizip.c:158:5: error: implicit declaration of function 'fopen64'
+    * git clone -b cm-13.0 https://github.com/LineageOS/android_external_zlib.git external/zlib
+
+[94] system/extras/f2fs_utils/f2fs_sparseblock.c:140:57: error: 'struct f2fs_summary_block' has no member named 'n_sits'
+     system/extras/f2fs_utils/f2fs_sparseblock.c:29:41: error: 'struct f2fs_summary_block' has no member named 'sit_j'
+    * git clone -b cm-13.0 https://github.com/LineageOS/android_system_extras.git system/extras

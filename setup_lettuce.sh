@@ -39,6 +39,10 @@ case "$1" in
                 exit 1
             ;;
         esac
+        if ! [ -d $romdir/hardware/qcom/audio -a -d $romdir/hardware/qcom/display -a -d $romdir/hardware/qcom/media ];then
+            echo -en "Do you want to fetch \033[1mregular hals\033[0m also ? (y/n): "
+            read rhal
+        fi
         echo "---------------------------------------------"
         echo -e " * \033[1mRemoving\033[0m previous \033[1mcaf\033[0m HAL trees..."
         rm -rf $romdir/hardware/qcom/audio-caf/msm8916 &>/dev/null
@@ -51,19 +55,27 @@ case "$1" in
         echo "---------------------------------------------"
         echo -e "\tCLONING \033[1mcaf\033[0m trees"
         echo "---------------------------------------------"
-        git clone -qb $b-caf-8916 https://github.com/$s/android_hardware_qcom_audio.git hardware/qcom/audio-caf/msm8916
+        git clone -qb $b-caf-8916 https://github.com/$s/android_hardware_qcom_audio.git $romdir/hardware/qcom/audio-caf/msm8916
         if ! [ $? -lt 1 ];then echo -e "   \033[1maudio-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1maudio-caf\033[0m\t\t[DONE]"; fi
-        git clone https://github.com/$s/android_hardware_qcom_display.git -qb $b-caf-8916 hardware/qcom/display-caf/msm8916
+        git clone https://github.com/$s/android_hardware_qcom_display.git -qb $b-caf-8916 $romdir/hardware/qcom/display-caf/msm8916
         if ! [ $? -lt 1 ];then echo -e "   \033[1mdisplay-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mdisplay-caf\033[0m\t\t[DONE]"; fi
-        git clone -qb $b-caf-8916 https://github.com/$s/android_hardware_qcom_media.git hardware/qcom/media-caf/msm8916
+        git clone -qb $b-caf-8916 https://github.com/$s/android_hardware_qcom_media.git $romdir/hardware/qcom/media-caf/msm8916
         if ! [ $? -lt 1 ];then echo -e "   \033[1mmedia-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mmedia-caf\033[0m\t\t[DONE]"; fi
-        git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_wlan.git hardware/qcom/wlan-caf 2>/dev/null
+        git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_wlan.git $romdir/hardware/qcom/wlan-caf 2>/dev/null
         if ! [ $? -lt 1 ];then echo -e "   \033[1mwlan-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mwlan-caf\033[0m\t\t[DONE]"; fi
-        git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_bt.git hardware/qcom/bt-caf 2>/dev/null
+        git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_bt.git $romdir/hardware/qcom/bt-caf 2>/dev/null
         if ! [ $? -lt 1 ];then echo -e "   \033[1mbt-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mbt-caf\033[0m\t\t[DONE]"; fi
-        git clone -qb $b-caf https://github.com/$s/android_hardware_ril-caf.git hardware/ril-caf 2>/dev/null
+        git clone -qb $b-caf https://github.com/$s/android_hardware_ril-caf.git $romdir/hardware/ril-caf 2>/dev/null
         if ! [ $? -lt 1 ];then echo -e "   \033[1mril-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mril-caf\033[0m\t\t[DONE]"; fi
         echo "---------------------------------------------"
+        if [ "$rhal" = "y" -o "$rhal" = "Y" ];then
+            git clone -qb $b https://github.com/$s/android_hardware_qcom_audio.git $romdir/hardware/qcom/audio
+            if ! [ $? -lt 1 ];then echo -e "   \033[1maudio\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1maudio\033[0m\t\t[DONE]"; fi
+            git clone -qb $b https://github.com/$s/android_hardware_qcom_display.git $romdir/hardware/qcom/display
+            if ! [ $? -lt 1 ];then echo -e "   \033[1mdisplay\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mdisplay\033[0m\t\t[DONE]"; fi
+            git clone -qb $b https://github.com/$s/android_hardware_qcom_media.git $romdir/hardware/qcom/media
+            if ! [ $? -lt 1 ];then echo -e "   \033[1mmedia\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mmedia\033[0m\t\t[DONE]"; fi
+        fi
         exit 1
         ;;
     -f)
@@ -821,6 +833,8 @@ case "$1" in
             echo -e "* Fetching some \033[1mstuffs\033[0m..."
             wget -qO frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-14.1/build/phone-xxhdpi-2048-hwui-memory.mk
             wget -qO frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-14.1/build/phone-xxhdpi-2048-dalvik-heap.mk
+            wget -qO frameworks/av/media/libstagefright/OMX_FFMPEG_Extn.h https://github.com/LineageOS/android_external_stagefright-plugins/raw/cm-14.1/include/OMX_FFMPEG_Extn.h
+            wget -qO hardware/libhardware/include/hardware/power.h https://github.com/LineageOS/android_hardware_libhardware/raw/cm-14.1/include/hardware/power.h
             if ! [ "$choi" = "y" -o "$choi" = "Y" ];then
                 rm $romdir/device/yu/lettuce/audio/mixer_paths.xml 2>/dev/null
                 wget -qO $romdir/device/yu/lettuce/audio/mixer_paths.xml https://github.com/YU-N/android_device_yu_lettuce/raw/cm-14.1/audio/mixer_paths.xml
@@ -834,6 +848,11 @@ case "$1" in
             echo -e "* Fetching some \033[1mstuffs\033[0m..."
             wget -qO frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/build/phone-xxhdpi-2048-hwui-memory.mk
             wget -qO frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/build/phone-xxhdpi-2048-dalvik-heap.mk
+            wget -qO frameworks/av/media/libstagefright/OMX_FFMPEG_Extn.h https://github.com/LineageOS/android_external_stagefright-plugins/raw/cm-13.0/include/OMX_FFMPEG_Extn.h
+            wget -qO hardware/libhardware/include/hardware/power.h https://github.com/LineageOS/android_hardware_libhardware/raw/cm-13.0/include/hardware/power.h
+        fi
+        if ! [ -d $romdir/external/ant-wireless/antradio-library ];then
+            git clone -qb $b https://github.com/LineageOS/android_external_ant-wireless_antradio-library.git $romdir/external/ant-wireless/antradio-library
         fi
         sleep 1
         if [ -e $romdir/device/yu/lettuce/board-info.txt ];then
