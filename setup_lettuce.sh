@@ -120,10 +120,26 @@ case "$1" in
         echo -en "Which \033[1mtoolchain\033[0m do you want (\033[1m1/2/3/4\033[0m)? "
         read tc
         echo "---------------------------------------------"
+        re_sync(){
+        echo -en "Do you want to \033[1mre-download\033[0m (y/n) ? : "
+        read var_a
+        echo "---------------------------------------------"
+        if [ "$var_a" = "y" -o "$var_a" = "Y" ];then
+            rm -r "$1" 2>/dev/null
+            echo -e "Cloning \033[1m$2\033[0m"
+            echo "---------------------------------------------"
+            git clone -qb $3 $4 $1
+            touch $1/$5 2>/dev/null
+            if [ $? -gt 0 ];then echo -e " * FAILED to clone $2";fi
+            echo "---------------------------------------------"
+        fi
+        }
         case "$tc" in
             4)
                 if [ -d $HOME/workspace/toolchains/sdclang-3.8 ];then
                     echo -e "\033[1mSDClang v3.8\033[0m already available..."
+                    echo "---------------------------------------------"
+                    re_sync "$HOME/workspace/toolchains/sdclang-3.8" "SDClang v3.8" "master" "https://github.com/sachinOraon/sdclang.git"
                     exit 1
                 else
                     echo -e "Cloning \033[1mSDClang\033[0m v3.8..."
@@ -143,6 +159,7 @@ case "$1" in
                 else
                     echo -e "\033[1mSaberMod 4.9\033[0m Toolchain already available..."
                     echo "---------------------------------------------"
+                    re_sync "$HOME/workspace/toolchains/sabermod-aarch64-linux-android-4.9" "SaberMod 4.9" "sabermod" "https://bitbucket.org/xanaxdroid/aarch64-linux-android-4.9.git" "sb.dat"
                 fi
                 exit 1
                 ;;
@@ -157,6 +174,7 @@ case "$1" in
                 else
                     echo -e "\033[1mUber 4.9\033[0m Toolchain already available..."
                     echo "---------------------------------------------"
+                    re_sync "$HOME/workspace/toolchains/ubertc-aarch64-linux-android-4.9" "Uber 4.9" "marshmallow" "https://github.com/ResurrectionRemix/aarch64-linux-android-4.9.git" "ub.dat"
                 fi
                 exit 1
                 ;;
@@ -164,12 +182,14 @@ case "$1" in
                 if ! [ -e $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9/ln.dat ]; then
                     echo -e "Cloning \033[1mLinaro 4.9\033[0m Toolchain..."
                     echo "---------------------------------------------"
-                    git clone -b linaro --single-branch https://bitbucket.org/xanaxdroid/aarch64-linux-android-4.9.git $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9
+                    #git clone -b linaro --single-branch https://bitbucket.org/xanaxdroid/aarch64-linux-android-4.9.git $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9
+                    git clone -b RLCR-16.01 --single-branch https://android-git.linaro.org/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9-linaro.git $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9
                     touch $HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9/ln.dat
                     echo "---------------------------------------------"
                 else
                     echo -e "\033[1mLinaro 4.9\033[0m Toolchain already available..."
                     echo "---------------------------------------------"
+                    re_sync "$HOME/workspace/toolchains/linaro-aarch64-linux-android-4.9" "Linaro 4.9" "RLCR-16.01" "https://android-git.linaro.org/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9-linaro.git" "ln.dat"
                 fi
                 exit 1
                 ;;
@@ -202,16 +222,23 @@ case "$1" in
         else
             sdc=0
         fi
-        if [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 ];then
-            if [ $sdc -gt 0 ];then
-                if [ -e $romdir/device/qcom/common/sdllvm-lto-defs.mk ];then
-                    echo -e "\033[1mSDclang\033[0m 3.8\t\t[\033[1mENABLED\033[0m]"
+        clng=`find $romdir/vendor/ -type f -iname "*sdclang*.mk"|wc --lines`
+        f_v=`cat $romdir/device/yu/lettuce/vendor_file.dat`
+        d_e=`grep -ic "sdclang" $f_v`
+        if [ $d_e -gt 0 -a $clng -gt 0 ];then
+            echo -e "\033[1mSDclang\033[0m 3.8\t\t[\033[1mENABLED BY DEFAULT\033[0m]"
+        else
+            if [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 ];then
+                if [ $sdc -gt 0 ];then
+                    if [ -e $romdir/device/qcom/common/sdllvm-lto-defs.mk ];then
+                        echo -e "\033[1mSDclang\033[0m 3.8\t\t[\033[1mENABLED\033[0m]"
+                    fi
+                else
+                    echo -e "\033[1mSDclang\033[0m 3.8\t\t[\033[1mDISABLED\033[0m]"
                 fi
             else
                 echo -e "\033[1mSDclang\033[0m 3.8\t\t[\033[1mDISABLED\033[0m]"
             fi
-        else
-            echo -e "\033[1mSDclang\033[0m 3.8\t\t[\033[1mDISABLED\033[0m]"
         fi
         echo "---------------------------------------------"
         echo -en "Which \033[1mtoolchain\033[0m do you want (\033[1m1/2/3/4/5\033[0m)? "
@@ -231,8 +258,6 @@ case "$1" in
                         exit 1
                     else
                         echo -e "Enabling \033[1mSnapdragon LLVM ARM Compiler\033[0m 3.8.8"
-                        
-                        
                         mkdir -p $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8
                         cp -r $HOME/workspace/toolchains/sdclang-3.8/* $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8
                         if [ $? -eq 0 ];then echo -e " * \033[1mSDClang\033[0m copied successfully";else echo -e " * \033[1mUnable\033[0m to copy SDClang !!";fi
@@ -245,9 +270,8 @@ case "$1" in
                             echo -e " * \033[1msdllvm-lto-defs.mk\033[0m Found"
                         fi
                         chk=`grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk`
-                        clng=`find $romdir/vendor/ -type f -iname "*sdclang*.mk"|wc --lines`
                         if [ $clng -gt 0 ];then
-                            echo -e " * \033[1mSDClang\033[0m makefile \033[1mfound\033[0m... Please use that in \033[1mBoardConfig.mk\033[0m"
+                            echo -e " * \033[1mSDClang\033[0m makefile \033[1mfound\033[0m in \033[1mvendor\033[0m ... Please use that in \033[1mBoardConfig.mk\033[0m"
                         else
                             if [ $chk -eq 0 ];then
                                 echo -e " * Creating backup of \033[1mBoardconfig.mk\033[0m"
@@ -709,6 +733,7 @@ case "$1" in
             read svf
             echo "---------------------------------------------"
         fi
+        echo $vf>$romdir/device/yu/lettuce/vendor_file.dat
         sleep 1
         if [ -e $romdir/device/yu/lettuce/lineage.mk ];then
             echo -e "* Creating \033[1m$(echo $vn).mk\033[0m"
@@ -739,19 +764,29 @@ case "$1" in
             rm $romdir/tmp
         fi
         string=`grep -ic "device/yu/lettuce/device.mk" $romdir/device/yu/lettuce/$(echo $vn).mk`
-        if ! [ $string -gt 0 ];then
         if [ -z "$vf" ];then
             echo -e " * \033[1mNO\033[0m value given for \033[1mvendor file\033[0m..."
         else
-            echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
-            echo "$(echo $vf)">$romdir/tmp2
-            sed -i 's/\//\\\//g' $romdir/tmp2
-            paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
-            sed -i 's/mk$/mk\//' $romdir/tmp
-            sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
-            rm -r $romdir/tmp*
-            flg=`grep -ci $(echo $vf) $romdir/device/yu/lettuce/$(echo $vn).mk`
-            if ! [ $flg -eq 0 ];then echo -e "* inserted \033[1m$vf\033[0m";sleep 1;fi
+            if [ $string -gt 0 ];then
+                echo $vf > $romdir/tmp1
+                sed -i 's/\//\\\//g' $romdir/tmp1
+                echo "\$(call inherit-product, $(cat $romdir/tmp1))" > $romdir/tmp1
+                echo "/device\/yu\/lettuce\/device.mk/a " > $romdir/tmp2
+                paste --delimiters "" $romdir/tmp2 $romdir/tmp1 > $romdir/tmp3
+                sed -f $romdir/tmp3 -i $romdir/device/yu/lettuce/$(echo $vn).mk
+                rm -r $romdir/tmp*
+                if ! [ $flg -eq 0 ];then echo -e "* inserted \033[1m$vf\033[0m";sleep 1;fi
+            else
+                echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
+                echo "$(echo $vf)">$romdir/tmp2
+                sed -i 's/\//\\\//g' $romdir/tmp2
+                paste --delimiters "" $romdir/tmp1 $romdir/tmp2>$romdir/tmp
+                sed -i 's/mk$/mk\//' $romdir/tmp
+                sed -f $romdir/tmp -i $romdir/device/yu/lettuce/$(echo $vn).mk
+                rm -r $romdir/tmp*
+                flg=`grep -ci $(echo $vf) $romdir/device/yu/lettuce/$(echo $vn).mk`
+                if ! [ $flg -eq 0 ];then echo -e "* inserted \033[1m$vf\033[0m";sleep 1;fi
+            fi
             if [ -z "$svf" ];then
                 echo -e "* \033[1mNO\033[0m value given for \033[1m2nd\033[0m vendor file..."
             else
@@ -789,10 +824,9 @@ case "$1" in
                 flg=`grep -ci vendor/$(echo $vn)/configs/common_full_phone.mk $romdir/device/yu/lettuce/$(echo $vn).mk`
                 if ! [ $flg -eq 0 ];then echo -e "* inserted \033[1mvendor/$(echo $vn)/configs/common_full_phone.mk\033[0m";fi
                 rm -r $romdir/tmp*
+                flg=`grep -ci $(echo $vf) $romdir/device/yu/lettuce/$(echo $vn).mk`
+                
             fi
-        fi
-        else
-            echo -e "* Manually \033[1medit\033[0m device/yu/lettuce/\033[1m$(echo $vn).mk\033[0m for now..."
         fi
         echo "---------------------------------------------"
         if [ -e $romdir/vendor/$vn/sepolicy/file_contexts ];then
@@ -888,7 +922,7 @@ case "\$1" in
         fi
         if [ "\$lf" -eq 0 ];then
         sleep 1
-        make otapackage -j$(echo $jobs) | tee $(echo $romdir)/make.log
+        make otapackage -j$(echo $jobs) 2>$(echo $romdir)/make.log
         sleep 1
         if [ -e $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip ];then
             lunch $(echo $vn)_lettuce-userdebug &> $(echo $romdir)/lunch.log
@@ -917,7 +951,7 @@ case "\$1" in
         fi
         if [ "\$lf" -eq 0 ];then
         sleep 1
-        make otapackage -j$(echo $jobs) | tee $(echo $romdir)/make.log
+        make otapackage -j$(echo $jobs) 2>$(echo $romdir)/make.log
         if [ -e $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip ];then
             rom=\`cat $(echo $romdir)/lunch.log|grep -i $(echo $vn)_version|cut -d "=" -f 2\`
             l=\`echo \$rom|grep -ic lettuce\`
