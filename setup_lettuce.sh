@@ -223,8 +223,7 @@ case "$1" in
             sdc=0
         fi
         clng=`find $romdir/vendor/ -type f -iname "*sdclang*.mk"|wc --lines`
-        f_v=`cat $romdir/device/yu/lettuce/vendor_file.dat`
-        d_e=`grep -ic "sdclang" $f_v`
+        if [ -e $romdir/device/yu/lettuce/vendor_file.dat ];then f_v=`cat $romdir/device/yu/lettuce/vendor_file.dat` ; d_e=`grep -ic "sdclang" $f_v` ; fi
         if [ $d_e -gt 0 -a $clng -gt 0 ];then
             echo -e "\033[1mSDclang\033[0m 3.8\t\t[\033[1mENABLED BY DEFAULT\033[0m]"
         else
@@ -775,6 +774,7 @@ case "$1" in
                 paste --delimiters "" $romdir/tmp2 $romdir/tmp1 > $romdir/tmp3
                 sed -f $romdir/tmp3 -i $romdir/device/yu/lettuce/$(echo $vn).mk
                 rm -r $romdir/tmp*
+                flg=`grep -ci $(echo $vf) $romdir/device/yu/lettuce/$(echo $vn).mk`
                 if ! [ $flg -eq 0 ];then echo -e "* inserted \033[1m$vf\033[0m";sleep 1;fi
             else
                 echo "s/vendor\/cm\/config\/common_full_phone.mk/">$romdir/tmp1
