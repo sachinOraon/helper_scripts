@@ -1,5 +1,49 @@
 romdir=$PWD
 case "$1" in
+    -d)
+        echo "---------------------------------------------"
+        echo -e "\t\033[1mFixing Data Bug\033[0m"
+        echo "---------------------------------------------"
+        echo -en "   BRANCH (\033[1mM/N\033[0m) = "
+        read b
+        case "$b" in
+            m|M)
+                b=cm-13.0
+                bc=cm-13.0-caf
+            ;;
+            n|N)
+                b=cm-14.1
+                bc=cm-14.1-caf
+            ;;
+            *)
+                echo -e " * \033[1mInvalid\033[0m branch...!"
+                exit 1
+            ;;
+        esac
+        echo "---------------------------------------------"
+        echo -en " - Fetching \033[1mhardware/ril\033[0m"
+        rm -r $romdir/hardware/ril 2>/dev/null
+        git clone -qb $b https://github.com/LineageOS/android_hardware_ril.git $romdir/hardware/ril
+        if [ $? -eq 0 ];then echo -e "\t[DONE]";else echo -e "\t[FAILED]";fi
+        echo -en " - Fetching \033[1mhardware/ril-caf\033[0m"
+        rm -r $romdir/hardware/ril-caf 2>/dev/null
+        git clone -qb $bc https://github.com/LineageOS/android_hardware_ril.git $romdir/hardware/ril-caf
+        if [ $? -eq 0 ];then echo -e "\t[DONE]";else echo -e "\t[FAILED]";fi
+        echo -en " - Fetching \033[1mvendor/qcom/opensource/dpm\033[0m"
+        rm -r $romdir/vendor/qcom/opensource/dpm 2>/dev/null
+        git clone -qb $b https://github.com/LineageOS/android_vendor_qcom_opensource_dpm.git $romdir/vendor/qcom/opensource/dpm
+        if [ $? -eq 0 ];then echo -e "\t[DONE]";else echo -e "\t[FAILED]";fi
+        echo -en " - Fetching \033[1mvendor/qcom/opensource/dataservices\033[0m"
+        rm -r $romdir/vendor/qcom/opensource/dataservices 2>/dev/null
+        git clone -qb $b https://github.com/LineageOS/android_vendor_qcom_opensource_dataservices.git $romdir/vendor/qcom/opensource/dataservices
+        if [ $? -eq 0 ];then echo -e "\t[DONE]";else echo -e "\t[FAILED]";fi
+        echo -en " - Fetching \033[1mexternal/connectivity\033[0m"
+        rm -r $romdir/external/connectivity 2>/dev/null
+        git clone -qb $b https://github.com/LineageOS/android_external_connectivity.git $romdir/external/connectivity
+        if [ $? -eq 0 ];then echo -e "\t[DONE]";else echo -e "\t[FAILED]";fi
+        echo "---------------------------------------------"
+        exit 1
+        ;;
     -j)
         echo "---------------------------------------------"
         update-alternatives --config java
@@ -223,7 +267,12 @@ case "$1" in
             sdc=0
         fi
         clng=`find $romdir/vendor/ -type f -iname "*sdclang*.mk"|wc --lines`
-        if [ -e $romdir/device/yu/lettuce/vendor_file.dat ];then f_v=`cat $romdir/device/yu/lettuce/vendor_file.dat` ; d_e=`grep -ic "sdclang" $f_v` ; fi
+        if [ -e $romdir/device/yu/lettuce/vendor_file.dat ];then
+            f_v=`cat $romdir/device/yu/lettuce/vendor_file.dat`
+            d_e=`grep -ic "sdclang" $f_v`
+        else
+            d_e=0
+        fi
         if [ $d_e -gt 0 -a $clng -gt 0 ];then
             echo -e "\033[1mSDclang\033[0m 3.8\t\t[\033[1mENABLED BY DEFAULT\033[0m]"
         else
@@ -922,7 +971,7 @@ case "\$1" in
         fi
         if [ "\$lf" -eq 0 ];then
         sleep 1
-        make otapackage -j$(echo $jobs) 2>$(echo $romdir)/make.log
+        make otapackage -j$(echo $jobs) | tee $(echo $romdir)/make.log
         sleep 1
         if [ -e $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip ];then
             lunch $(echo $vn)_lettuce-userdebug &> $(echo $romdir)/lunch.log
@@ -951,7 +1000,7 @@ case "\$1" in
         fi
         if [ "\$lf" -eq 0 ];then
         sleep 1
-        make otapackage -j$(echo $jobs) 2>$(echo $romdir)/make.log
+        make otapackage -j$(echo $jobs) | tee $(echo $romdir)/make.log
         if [ -e $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip ];then
             rom=\`cat $(echo $romdir)/lunch.log|grep -i $(echo $vn)_version|cut -d "=" -f 2\`
             l=\`echo \$rom|grep -ic lettuce\`
@@ -1040,6 +1089,7 @@ EOF
         echo -e "\t|   \033[1m-j\033[0m     Switch jdk versions               |"
         echo -e "\t|   \033[1m-c\033[0m     Copy some caf HAL trees           |"
         echo -e "\t|   \033[1m-f\033[0m     To fix lunch error                |"
+        echo -e "\t|   \033[1m-d\033[0m     To fix Data bug                   |"
         echo -e "\t|   \033[1m-t\033[0m     Switch toolchain for compilation  |"
         echo -e "\t|   \033[1m-ct\033[0m    Clone device trees to working-dir |"
         echo -e "\t|   \033[1m-tc\033[0m    Download toolchain for later use  |"

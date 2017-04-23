@@ -54,8 +54,8 @@ Some problems that can occur while rom compilation and their solutions(especiall
     * comment all the occurences of "uiPrintf()"
 
     frameworks/av/media/libmediaplayerservice/MediaPlayerService.cpp:240:13: error: no matching function for call to 'utf16_to_utf8'
-    * wget -qO system/core/include/utils/Unicode.h https://github.com/LineageOS/android_system_core/raw/cm-13.0/include/utils/Unicode.h
-    * git clone -b cm-13.0 https://github.com/LineageOS/android_external_exfat.git external/exfat
+    system/core/libutils/String8.cpp:117:31: error: too few arguments to function 'void utf16_to_utf8(const char16_t*, size_t, char*, size_t)'
+    * Cherry-pick this commit https://github.com/LineageOS/android_system_core/commit/3c28cda5d0120eb7bf7a49b36b96f45c0a588232
 
 [8] implicit declaration of "strcmp()" or "strerror()"
     * insert #include <string.h>
@@ -523,23 +523,37 @@ typedef enum {
 
 [83] packages/providers/MediaProvider/src/com/android/providers/media/MtpService.java:101: config_enableBoostForMtp cannot be resolved or is not a field
      packages/providers/MediaProvider/src/com/android/providers/media/MtpService.java:103: mtpboost_param_value cannot be resolved or is not a field
+    * Add following lines in frameworks/base/core/res/res/values/config.xml  FOR ref  https://github.com/AOSP-CAF/platform_frameworks_base/raw/n-mr1/core/res/res/values/config.xml
+    <bool name="config_enableBoostForMtp">false</bool>
+    <integer-array name="mtpboost_param_value" />
+    * Also add following lines in frameworks/base/core/res/res/values/symbols.xml  FOR ref  https://github.com/AOSP-CAF/platform_frameworks_base/raw/n-mr1/core/res/res/values/symbols.xml
+    <java-symbol type="bool" name="config_enableBoostForMtp" />
+    <java-symbol type="array" name="mtpboost_param_value" />
+    OR
     * Revert the commit https://github.com/AOSP-CAF/platform_packages_providers_MediaProvider/commit/72d67dbde949c6c2bd53543b9796d9368e4e39e7
 
 [84] frameworks/base/obex/javax/obex/ServerSession.java:134:ERROR: undefined method reduceMTU
      frameworks/base/obex/javax/obex/ServerSession.java:89: setMTU cannot be resolved to a variable
+     packages/apps/Bluetooth/src/com/android/bluetooth/opp/BluetoothOppObexServerSession.java:134: The method reduceMTU(boolean) is undefined for the type ServerSession
     * cherry-pick this commit https://github.com/AOSP-CAF/platform_frameworks_base/commit/265ed3fdbfdf41db718838244a370f027bef9bbd
     OR
     * manually add its definition https://github.com/AOSP-CAF/platform_frameworks_base/raw/n-mr1/obex/javax/obex/ServerSession.java
 
 [85] packages/apps/Settings/src/com/android/settings/fuelgauge/PowerUsageDetail.java:492: power_usage_ab_icon_tint cannot be resolved or is not a field
+    * Add this line in packages/apps/Settings/res/values/projekt_colors.xml  FOR ref  https://github.com/AOSP-CAF/platform_packages_apps_Settings/raw/n-mr1/res/values/projekt_colors.xml
+    <color name="power_usage_ab_icon_tint">@android:color/white</color>
+    OR
     * Revert the commit https://github.com/Zephyr-OS/platform_packages_apps_Settings/commit/e838ddd80c2f10937102f13146032cbc1717f80e
 
 [86] packages/services/Telecomm/src/com/android/server/telecom/CallLogManager.java:499: The field CallLog.Calls.OUTGOING_IMS_TYPE is not visible
      packages/services/Telecomm/src/com/android/server/telecom/CallLogManager.java:506: The field CallLog.Calls.MISSED_IMS_TYPE is not visible
+    * Cherry-pick this commit https://github.com/AOSP-CAF/platform_frameworks_base/commit/1983d57b59fa7a4e0377520a6e0663a6fffc61bc
+    OR
     * Revert the commit https://github.com/Zephyr-OS/platform_packages_services_Telecomm/commit/1d90e29f029b4d3cb4678bf58a3bbf30c4001f0d
 
 [87] packages/services/Telecomm/src/com/android/server/telecom/CallLogManager.java:302: FEATURES_ENRICHED cannot be resolved or is not a field
     * Revert the commit https://github.com/Zephyr-OS/platform_packages_services_Telecomm/commit/1491ddf7114aae0d429f2424d76e89818fcd34e1
+    * Also revert the commit https://github.com/Zephyr-OS/platform_packages_apps_Dialer/commit/cdd710214cd62ae1539c3828d21623dc2ce2d0e9
 
 [88] packages/apps/Settings/src/com/android/settings/wifi/ManagerPasspointReceiver.java:129: WIFI_HOTSPOT2_REL1_ENABLED cannot be resolved or is not a field
      packages/apps/Settings/src/com/android/settings/wifi/ConfigureWifiSettings.java:80: WIFI_HOTSPOT2_REL1_ENABLED cannot be resolved or is not a field
