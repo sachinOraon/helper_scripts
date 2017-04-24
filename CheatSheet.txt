@@ -219,12 +219,16 @@ include $(BUILD_PREBUILT)
     * after that remove this  rm -r device/qcom/common/cryptfs_hw
     * Check for TARGET_CRYPTFS_HW_PATH ?= vendor/qcom/opensource/cryptfs_hw  in system/vold/Android.mk
 
-[35] device/qcom/common/power/power.c:204:14: error: use of undeclared identifier 'POWER_HINT_LAUNCH_BOOST
+[35] device/qcom/common/power/power.c:204:14: error: use of undeclared identifier 'POWER_HINT_LAUNCH_BOOST'
      device/qcom/common/power/power.c:205:14: error: use of undeclared identifier 'POWER_HINT_AUDIO'
      device/qcom/common/power/power.c:204:14: error: duplicate case value 'POWER_HINT_CPU_BOOST'
      device/qcom/common/power/power.c:461:20: error: 'POWER_FEATURE_SUPPORTED_PROFILES' undeclared (first use in this function)
-    * Look for their declarations on  https://github.com/LineageOS/android_hardware_libhardware/raw/cm-13.0/include/hardware/power.h
-      wget -qO hardware/libhardware/include/hardware/power.h https://github.com/LineageOS/android_hardware_libhardware/raw/cm-13.0/include/hardware/power.h
+    * Cherry-pick these commits for this error  device/qcom/common/power/power.c:205:14: error: use of undeclared identifier 'POWER_HINT_AUDIO'
+      https://github.com/SlimRoms/device_qcom_common/commit/6d26c76b21d19e696806a093c1fe64a22ff31cc7
+      https://github.com/SlimRoms/hardware_libhardware/commit/d7f58ca0be29b55e801a7800bd042e6eb6090d56
+    OR
+    * Look for their declarations on  https://raw.githubusercontent.com/LineageOS/android_hardware_libhardware/397277cc4ee0764184d3a5eaeea9f3dd26c996ab/include/hardware/power.h
+      wget -qO hardware/libhardware/include/hardware/power.h https://raw.githubusercontent.com/LineageOS/android_hardware_libhardware/397277cc4ee0764184d3a5eaeea9f3dd26c996ab/include/hardware/power.h
     * In case of OMNIROM-6, use their android_device_qcom_common tree
       git clone -b android-6.0 https://github.com/omnirom/android_device_qcom_common.git device/qcom/common
 

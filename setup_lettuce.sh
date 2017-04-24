@@ -24,15 +24,15 @@ case "$1" in
         echo -en " - Fetching \033[1mhardware/ril\033[0m"
         rm -r $romdir/hardware/ril 2>/dev/null
         git clone -qb $b https://github.com/LineageOS/android_hardware_ril.git $romdir/hardware/ril
-        if [ $? -eq 0 ];then echo -e "\t[DONE]";else echo -e "\t[FAILED]";fi
+        if [ $? -eq 0 ];then echo -e "\t\t\t[DONE]";else echo -e "\t\t\t[FAILED]";fi
         echo -en " - Fetching \033[1mhardware/ril-caf\033[0m"
         rm -r $romdir/hardware/ril-caf 2>/dev/null
         git clone -qb $bc https://github.com/LineageOS/android_hardware_ril.git $romdir/hardware/ril-caf
-        if [ $? -eq 0 ];then echo -e "\t[DONE]";else echo -e "\t[FAILED]";fi
+        if [ $? -eq 0 ];then echo -e "\t\t\t[DONE]";else echo -e "\t\t\t[FAILED]";fi
         echo -en " - Fetching \033[1mvendor/qcom/opensource/dpm\033[0m"
         rm -r $romdir/vendor/qcom/opensource/dpm 2>/dev/null
         git clone -qb $b https://github.com/LineageOS/android_vendor_qcom_opensource_dpm.git $romdir/vendor/qcom/opensource/dpm
-        if [ $? -eq 0 ];then echo -e "\t[DONE]";else echo -e "\t[FAILED]";fi
+        if [ $? -eq 0 ];then echo -e "\t\t[DONE]";else echo -e "\t\t[FAILED]";fi
         echo -en " - Fetching \033[1mvendor/qcom/opensource/dataservices\033[0m"
         rm -r $romdir/vendor/qcom/opensource/dataservices 2>/dev/null
         git clone -qb $b https://github.com/LineageOS/android_vendor_qcom_opensource_dataservices.git $romdir/vendor/qcom/opensource/dataservices
@@ -40,7 +40,7 @@ case "$1" in
         echo -en " - Fetching \033[1mexternal/connectivity\033[0m"
         rm -r $romdir/external/connectivity 2>/dev/null
         git clone -qb $b https://github.com/LineageOS/android_external_connectivity.git $romdir/external/connectivity
-        if [ $? -eq 0 ];then echo -e "\t[DONE]";else echo -e "\t[FAILED]";fi
+        if [ $? -eq 0 ];then echo -e "\t\t[DONE]";else echo -e "\t\t[FAILED]";fi
         echo "---------------------------------------------"
         exit 1
         ;;
@@ -917,7 +917,8 @@ case "$1" in
             wget -qO frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-14.1/build/phone-xxhdpi-2048-hwui-memory.mk
             wget -qO frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-14.1/build/phone-xxhdpi-2048-dalvik-heap.mk
             wget -qO frameworks/av/media/libstagefright/OMX_FFMPEG_Extn.h https://github.com/LineageOS/android_external_stagefright-plugins/raw/cm-14.1/include/OMX_FFMPEG_Extn.h
-            wget -qO hardware/libhardware/include/hardware/power.h https://github.com/LineageOS/android_hardware_libhardware/raw/cm-14.1/include/hardware/power.h
+            #wget -qO hardware/libhardware/include/hardware/power.h https://github.com/LineageOS/android_hardware_libhardware/raw/cm-14.1/include/hardware/power.h
+            wget -qO system/keymaster/keymaster_tags.cpp https://github.com/LineageOS/android_system_keymaster/raw/cm-14.1/keymaster_tags.cpp
             if ! [ "$choi" = "y" -o "$choi" = "Y" ];then
                 rm $romdir/device/yu/lettuce/audio/mixer_paths.xml 2>/dev/null
                 wget -qO $romdir/device/yu/lettuce/audio/mixer_paths.xml https://github.com/YU-N/android_device_yu_lettuce/raw/cm-14.1/audio/mixer_paths.xml
@@ -932,7 +933,7 @@ case "$1" in
             wget -qO frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/build/phone-xxhdpi-2048-hwui-memory.mk
             wget -qO frameworks/native/build/phone-xxhdpi-2048-dalvik-heap.mk https://github.com/LineageOS/android_frameworks_native/raw/cm-13.0/build/phone-xxhdpi-2048-dalvik-heap.mk
             wget -qO frameworks/av/media/libstagefright/OMX_FFMPEG_Extn.h https://github.com/LineageOS/android_external_stagefright-plugins/raw/cm-13.0/include/OMX_FFMPEG_Extn.h
-            wget -qO hardware/libhardware/include/hardware/power.h https://github.com/LineageOS/android_hardware_libhardware/raw/cm-13.0/include/hardware/power.h
+            #wget -qO hardware/libhardware/include/hardware/power.h https://github.com/LineageOS/android_hardware_libhardware/raw/cm-13.0/include/hardware/power.h
         fi
         if ! [ -d $romdir/external/ant-wireless/antradio-library ];then
             git clone -qb $b https://github.com/LineageOS/android_external_ant-wireless_antradio-library.git $romdir/external/ant-wireless/antradio-library
