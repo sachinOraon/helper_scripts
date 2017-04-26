@@ -739,6 +739,7 @@ case "$1" in
                 mkdir -p $romdir/kernel/cyanogen/msm8916
                 cp -r $HOME/workspace/LETTUCE/kernels/YU-N/cm-14.1/* $romdir/kernel/cyanogen/msm8916 2>/dev/null
             fi
+            wget -qO kernel/cyanogen/msm8916/include/uapi/media/msm_vidc.h https://github.com/LineageOS/android_kernel_cyanogen_msm8916/raw/cm-14.1/include/uapi/media/msm_vidc.h
         else
             if ! [ -e $HOME/workspace/LETTUCE/kernels/$s/$b/AndroidKernel.mk ];then
                 mkdir -p $HOME/workspace/LETTUCE/kernels/$s/$b
@@ -906,6 +907,9 @@ case "$1" in
             fi
         fi
         sleep 1
+        sed -i '/include device\/yu\/lettuce\/board/a # Fixing Multiple Target Pattern' $romdir/device/yu/lettuce/BoardConfig.mk
+        sed -i '/# Fixing Multiple Target Pattern/a KERNEL_TOOLCHAIN_PREFIX := aarch64-linux-android-' $romdir/device/yu/lettuce/BoardConfig.mk
+        sed -i '/# Fixing Multiple Target Pattern/a KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)\/prebuilts\/gcc\/$(HOST_OS)-x86\/aarch64\/aarch64-linux-android-4.9\/bin' $romdir/device/yu/lettuce/BoardConfig.mk
         sed -i '/config_deviceHardwareKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
         sed -i '/config_deviceHardwareWakeKeys/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
         sed -i '/config_comboNetworkLocationProvider/D' $romdir/device/yu/lettuce/overlay/frameworks/base/core/res/res/values/config.xml
