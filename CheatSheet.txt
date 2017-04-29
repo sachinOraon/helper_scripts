@@ -79,9 +79,17 @@ attribute qti_debugfs_domain;
      device/qcom/sepolicy/test/qti-testscripts.te:28:ERROR 'unknown type qti-testscripts'
     * wget -qO system/sepolicy/qti-testscripts.te https://github.com/LineageOS/android_system_sepolicy/raw/cm-14.1/qti-testscripts.te
 
-[11] "kernel headers" error
+[11] make: *** [/home/sachin727/workspace/orion/out/target/product/lettuce/obj/KERNEL_OBJ/.headers_install_stamp] Error 2
+     kernel/cyanogen/msm8916/Makefile:795: *** multiple target patterns.  Stop.
+    * add following lines in BoardConfig.mk
+    KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/aarch64/aarch64-linux-android-4.9/bin
+    KERNEL_TOOLCHAIN_PREFIX := aarch64-linux-android-
+    OR
+    TARGET_KERNEL_CROSS_COMPILE_PREFIX := $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9-kernel/bin/aarch64-linux-android-
+    *  wget -qO build/core/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk
     * use prebuilt kernel and replace vendor/<rom>/build/tasks/kernel.mk or build/core/tasks/kernel.mk with this one
-      wget https://github.com/Unlegacy-Android/android_vendor_unlegacy/raw/aosp-6.0/build/tasks/kernel.mk
+      wget -qO build/core/tasks/kernel.mk https://github.com/Unlegacy-Android/android_vendor_unlegacy/raw/aosp-6.0/build/tasks/kernel.mk
+    OR
     * insert TARGET_PREBUILT_KERNEL := device/yu/lettuce/Image
       remove kernel source files
       and copy KERNEL_OBJ from successfully generated rom dir.
@@ -132,6 +140,10 @@ attribute qti_debugfs_domain;
       SDCLANG_LTO_DEFS := vendor/zos/sdclang/sdllvm-lto-defs.mk
     * OR insert this into device/yu/lettuce/BoardConfig.mk
       include vendor/zos/sdclang/sdclang.mk
+===============================================
+    Enable linker -fix-cortex-a53-843419
+https://github.com/BlissRoms/platform_build/commit/54b22a5a706f6556cda6ef3de13b9b0bdc22e989
+===============================================
 
 [20] BUILD_FINGERPRINT cannot contain spaces
     * insert  PRODUCT_BRAND := YU
@@ -174,13 +186,18 @@ include $(BUILD_PREBUILT)
 [25] fatal error: 'gralloc_priv.h' file not found
     * clone hardware/qcom/display-caf/msm8916
 
-[26] kernel/cyanogen/msm8916/Makefile:795: *** multiple target patterns.  Stop.
-    * add following lines in BoardConfig.mk
-    KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/aarch64/aarch64-linux-android-4.9/bin
-    KERNEL_TOOLCHAIN_PREFIX := aarch64-linux-android-
-    OR
-    *  mv build/core/tasks/kernel.mk ../
-    *  wget -O build/core/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk
+[26] gcc: error: unrecognized command line option ‘-mlittle-endian’
+     gcc: error: unrecognized command line option ‘-mgeneral-regs-only’
+     * Edit kernel/cyanogen/msm8916/arch/arm64/Makefile  FOR ref : https://github.com/DirtyUnicorns/android_kernel_google_pixel/commit/924dd50bc4ad26612efbc75f7e60492c5faaa868
+ifeq ($(call cc-option-yn,-mgeneral-regs-only),y)
+KBUILD_CFLAGS   += -mgeneral-regs-only
+endif
+
+ifeq ($(call cc-option-yn,-mlittle-endian),y)
+KBUILD_CPPFLAGS += -mlittle-endian
+AS              += -EL
+LD              += -EL
+endif
 
 [27] device/qcom/sepolicy/test/qti-testscripts.te:28:ERROR 'unknown type qti-testscripts'
     * wget -O system/sepolicy/qti-testscripts.te https://github.com/CyanogenMod/android_system_sepolicy/raw/cm-14.1/qti-testscripts.te
@@ -479,7 +496,7 @@ typedef enum {
 
 [75] device/yu/lettuce/camera/QCamera2/HAL/QCamera2HWI.cpp:1293:39: error: 'setCameraLaunchStatus' was not declared
      device/yu/lettuce/camera/QCamera2/HAL/QCamera2HWI.cpp: In member function 'int qcamera::QCamera2HardwareInterface::closeCamera()':
-    * git clone -b cm-13.0-caf-8916 https://github.com/LineageOS/android_hardware_qcom_camera.git hardware/qcom/display-caf/msm8916
+    * git clone -b cm-13.0-caf-8916 https://github.com/LineageOS/android_hardware_qcom_display.git hardware/qcom/display-caf/msm8916
 
 [76] No rule to make target '/home/sachinoraon55/workspace/omni-mm/out/target/product/lettuce/obj/STATIC_LIBRARIES/libbatteryservice_intermediates/export_includes'
      No rule to make target '/home/sachinoraon55/workspace/omni-mm/out/target/product/lettuce/obj/STATIC_LIBRARIES/libbinder_intermediates/export_includes
@@ -618,3 +635,19 @@ typedef enum {
 [94] system/extras/f2fs_utils/f2fs_sparseblock.c:140:57: error: 'struct f2fs_summary_block' has no member named 'n_sits'
      system/extras/f2fs_utils/f2fs_sparseblock.c:29:41: error: 'struct f2fs_summary_block' has no member named 'sit_j'
     * git clone -b cm-13.0 https://github.com/LineageOS/android_system_extras.git system/extras
+
+[95] vendor/yuos/sepolicy/qcom/perfd.te:2:ERROR 'unknown type sysfs_devices_system_iosched' at token ';' on line 27250:
+    * For some reasons the declaration of sysfs_devices_system_iosched was not being fetched from vendor/yuos/sepolicy/file.te
+      So add its declaration in vendor/yuos/sepolicy/qcom/perfd.te and remove the previous declaration from vendor/yuos/sepolicy/file.te
+      Add this line to vendor/yuos/sepolicy/qcom/perfd.te
+      type sysfs_devices_system_iosched, file_type, sysfs_type;
+
+[96] hardware/qcom/display-caf/msm8916/libhwcomposer/hwc_qclient.cpp:375:19: error: 'MDSS_MAX_BW_LIMIT_CAMERA' was not declared in this scope
+    * Add this line to   kernel/cyanogen/msm8916/include/uapi/linux/msm_mdp.h  for REF : https://github.com/LineageOS/android_kernel_cyanogen_msm8916/blob/cm-13.0/include/uapi/linux/msm_mdp.h
+    #define MDSS_MAX_BW_LIMIT_CAMERA    0x2
+    OR
+    * Add that line to   hardware/qcom/display-caf/msm8916/libhwcomposer/hwc_qclient.cpp
+
+[97] error: unsupported reloc 43
+     error: unsupported reloc 42
+    * solution available here  http://stackoverflow.com/questions/36048358/building-android-from-sources-unsupported-reloc-43

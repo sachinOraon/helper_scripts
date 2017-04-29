@@ -984,7 +984,7 @@ case "\$1" in
             l=\`echo \$rom|grep -ic lettuce\`
             if [ -n "\$rom" ];then
                 if [ \$l -eq 0 ];then
-                    mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom)_lettuce.zip
+                    mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom)_LETTUCE.zip
                 else
                     mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom).zip
                 fi
@@ -1011,7 +1011,7 @@ case "\$1" in
             l=\`echo \$rom|grep -ic lettuce\`
             if [ -n "\$rom" ];then
                 if [ \$l -eq 0 ];then
-                    mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom)_lettuce.zip
+                    mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom)_LETTUCE.zip
                 else
                     mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom).zip
                 fi
@@ -1058,7 +1058,9 @@ echo "---------------------------------------------"
 EOF
             chmod a+x $romdir/remove_trees.sh
             echo "---------------------------------------------"
-            echo -e "* run \033[1m./setup_lettuce.sh -c\033[0m to copy \033[1mCAF-HAL\033[0m trees if needed."
+            if [ -d $romdir/hardware/qcom/audio-caf/msm8916 -a -d $romdir/hardware/qcom/display-caf/msm8916 -a -d $romdir/hardware/qcom/media-caf/msm8916 ];then
+            echo "* CAF-HALS \033[1mavailable\033[0m"
+            else echo -e "* run \033[1m./setup_lettuce.sh -c\033[0m to copy \033[1mCAF-HAL\033[0m trees.";fi
             echo -e "* also run \033[1m./setup_lettuce.sh -f\033[0m to \033[1mfix\033[0m device tree if \033[1mlunch\033[0m fails."
             sleep 1
             echo "---------------------------------------------"
