@@ -651,3 +651,18 @@ typedef enum {
 [97] error: unsupported reloc 43
      error: unsupported reloc 42
     * solution available here  http://stackoverflow.com/questions/36048358/building-android-from-sources-unsupported-reloc-43
+
+[98] packages/providers/ThemesProvider/src/org/cyanogenmod/themes/provider/ThemesOpenHelper.java:35: The import cyanogenmod.providers.ThemesContract.ThemeMixColumns cannot be resolved
+     packages/providers/ThemesProvider/src/org/cyanogenmod/themes/provider/ThemesOpenHelper.java:672: ThemeMixColumns cannot be resolved to a variable
+     packages/providers/ThemesProvider/src/org/cyanogenmod/themes/provider/ThemesOpenHelper.java:682: ThemeMixEntryColumns cannot be resolved to a variable
+    * Cherry-pick this commit  https://github.com/CyanogenMod/cm_platform_sdk/commit/c4f27d5b812df3d66c21b4d7ba1d1d216cc0c593
+
+[99] packages/services/Telecomm/src/com/android/server/telecom/Ringer.java:285: Type mismatch: cannot convert from boolean to boolean[]
+    * Cherry-pick this commit  https://github.com/CyanogenMod/android_frameworks_base/commit/62262024cc0c0bade8f48f0582b6fe18ea854f09
+    OR
+    * Cherry-pick this commit  https://github.com/BlissRoms/platform_frameworks_base/commit/40d0d255c6d3df9d26b6d36686a3edb62f3959a5
+
+[100] frameworks/base/services/core/java/com/android/server/notification/ZenModeHelper.java:448: ZEN_PRIORITY_VIBRATION_MODE cannot be resolved or is not a field
+      * Cherry-pick this commit  https://github.com/CyanogenMod/cm_platform_sdk/commit/fac872cfde9c636fb6c26f2807b61030868e58e8
+
+[101]

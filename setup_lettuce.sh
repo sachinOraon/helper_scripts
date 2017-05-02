@@ -1007,6 +1007,7 @@ case "\$1" in
         sleep 1
         make otapackage -j$(echo $jobs) | tee $(echo $romdir)/make.log
         if [ -e $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip ];then
+            lunch $(echo $vn)_lettuce-userdebug &> $(echo $romdir)/lunch.log
             rom=\`cat $(echo $romdir)/lunch.log|grep -i $(echo $vn)_version|cut -d "=" -f 2\`
             l=\`echo \$rom|grep -ic lettuce\`
             if [ -n "\$rom" ];then
@@ -1059,7 +1060,7 @@ EOF
             chmod a+x $romdir/remove_trees.sh
             echo "---------------------------------------------"
             if [ -d $romdir/hardware/qcom/audio-caf/msm8916 -a -d $romdir/hardware/qcom/display-caf/msm8916 -a -d $romdir/hardware/qcom/media-caf/msm8916 ];then
-            echo "* CAF-HALS \033[1mavailable\033[0m"
+            echo -e "* CAF-HALS \033[1mavailable\033[0m"
             else echo -e "* run \033[1m./setup_lettuce.sh -c\033[0m to copy \033[1mCAF-HAL\033[0m trees.";fi
             echo -e "* also run \033[1m./setup_lettuce.sh -f\033[0m to \033[1mfix\033[0m device tree if \033[1mlunch\033[0m fails."
             sleep 1
