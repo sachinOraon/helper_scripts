@@ -300,36 +300,32 @@ case "$1" in
                     echo -e "\033[1mSnapdragon LLVM ARM Compiler\033[0m is \033[1mNOT\033[0m for \033[1mcm-13.0\033[0m or \033[1mcm-12.1\033[0m"
                     exit 1
                 else
-                if ! [ -d $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8 ];then
+                if [ $sdc -eq 0 ];then
                     if ! [ -d $HOME/workspace/toolchains/sdclang-3.8 ];then
                         echo -e " * SDClang \033[1mnot\033[0m found\n  Please run \033[1m./setup_lettuce.sh -tc\033[0m to download..."
                         exit 1
                     else
                         echo -e "Enabling \033[1mSnapdragon LLVM ARM Compiler\033[0m 3.8.8"
-                        mkdir -p $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8
-                        cp -r $HOME/workspace/toolchains/sdclang-3.8/* $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8
-                        if [ $? -eq 0 ];then echo -e " * \033[1mSDClang\033[0m copied successfully";else echo -e " * \033[1mUnable\033[0m to copy SDClang !!";fi
-                        if ! [ -e $romdir/device/qcom/common/sdllvm-lto-defs.mk ];then
+                        if ! [ -e $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8/bin/llvm-ar ];then
+                            mkdir -p $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8
+                            cp -r $HOME/workspace/toolchains/sdclang-3.8/* $romdir/prebuilts/clang/linux-x86/host/sdclang-3.8
+                            if [ $? -eq 0 ];then echo -e " * \033[1mSDClang 3.8\033[0m copied successfully";else echo -e " * \033[1mUnable\033[0m to copy SDClang 3.8 !!";fi
+                        else
+                            echo -e " * \033[1mSDClang 3.8\033[0m already available"
+                        fi
+                        if [ $clng -gt 0 ];then
+                            echo -e " * \033[1mSDClang\033[0m makefile \033[1mfound\033[0m in \033[1mvendor\033[0m ... Please include that in \033[1mBoardConfig.mk\033[0m"
+                        else
+                            rm $romdir/device/qcom/common/sdllvm-lto-defs.mk 2>/dev/null
                             echo -e " * Creating \033[1msdllvm-lto-defs.mk\033[0m in \033[1mdevice/qcom/common\033[0m"
                             #wget -qO $romdir/device/qcom/common/sdllvm-lto-defs.mk https://github.com/LineageOS/android_device_qcom_common/raw/cm-14.1/sdllvm-lto-defs.mk
                             wget -qO $romdir/device/qcom/common/sdllvm-lto-defs.mk https://github.com/Zephyr-OS/vendor_zos/raw/zephyr-N/sdclang/sdllvm-lto-defs.mk
                             if [ $? -eq 0 ];then echo -e " * sdllvm-lto-defs.mk \033[1mcreated\033[0m";else echo -e " * \033[1mFailed\033[0m to create sdllvm-lto-defs.mk";fi
-                        else
-                            echo -e " * \033[1msdllvm-lto-defs.mk\033[0m Found"
-                        fi
-                        chk=`grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk`
-                        if [ $clng -gt 0 ];then
-                            echo -e " * \033[1mSDClang\033[0m makefile \033[1mfound\033[0m in \033[1mvendor\033[0m ... Please use that in \033[1mBoardConfig.mk\033[0m"
-                        else
-                            if [ $chk -eq 0 ];then
-                                echo -e " * Creating backup of \033[1mBoardconfig.mk\033[0m"
-                                cp $romdir/device/yu/lettuce/BoardConfig.mk $romdir/device/yu/lettuce/BoardConfig.mk.bak 2>/dev/null
-                                echo -e " * \033[1mModifying\033[0m Boardconfig.mk"
-                                echo -e "\nSDCLANG := true\nSDCLANG_PATH := prebuilts/clang/linux-x86/host/sdclang-3.8/bin\nSDCLANG_LTO_DEFS := device/qcom/common/sdllvm-lto-defs.mk">>$romdir/device/yu/lettuce/BoardConfig.mk
-                                if ! [ `grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk` ]; then echo -e " * \033[1mUnable\033[0m to modify BoardConfig.mk";else echo -e " * \033[1mDONE\033[1m";fi
-                            else
-                                echo -e " * \033[1mBoardConfig.mk\033[0m already modified\n * \033[1mDONE\033[1m"
-                            fi
+                            echo -e " * Creating backup of \033[1mBoardconfig.mk\033[0m"
+                            cp $romdir/device/yu/lettuce/BoardConfig.mk $romdir/device/yu/lettuce/BoardConfig.mk.bak 2>/dev/null
+                            echo -e " * \033[1mModifying\033[0m Boardconfig.mk"
+                            echo -e "\nSDCLANG := true\nSDCLANG_PATH := prebuilts/clang/linux-x86/host/sdclang-3.8/bin\nSDCLANG_LTO_DEFS := device/qcom/common/sdllvm-lto-defs.mk">>$romdir/device/yu/lettuce/BoardConfig.mk
+                            if ! [ `grep -i -c "SDCLANG" $romdir/device/yu/lettuce/BoardConfig.mk` ]; then echo -e " * \033[1mUnable\033[0m to modify BoardConfig.mk";else echo -e " * \033[1mDONE\033[1m";fi
                         fi
                     fi
                 else
@@ -729,27 +725,83 @@ case "$1" in
             if [ -e $romdir/device/qcom/sepolicy/Android.mk ];then qs=0;else qs=1;fi
         fi
         echo "---------------------------------------------"
-        echo -e "Fetching \033[1mkernel/cyanogen/msm8916\033[0m"
-        if [ "$choi" = "y" -o "$choi" = "Y" ];then
-            if ! [ -e $HOME/workspace/LETTUCE/kernels/YU-N/cm-14.1/AndroidKernel.mk ];then
-                mkdir -p $HOME/workspace/LETTUCE/kernels/YU-N/cm-14.1
-                git clone -qb $b --single-branch $yurl/android_kernel_cyanogen_msm8916.git $romdir/kernel/cyanogen/msm8916
-                cp -r $romdir/kernel/cyanogen/msm8916/* $HOME/workspace/LETTUCE/kernels/YU-N/cm-14.1 2>/dev/null
-            else
-                mkdir -p $romdir/kernel/cyanogen/msm8916
-                cp -r $HOME/workspace/LETTUCE/kernels/YU-N/cm-14.1/* $romdir/kernel/cyanogen/msm8916 2>/dev/null
-            fi
-            wget -qO kernel/cyanogen/msm8916/include/uapi/media/msm_vidc.h https://github.com/LineageOS/android_kernel_cyanogen_msm8916/raw/cm-14.1/include/uapi/media/msm_vidc.h
+        stock_kernel(){
+        echo -en "Fetching \033[1mStock\033[0m kernel\t\t"
+        if ! [ -e $HOME/workspace/LETTUCE/kernels/$s/$b/AndroidKernel.mk ];then
+            mkdir -p $HOME/workspace/LETTUCE/kernels/$s/$b
+            git clone -qb $b --single-branch $url/android_kernel_cyanogen_msm8916.git $romdir/kernel/cyanogen/msm8916 2>/dev/null
+            if [ $? -eq 0 ];then echo -e "[\033[1mDONE\033[0m]"; else echo -e "[\033[1mFAILED\033[0m]"; fi
+            cp -r $romdir/kernel/cyanogen/msm8916/* $HOME/workspace/LETTUCE/kernels/$s/$b 2>/dev/null
         else
-            if ! [ -e $HOME/workspace/LETTUCE/kernels/$s/$b/AndroidKernel.mk ];then
-                mkdir -p $HOME/workspace/LETTUCE/kernels/$s/$b
-                git clone -qb $b --single-branch $url/android_kernel_cyanogen_msm8916.git $romdir/kernel/cyanogen/msm8916
-                cp -r $romdir/kernel/cyanogen/msm8916/* $HOME/workspace/LETTUCE/kernels/$s/$b 2>/dev/null
-            else
-                mkdir -p $romdir/kernel/cyanogen/msm8916
-                cp -r $HOME/workspace/LETTUCE/kernels/$s/$b/* $romdir/kernel/cyanogen/msm8916 2>/dev/null
-            fi
+            mkdir -p $romdir/kernel/cyanogen/msm8916
+            cp -r $HOME/workspace/LETTUCE/kernels/$s/$b/* $romdir/kernel/cyanogen/msm8916 2>/dev/null
+            if [ $? -eq 0 ];then echo -e "[\033[1mDONE\033[0m]"; else echo -e "[\033[1mFAILED\033[0m]"; fi
         fi
+        echo "---------------------------------------------"
+        }
+        echo -e "\tChoose your favorite \033[1mkernel\033[0m"
+        if [ "$b" = "cm-14.1" ];then
+            echo -e " 1) \033[1mXeski\033[0m\n 2) \033[1mKraitor\033[0m\n 3) \033[1mAR_Beast\033[0m\n 4) \033[1mHyper_8916\033[0m\n 5) \033[1mStock Kernel\033[0m\n 6) \033[1mYU-N Kernel\033[0m"
+        else
+            echo -e " 1) \033[1mXeski\033[0m\n 2) \033[1mKraitor\033[0m\n 3) \033[1mAR_Beast\033[0m\n 4) \033[1mHyper_8916\033[0m\n 5) \033[1mStock Kernel\033[0m"
+        fi
+        echo "---------------------------------------------"
+        echo -en " Your Option (\033[1m1\033[0m-\033[1m4\033[0m) : "
+        read ker
+        echo "---------------------------------------------"
+        case "$ker" in
+            1)
+                echo -en "Fetching \033[1mXeski\033[0m\t\t"
+                git clone -qb lettuce-14.1 https://github.com/AayushRd7/Xeski.git $romdir/kernel/cyanogen/msm8916 2>/dev/null
+                if [ $? -eq 0 ];then echo -e "[\033[1mDONE\033[0m]"; else echo -e "[\033[1mFAILED\033[0m]"; fi
+                echo "---------------------------------------------"
+                ;;
+            2)
+                echo -en "Fetching \033[1mKraitor\033[0m\t\t"
+                git clone -qb linux-base https://github.com/Aashish15/msm8916.git $romdir/kernel/cyanogen/msm8916 2>/dev/null
+                if [ $? -eq 0 ];then echo -e "[\033[1mDONE\033[0m]"; else echo -e "[\033[1mFAILED\033[0m]"; fi
+                echo "---------------------------------------------"
+                ;;
+            3)
+                echo -en "Fetching \033[1mAR_Beast\033[0m\t\t"
+                git clone -qb lettuce https://github.com/AyushR1/AR_Beast-Kernel.git $romdir/kernel/cyanogen/msm8916 2>/dev/null
+                if [ $? -eq 0 ];then echo -e "[\033[1mDONE\033[0m]"; else echo -e "[\033[1mFAILED\033[0m]"; fi
+                echo "---------------------------------------------"
+                ;;
+            4)
+                echo -en "Fetching \033[1mHyper_8916\033[0m\t\t"
+                git clone -qb $b https://github.com/karthick111/hyper_8916.git $romdir/kernel/cyanogen/msm8916 2>/dev/null
+                if [ $? -eq 0 ];then echo -e "[\033[1mDONE\033[0m]"; else echo -e "[\033[1mFAILED\033[0m]"; fi
+                echo "---------------------------------------------"
+                ;;
+            5)
+                stock_kernel
+                ;;
+            6)
+                if [ "$b" = "cm-14.1" ];then
+                echo -en "Fetching \033[1mYU-N\033[0m kernel\t\t"
+                if ! [ -e $HOME/workspace/LETTUCE/kernels/YU-N/cm-14.1/AndroidKernel.mk ];then
+                    mkdir -p $HOME/workspace/LETTUCE/kernels/YU-N/cm-14.1
+                    git clone -qb $b --single-branch $yurl/android_kernel_cyanogen_msm8916.git $romdir/kernel/cyanogen/msm8916 2>/dev/null
+                    if [ $? -eq 0 ];then echo -e "[\033[1mDONE\033[0m]"; else echo -e "[\033[1mFAILED\033[0m]"; fi
+                    cp -r $romdir/kernel/cyanogen/msm8916/* $HOME/workspace/LETTUCE/kernels/YU-N/cm-14.1 2>/dev/null
+                else
+                    mkdir -p $romdir/kernel/cyanogen/msm8916
+                    cp -r $HOME/workspace/LETTUCE/kernels/YU-N/cm-14.1/* $romdir/kernel/cyanogen/msm8916 2>/dev/null
+                    if [ $? -eq 0 ];then echo -e "[\033[1mDONE\033[0m]"; else echo -e "[\033[1mFAILED\033[0m]"; fi
+                fi
+                wget -qO kernel/cyanogen/msm8916/include/uapi/media/msm_vidc.h https://github.com/LineageOS/android_kernel_cyanogen_msm8916/raw/cm-14.1/include/uapi/media/msm_vidc.h
+                echo "---------------------------------------------"
+                else
+                echo -e " * \033[1mInvalid\033[0m option \033[1mentered\033[0m...\033[1mFallback\033[0m initiated...!";sleep 1
+                stock_kernel
+                fi
+                ;;
+            *)
+                echo -e " * \033[1mInvalid\033[0m option \033[1mentered\033[0m...\033[1mFallback\033[0m initiated...!";sleep 1
+                stock_kernel
+                ;;
+        esac
         if ! [ -e $romdir/kernel/cyanogen/msm8916/AndroidKernel.mk ]; then kt=1; else kt=0; fi
         echo "---------------------------------------------"
         ctl=y
@@ -1059,6 +1111,14 @@ echo "---------------------------------------------"
 EOF
             chmod a+x $romdir/remove_trees.sh
             echo "---------------------------------------------"
+            afm=$(find $romdir/vendor/$vn -type f -iname *amaze*|wc -l)
+            if [ $afm -eq 0 ];then
+                if [ -d $romdir/vendor/$vn/prebuilt ];then wget -qO $romdir/vendor/$vn/prebuilt/Amaze.apk https://f-droid.org/repo/com.amaze.filemanager_54.apk; fi
+                echo -e "PRODUCT_COPY_FILES += \\" >> $romdir/$vf
+                echo -e "\tvendor/$vn/prebuilt/Amaze.apk:system/app/Amaze/Amaze.apk" >> $romdir/$vf
+                amz=`grep -ic amaze $romdir/$vf`
+                if [ $amz -gt 0 ];then echo -e "* Amaze FileManager injected"; fi
+            fi
             if [ -d $romdir/hardware/qcom/audio-caf/msm8916 -a -d $romdir/hardware/qcom/display-caf/msm8916 -a -d $romdir/hardware/qcom/media-caf/msm8916 ];then
             echo -e "* CAF-HALS \033[1mavailable\033[0m"
             else echo -e "* run \033[1m./setup_lettuce.sh -c\033[0m to copy \033[1mCAF-HAL\033[0m trees.";fi

@@ -39,8 +39,15 @@ Some problems that can occur while rom compilation and their solutions(especiall
     * insert TARGET_USES_UNCOMPRESSED_KERNEL := true
       and BOARD_KERNEL_IMAGE_NAME := Image
 
+    No rule to make target 'kernel/cyanogen/msm8916/arch/arm64/configs/cyanogenmod_lettuce-64_defconfig'
+    * Find out the defconfig file for lettuce at kernel/cyanogen/msm8916/arch/arm64/configs
+    * If it's lineageos_lettuce_defconfig then insert this line in device/yu/lettuce/board/kernel.mk   TARGET_KERNEL_CONFIG := lineageos_lettuce_defconfig
+
 [5] "phone-hdpi-2048-dalvik-heap.mk" not found
     * wget -qO frameworks/native/build/phone-hdpi-2048-dalvik-heap.mk https://github.com/YUTeleventures/frameworks_native/raw/yu-mm-6.0.1/build/phone-hdpi-2048-dalvik-heap.mk
+
+    workspace/firehound-6.0.1/out/target/common/obj/APPS/Gello_intermediates/org.cyanogenmod.gello-40.apk' failed
+    * Remove this file  vendor/fh/gello/Android.mk
 
 [6] "phone-xxhdpi-2048-hwui-memory.mk" not found
     FOR cm-14.1
@@ -123,11 +130,10 @@ attribute qti_debugfs_domain;
     * git clone -b mm6.0-caf https://github.com/SlimRoms/hardware_qcom_wlan.git hardware/qcom/wlan-caf
     * git clone -b m-caf https://github.com/DirtyUnicorns/android_hardware_qcom_wlan.git hardware/qcom/wlan
 
-
 [17] No rule to make target 'out/target/product/lettuce/kernel', needed by 'out/target/product/lettuce/boot.img'
     * download kernel.mk and dt_image.mk from cm repo and put them to build/core/tasks/
-    wget -O build/core/tasks/kernel.mk https://github.com/CyanogenMod/android_build/raw/cm-13.0/core/tasks/kernel.mk
-    wget -O build/core/tasks/dt_image.mk https://github.com/CyanogenMod/android_build/raw/cm-13.0/core/tasks/dt_image.mk
+    wget -qO build/core/tasks/kernel.mk https://github.com/CyanogenMod/android_build/raw/cm-13.0/core/tasks/kernel.mk
+    wget -qO build/core/tasks/dt_image.mk https://github.com/CyanogenMod/android_build/raw/cm-13.0/core/tasks/dt_image.mk
 
 [18] No rule to make target 'external/ant-wireless/antradio-library/com.dsi.ant.antradio_library.xml'
     *  git clone -b cm-13.0 https://github.com/LineageOS/android_external_ant-wireless_antradio-library.git external/ant-wireless/antradio-library
@@ -140,6 +146,10 @@ attribute qti_debugfs_domain;
       SDCLANG_LTO_DEFS := vendor/zos/sdclang/sdllvm-lto-defs.mk
     * OR insert this into device/yu/lettuce/BoardConfig.mk
       include vendor/zos/sdclang/sdclang.mk
+
+    /real-ld: unrecognized option '--fix-cortex-a53-843419'
+    * Remove this line from build/core/combo/TARGET_linux-arm64.mk
+      -Wl,--fix-cortex-a53-843419 \
 ===============================================
     Enable linker -fix-cortex-a53-843419
 https://github.com/BlissRoms/platform_build/commit/54b22a5a706f6556cda6ef3de13b9b0bdc22e989
@@ -491,8 +501,8 @@ typedef enum {
       OR cherry pick https://github.com/LineageOS/android_art/commit/ead3f39d3e80a90a1863e79822bf5acfae50e9ca
 
 [74] No rule to make target '/home/sachinoraon55/workspace/caf-du/out/target/common/obj/JAVA_LIBRARIES/sap-api-java-static_intermediates/classes.jack
-    * clone the caf branch of android_hardware_ril repo present in rom's repo. For omnirom  git clone -b android-6.0-caf https://github.com/omnirom/android_hardware_ril.git hardware/ril-caf
-    * OR  git clone -b cm-13.0-caf https://github.com/CyanogenMod/android_hardware_ril-caf.git hardware/ril-caf
+    * clone the caf branch of android_hardware_ril repo present in rom's repo. For omnirom   git clone -qb android-6.0-caf https://github.com/omnirom/android_hardware_ril.git hardware/ril-caf
+    * OR  git clone -qb cm-13.0-caf https://github.com/CyanogenMod/android_hardware_ril-caf.git hardware/ril-caf
 
 [75] device/yu/lettuce/camera/QCamera2/HAL/QCamera2HWI.cpp:1293:39: error: 'setCameraLaunchStatus' was not declared
      device/yu/lettuce/camera/QCamera2/HAL/QCamera2HWI.cpp: In member function 'int qcamera::QCamera2HardwareInterface::closeCamera()':
@@ -626,7 +636,6 @@ typedef enum {
      out/target/product/lettuce/obj/STATIC_LIBRARIES/libmksh_static_intermediates/export_includes'
      git clone -b cm-13.0 https://github.com/LineageOS/android_external_mksh.git external/mksh
 
-
 [93] external/zlib/src/contrib/minizip/ioapi.c:21:45: error: call to 'fseeko' declared with attribute error
      external/zlib/src/contrib/minizip/ioapi.c:20:29: error: call to 'ftello' declared with attribute error
      external/zlib/src/contrib/minizip/minizip.c:158:5: error: implicit declaration of function 'fopen64'
@@ -665,4 +674,4 @@ typedef enum {
 [100] frameworks/base/services/core/java/com/android/server/notification/ZenModeHelper.java:448: ZEN_PRIORITY_VIBRATION_MODE cannot be resolved or is not a field
       * Cherry-pick this commit  https://github.com/CyanogenMod/cm_platform_sdk/commit/fac872cfde9c636fb6c26f2807b61030868e58e8
 
-[101]
+[101] No rule to make target 'external/scrypt/crypto/aes/asm/aesv8-armx-64.S', needed by 'out/target/product/lettuce/obj/STATIC_LIBRARIES/libscrypt_static_intermediates/crypto/aes/asm/aesv8-armx-64.o'
