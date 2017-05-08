@@ -675,3 +675,6 @@ typedef enum {
       * Cherry-pick this commit  https://github.com/CyanogenMod/cm_platform_sdk/commit/fac872cfde9c636fb6c26f2807b61030868e58e8
 
 [101] No rule to make target 'external/scrypt/crypto/aes/asm/aesv8-armx-64.S', needed by 'out/target/product/lettuce/obj/STATIC_LIBRARIES/libscrypt_static_intermediates/crypto/aes/asm/aesv8-armx-64.o'
+
+[102] ERROR: packages/apps/Bluetooth/src/com/android/bluetooth/opp/BluetoothOppObexServerSession.java:133: The method reduceMTU(boolean) is undefined for the type ServerSession
+   * See [84]
