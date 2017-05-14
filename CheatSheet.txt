@@ -290,12 +290,12 @@ endif
     * git clone -b cm-14.1 https://github.com/LineageOS/android_system_keymaster.git system/keymaster
 
 [40] system/keymaster/attestation_record.cpp:224:17: error: 9 enumeration values not handled in switch: 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY', 'KM_TAG_SOTER_AUTO_SIGNED_COMMON_KEY_WHEN_GET_PUBLIC_KEY_BLOB', 'KM_TAG_SOTER_UID'
-    * mv system/keymaster/attestation_record.cpp ~/trash/;wget -O system/keymaster/attestation_record.cpp https://github.com/LineageOS/android_system_keymaster/raw/cm-14.1/attestation_record.cpp
-    * mv system/keymaster/attestation_record.h ~/trash/;wget -O system/keymaster/attestation_record.h https://github.com/LineageOS/android_system_keymaster/raw/cm-14.1/attestation_record.h
+    * wget -qO system/keymaster/attestation_record.cpp https://github.com/LineageOS/android_system_keymaster/raw/cm-14.1/attestation_record.cpp
+    * wget -qO system/keymaster/attestation_record.h https://github.com/LineageOS/android_system_keymaster/raw/cm-14.1/attestation_record.h
 
 ##################################################################
 |    FOR PROBLEM 39 AND 40 do this if above solution isn't working
-| mv system/keymaster ~/trash/;git clone -b cm-14.1 https://github.com/LineageOS/android_system_keymaster.git system/keymaster
+| git clone -b cm-14.1 https://github.com/LineageOS/android_system_keymaster.git system/keymaster
 | git clone -b cm-14.1 https://github.com/CyanogenMod/android_hardware_libhardware.git hardware/libhardware
 ##################################################################
 
@@ -349,7 +349,7 @@ include $(BUILD_PREBUILT)
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
     LOCAL_WHOLE_STATIC_LIBRARIES += libqc-skia
 endif
-    * mv externel/skia ~/trash/external_skia;git clone -b cm-14.1 https://github.com/LineageOS/android_external_skia.git external/skia
+    * git clone -b cm-14.1 https://github.com/LineageOS/android_external_skia.git external/skia
     * OR copy libskia.so from device and follow same procedure as problem 21
 
 [48] system/sepolicy/domain.te:447:ERROR 'unknown type camera' at token ';' on line 9333
@@ -674,4 +674,8 @@ typedef enum {
 [100] frameworks/base/services/core/java/com/android/server/notification/ZenModeHelper.java:448: ZEN_PRIORITY_VIBRATION_MODE cannot be resolved or is not a field
       * Cherry-pick this commit  https://github.com/CyanogenMod/cm_platform_sdk/commit/fac872cfde9c636fb6c26f2807b61030868e58e8
 
-[101] No rule to make target 'external/scrypt/crypto/aes/asm/aesv8-armx-64.S', needed by 'out/target/product/lettuce/obj/STATIC_LIBRARIES/libscrypt_static_intermediates/crypto/aes/asm/aesv8-armx-64.o'
+[101] ninja: error: '/android/nitro/out/target/product/lettuce/obj/SHARED_LIBRARIES/libqomx_core_intermediates/export_includes', needed by '/android/nitro/out/target/product/lettuce/obj/SHARED_LIBRARIES/libmmjpeg_interface_intermediates/import_includes', missing and no known rule to make it.
+      * libqomx_core source files are located here device/yu/lettuce/camera/mm-image-codec/qomx_core/   If they're not present then fetch it from https://github.com/LineageOS/android_device_yu_lettuce
+
+[102] out/target/product/lettuce/obj_arm/SHARED_LIBRARIES/libhardware_intermediates/export_includes', needed by '/home/rohan/aosp/out/target/product/lettuce/obj_arm/SHARED_LIBRARIES/libbluetooth_jni_intermediates/import_includes', missing and no known rule to make it.
+      * git clone -qb cm-14.1 https://github.com/LineageOS/android_hardware_libhardware.git hardware/libhardware
