@@ -742,11 +742,11 @@ case "$1" in
         echo -e "\tChoose your favorite \033[1mkernel\033[0m"
         if [ "$b" = "cm-14.1" ];then
             echo -e " 1) \033[1mXeski\033[0m\n 2) \033[1mKraitor\033[0m\n 3) \033[1mAR_Beast\033[0m\n 4) \033[1mHyper_8916\033[0m\n 5) \033[1mStock Kernel\033[0m\n 6) \033[1mYU-N Kernel\033[0m"
+            echo -en " Your Option (\033[1m1\033[0m-\033[1m6\033[0m) : "
         else
             echo -e " 1) \033[1mXeski\033[0m\n 2) \033[1mKraitor\033[0m\n 3) \033[1mAR_Beast\033[0m\n 4) \033[1mHyper_8916\033[0m\n 5) \033[1mStock Kernel\033[0m"
+            echo -en " Your Option (\033[1m1\033[0m-\033[1m5\033[0m) : "
         fi
-        echo "---------------------------------------------"
-        echo -en " Your Option (\033[1m1\033[0m-\033[1m4\033[0m) : "
         read ker
         echo "---------------------------------------------"
         case "$ker" in
@@ -803,7 +803,6 @@ case "$1" in
                 ;;
         esac
         if ! [ -e $romdir/kernel/cyanogen/msm8916/AndroidKernel.mk ]; then kt=1; else kt=0; fi
-        echo "---------------------------------------------"
         ctl=y
         while [ "$ctl" = "y" -o "$ctl" = "Y" ];do
             ls $romdir/vendor
@@ -834,7 +833,6 @@ case "$1" in
             read svf
             echo "---------------------------------------------"
         fi
-        echo $vf>$romdir/device/yu/lettuce/vendor_file.dat
         sleep 1
         if [ -e $romdir/device/yu/lettuce/lineage.mk ];then
             echo -e "* Creating \033[1m$(echo $vn).mk\033[0m"
@@ -866,8 +864,9 @@ case "$1" in
         fi
         string=`grep -ic "device/yu/lettuce/device.mk" $romdir/device/yu/lettuce/$(echo $vn).mk`
         if [ -z "$vf" ];then
-            echo -e " * \033[1mNO\033[0m value given for \033[1mvendor file\033[0m..."
+            echo -e "* \033[1mNO\033[0m value given for \033[1mvendor file\033[0m..."
         else
+            echo $vf>$romdir/device/yu/lettuce/vendor_file.dat
             if [ $string -gt 0 ];then
                 echo $vf > $romdir/tmp1
                 sed -i 's/\//\\\//g' $romdir/tmp1
@@ -943,13 +942,13 @@ case "$1" in
         sleep 1
         if [ -e $romdir/build/core/tasks/kernel.mk ];then
             mv $romdir/build/core/tasks/kernel.mk $romdir/kernel.mk.bak
-            wget --quiet -O $romdir/build/core/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk
-            if [ $? -lt 1 ];then echo -e "* \033[1mkernel.mk\033[0m file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+            wget --quiet -O $romdir/build/core/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr2/core/tasks/kernel.mk
+            if [ $? -lt 1 ];then echo -e "* \033[1mkernel.mk\033[0m file replaced.";else echo -e "* \033[1mkernel.mk\033[0m file \033[1mwasn't\033[0m replaced.";fi
         fi
         if [ -e $romdir/vendor/$vn/build/tasks/kernel.mk ];then
             mv $romdir/vendor/$vn/build/tasks/kernel.mk $romdir/kernel.mk.bak
-            wget -qO $romdir/vendor/$vn/build/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr1/core/tasks/kernel.mk
-            if [ $? -lt 1 ];then echo -e "* \033[1mkernel.mk\033[0m file replaced.";else echo -e "\tkernel.mk file wasn't replaced.";fi
+            wget -qO $romdir/vendor/$vn/build/tasks/kernel.mk https://github.com/AOSIP/platform_build/raw/n-mr2/core/tasks/kernel.mk
+            if [ $? -lt 1 ];then echo -e "* \033[1mkernel.mk\033[0m file replaced.";else echo -e "* \033[1mkernel.mk\033[0m file \033[1mwasn't\033[0m replaced.";fi
         fi
         echo -e "* Fixing \033[1mderps\033[0m..."
         if [ -e $romdir/device/yu/lettuce/full_lettuce.mk ];then
@@ -958,6 +957,8 @@ case "$1" in
             sed -i '/PRODUCT_DEVICE/a PRODUCT_BRAND := YU' $romdir/device/yu/lettuce/$(echo $vn).mk
             fi
         fi
+        echo -e "\nTW_THEME := portrait_hdpi" >> $romdir/device/yu/lettuce/BoardConfig.mk
+        rm $romdir/device/yu/lettuce/*.dependencies 2>/dev/null
         sleep 1
         sed -i '/include device\/yu\/lettuce\/board/a # Fixing Multiple Target Pattern' $romdir/device/yu/lettuce/BoardConfig.mk
         sed -i '/# Fixing Multiple Target Pattern/a KERNEL_TOOLCHAIN_PREFIX := aarch64-linux-android-' $romdir/device/yu/lettuce/BoardConfig.mk
@@ -1041,7 +1042,12 @@ case "\$1" in
                     mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom).zip
                 fi
             else
-                mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/
+                read -p "Enter the name for zip : " zname
+                if [ -z "\$zname" ];then
+                    mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/
+                else
+                    mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$zname.zip
+                fi
             fi
         fi
         else
@@ -1069,7 +1075,12 @@ case "\$1" in
                     mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$(echo \$rom).zip
                 fi
             else
-                mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/
+                read -p "Enter the name for zip : " zname
+                if [ -z "\$zname" ];then
+                    mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/
+                else
+                    mv $(echo $romdir)/out/target/product/lettuce/*lettuce*.zip $(echo $romdir)/\$zname.zip
+                fi
             fi
         fi
         else
@@ -1111,13 +1122,15 @@ echo "---------------------------------------------"
 EOF
             chmod a+x $romdir/remove_trees.sh
             echo "---------------------------------------------"
+            if [ -n "$vf" ];then
             afm=$(find $romdir/vendor/$vn -type f -iname *amaze*|wc -l)
             if [ $afm -eq 0 ];then
                 if [ -d $romdir/vendor/$vn/prebuilt ];then wget -qO $romdir/vendor/$vn/prebuilt/Amaze.apk https://f-droid.org/repo/com.amaze.filemanager_54.apk; fi
                 echo -e "PRODUCT_COPY_FILES += \\" >> $romdir/$vf
                 echo -e "\tvendor/$vn/prebuilt/Amaze.apk:system/app/Amaze/Amaze.apk" >> $romdir/$vf
                 amz=`grep -ic amaze $romdir/$vf`
-                if [ $amz -gt 0 ];then echo -e "* Amaze FileManager injected"; fi
+                if [ $amz -gt 0 ];then echo -e "* \033[1mAmaze\033[0m FileManager injected"; fi
+            fi
             fi
             if [ -d $romdir/hardware/qcom/audio-caf/msm8916 -a -d $romdir/hardware/qcom/display-caf/msm8916 -a -d $romdir/hardware/qcom/media-caf/msm8916 ];then
             echo -e "* CAF-HALS \033[1mavailable\033[0m"
