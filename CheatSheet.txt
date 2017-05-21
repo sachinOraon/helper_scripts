@@ -680,3 +680,20 @@ typedef enum {
 
 [102] out/target/product/lettuce/obj_arm/SHARED_LIBRARIES/libhardware_intermediates/export_includes', needed by '/home/rohan/aosp/out/target/product/lettuce/obj_arm/SHARED_LIBRARIES/libbluetooth_jni_intermediates/import_includes', missing and no known rule to make it.
       * git clone -qb cm-14.1 https://github.com/LineageOS/android_hardware_libhardware.git hardware/libhardware
+
+[103] frameworks/minikin/libs/minikin/CmapCoverage.cpp:73:57: error: 'android_errorWriteLog' was not declared in this scope
+      frameworks/minikin/libs/minikin/CmapCoverage.cpp:120:53: error: 'android_errorWriteLog' was not declared in this scope
+      * Cherry-pick this commit  https://github.com/LineageOS/android_system_core/commit/75ac84c0bf57d646dfae468916fcdcc071570293
+      OR
+      * Revert this commit  https://github.com/CyanogenMod/android_frameworks_minikin/commit/f4785aa1947b8d22d5b19559ef1ca526d98e0e73
+
+[104] art/oatdump/oatdump.cc:1125:3: error: the frame size of 1776 bytes is larger than 1728 bytes [-Werror=frame-larger-than=]
+      * insert this line into android_art/build/Android.common_build.mk
+        art_target_non_debug_cflags += -Wframe-larger-than=1780
+      For ref  https://github.com/LineageOS/android_art/commit/37f0acca160bac88356c98427eda7d962907c07e
+
+[105] frameworks/av/media/libstagefright/codecs/on2/dec/SoftVPX.cpp:139:33: error: 'IMG_FMT_I420' was not declared in this scope
+      frameworks/av/media/libstagefright/codecs/on2/dec/SoftVPX.cpp:155:65: error: 'PLANE_Y' was not declared in this scope
+      frameworks/av/media/libstagefright/codecs/on2/dec/SoftVPX.cpp:156:65: error: 'PLANE_U' was not declared in this scope
+      frameworks/av/media/libstagefright/codecs/on2/dec/SoftVPX.cpp:157:65: error: 'PLANE_V' was not declared in this scope
+      * Cherry-pick this commit  https://github.com/LineageOS/android_frameworks_av/commit/5a6788730acfc6fd8f4a6ef89d2c376572a26b55

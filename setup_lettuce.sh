@@ -49,6 +49,26 @@ case "$1" in
         update-alternatives --config java
         update-alternatives --config javac
         echo "---------------------------------------------"
+        echo -en "Enter Java Path : "
+        read jpath
+        echo "---------------------------------------------"
+        if [ -f /etc/environment ];then
+            if [ -n "$jpath" ];then
+                sed -i '/JAVA_HOME/D' /etc/environment 2>/dev/null
+                echo "JAVA_HOME=\"$jpath\"" >> /etc/environment
+            else
+                if [ -f $romdir/device/yu/lettuce/branch.dat ];then
+                    br=$(cat $romdir/device/yu/lettuce/branch.dat)
+                    sed -i '/JAVA_HOME/D' /etc/environment 2>/dev/null
+                    if [ "$br" = "cm-12.1" -o "$br" = "cm-13.0" ];then
+                        if [ -f /usr/lib/jvm/java-7-oracle/jre/bin/java ];then echo "JAVA_HOME=\"/usr/lib/jvm/java-7-oracle/jre/bin/java\"" >> /etc/environment;fi
+                    fi
+                    if [ "$br" = "cm-14.1" ];then
+                        if [ -f /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java ];then echo "JAVA_HOME=\"/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java\"" >> /etc/environment;fi
+                    fi
+                fi
+            fi
+        fi
         java -version
         echo "---------------------------------------------"
         exit 0
@@ -1022,6 +1042,8 @@ case "\$1" in
         sleep 1
         rm -rf $HOME/.ccache 2>/dev/null
         rm -rf $HOME/.cache 2>/dev/null
+        rm $(echo $romdir)/make.log 2>/dev/null
+        rm $(echo $romdir)/lunch.log 2>/dev/null
         make clean && make installclean && make clobber
         if [ \$err -eq 0 ];then
             lunch $(echo $vn)_lettuce-userdebug
@@ -1055,6 +1077,8 @@ case "\$1" in
         fi
         ;;
     *)
+        rm $(echo $romdir)/make.log 2>/dev/null
+        rm $(echo $romdir)/lunch.log 2>/dev/null
         source build/envsetup.sh
         sleep 1
         if [ \$err -eq 0 ];then
