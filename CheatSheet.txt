@@ -697,3 +697,25 @@ typedef enum {
       frameworks/av/media/libstagefright/codecs/on2/dec/SoftVPX.cpp:156:65: error: 'PLANE_U' was not declared in this scope
       frameworks/av/media/libstagefright/codecs/on2/dec/SoftVPX.cpp:157:65: error: 'PLANE_V' was not declared in this scope
       * Cherry-pick this commit  https://github.com/LineageOS/android_frameworks_av/commit/5a6788730acfc6fd8f4a6ef89d2c376572a26b55
+
+[106] external/chromium_org/base/android/jni_generator/jni_generator.py:212 ValueError: substring not found.
+      * Compiling chromium for lollipop requires JDK 6/7. However even if we set necessary paths for java and javac pointing to JDK 6/7 we need to check the path of javap.
+        If the path for javap is not pointing to JDK 6/7 we can easily set it via  update-alternatives --config javap
+
+[107] frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tiles/MusicTile.java:208: error: method does not override or implement a method from a supertype
+      frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tiles/MusicTile.java:211: error: method does not override or implement a method from a supertype
+      * Comment/delete the erroneous methods as follows
+      /*    @Override
+            public void onClientFolderInfoBrowsedPlayer(String stringUri) { }
+      */
+
+[108] Error regarding wrong JDK version. You asked for an OpenJDK 7 build but your version is java version "1.7.0_80"
+      * Comment/delete this line from build/core/main.mk:199
+        $(error stop)
+
+[109] Prebuilt apk found in PRODUCT_COPY_FILES use BUILD_PREBUILT instead.
+      * Comment/delete these lines from build/core/Makefile
+        define check-product-copy-files
+        $(if $(filter %.apk, $(call word-colon, 2, $(1))),$(error \
+            Prebuilt apk found in PRODUCT_COPY_FILES: $(1), use BUILD_PREBUILT instead!))
+        endef

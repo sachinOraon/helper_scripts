@@ -48,6 +48,9 @@ case "$1" in
         echo "---------------------------------------------"
         update-alternatives --config java
         update-alternatives --config javac
+        update-alternatives --config javaws
+        update-alternatives --config javap
+        update-alternatives --config jar
         echo "---------------------------------------------"
         echo -en "Enter Java Path : "
         read jpath
@@ -69,7 +72,10 @@ case "$1" in
                 fi
             fi
         fi
+        pushd $romdir 2>/dev/null
+        source /etc/environment 2>/dev/null
         java -version
+        popd 2>/dev/null
         echo "---------------------------------------------"
         exit 0
         ;;
@@ -1012,6 +1018,28 @@ case "$1" in
             wget -qO frameworks/av/media/libstagefright/OMX_FFMPEG_Extn.h https://github.com/LineageOS/android_external_stagefright-plugins/raw/cm-13.0/include/OMX_FFMPEG_Extn.h
             #wget -qO hardware/libhardware/include/hardware/power.h https://github.com/LineageOS/android_hardware_libhardware/raw/cm-13.0/include/hardware/power.h
         fi
+        echo -e "* Tweaking \033[1mtouch\033[0m sensitivity..."
+        for file in `ls $romdir/frameworks/base/data/keyboards/qwerty*.idc`;do
+            cat >> $file <<EOF
+touch.size.scale = 32.0368
+touch.size.bias = -5.1253
+touch.orientation.calibration = none
+touch.size.calibration = diameter
+touch.size.isSummed = 0
+touch.pressure.calibration = amplitude
+touch.pressure.source = default
+touch.pressure.scale = 0.001
+touch.toolSize.calibration = area
+touch.toolSize.areaScale = 22
+touch.toolSize.areaBias = 0
+touch.toolSize.linearScale = 9.2
+touch.toolSize.linearBias = 0
+touch.toolSize.isSummed = 0
+EOF
+        done
+        echo -e "* Removing \033[1mapn-conf.xml\033[0m..."
+        rm $romdir/vendor/cm/prebuilt/common/etc/apns-conf.xml 2>/dev/null
+        # sed -i '/apn carrier/ID' $romdir/vendor/cm/prebuilt/common/etc/apns-conf.xml 2>/dev/null
         if ! [ -d $romdir/external/ant-wireless/antradio-library ];then
             git clone -qb $b https://github.com/LineageOS/android_external_ant-wireless_antradio-library.git $romdir/external/ant-wireless/antradio-library
         fi
