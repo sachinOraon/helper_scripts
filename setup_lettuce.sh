@@ -1037,6 +1037,19 @@ touch.toolSize.linearBias = 0
 touch.toolSize.isSummed = 0
 EOF
         done
+        if [ -e $romdir/device/yu/lettuce/system.prop ];then
+            if `grep -iq 'lcd_density' $romdir/device/yu/lettuce/system.prop`;then
+                sed -i 's/lcd_density=320/lcd_density=280/' $romdir/device/yu/lettuce/system.prop 2>/dev/null
+                if `grep -iq 'ro.sf.lcd_density=280' $romdir/device/yu/lettuce/system.prop`;then echo -e "* \033[1mlcd_density\033[0m = \033[1m280\033[0m ...";fi
+            fi
+        elif [ -e $romdir/device/yu/lettuce/product/display.mk ];then
+            if `grep -iq 'lcd_density' $romdir/device/yu/lettuce/product/display.mk`;then
+                sed -i 's/lcd_density=320/lcd_density=280/' $romdir/device/yu/lettuce/product/display.mk 2>/dev/null
+                if `grep -iq 'ro.sf.lcd_density=280' $romdir/device/yu/lettuce/product/display.mk`;then echo -e "* \033[1mlcd_density\033[0m = \033[1m280\033[0m ...";fi
+            fi
+        else
+            echo -e "* \033[1mUnable\033[0m to change \033[1mlcd_density\033[0m..."
+        fi
         echo -e "* Removing \033[1mapn-conf.xml\033[0m..."
         rm $romdir/vendor/cm/prebuilt/common/etc/apns-conf.xml 2>/dev/null
         # sed -i '/apn carrier/ID' $romdir/vendor/cm/prebuilt/common/etc/apns-conf.xml 2>/dev/null

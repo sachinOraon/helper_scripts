@@ -636,6 +636,10 @@ typedef enum {
      out/target/product/lettuce/obj/STATIC_LIBRARIES/libmksh_static_intermediates/export_includes'
      git clone -b cm-13.0 https://github.com/LineageOS/android_external_mksh.git external/mksh
 
+     out/target/product/lettuce/obj/STATIC_LIBRARIES/libcrypto_utils_static_intermediates/export_includes'
+     git clone -qb cm-14.1 https://github.com/LineageOS/android_system_core.git ~/system_core
+     mv ~/system_core/libcrypto_utils system/core/
+
 [93] external/zlib/src/contrib/minizip/ioapi.c:21:45: error: call to 'fseeko' declared with attribute error
      external/zlib/src/contrib/minizip/ioapi.c:20:29: error: call to 'ftello' declared with attribute error
      external/zlib/src/contrib/minizip/minizip.c:158:5: error: implicit declaration of function 'fopen64'
