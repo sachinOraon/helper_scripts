@@ -640,6 +640,13 @@ typedef enum {
      git clone -qb cm-14.1 https://github.com/LineageOS/android_system_core.git ~/system_core
      mv ~/system_core/libcrypto_utils system/core/
 
+     out/target/product/lettuce/obj/SHARED_LIBRARIES/libwpa_qmi_eap_proxy_intermediates/export_includes
+     git clone -qb px-0.2 https://github.com/aopp/android_external_wpa_supplicant_8.git external/wpa_supplicant_8
+     OR
+     comment these lines from external/wpa_supplicant_8/wpa_supplicant/Android.mk
+     ifneq ($(QCPATH),)
+     endif
+
 [93] external/zlib/src/contrib/minizip/ioapi.c:21:45: error: call to 'fseeko' declared with attribute error
      external/zlib/src/contrib/minizip/ioapi.c:20:29: error: call to 'ftello' declared with attribute error
      external/zlib/src/contrib/minizip/minizip.c:158:5: error: implicit declaration of function 'fopen64'
@@ -723,3 +730,18 @@ typedef enum {
         $(if $(filter %.apk, $(call word-colon, 2, $(1))),$(error \
             Prebuilt apk found in PRODUCT_COPY_FILES: $(1), use BUILD_PREBUILT instead!))
         endef
+
+[110] system/core/adb/adb_client.h:43:49: error: expected ')'
+      void adb_get_transport(TransportType* _Nullable type, const char* _Nullable* _Nullable serial);
+                                                      ^
+      system/core/adb/adb_client.h:43:23: note: to match this '('
+      void adb_get_transport(TransportType* _Nullable type, const char* _Nullable* _Nullable serial);
+                            ^
+      * For Flash-rom Revert this commit  https://github.com/Flash-ROM/system_core/commit/a166e71e216dbfe4bff8dfc369b10ab08e183427
+        Also remove nullability specifiers from  system/core/adb/adb_client.h
+        void adb_get_transport(TransportType* _Nullable type, const char* _Nullable* _Nullable serial);
+        void adb_get_transport(TransportType* type, const char** serial);
+
+[111] system/core/libbacktrace/BacktraceOffline.cpp:722:29: error: no member named 'getError' in 'llvm::Expected<std::__1::unique_ptr<llvm::object::Binary, std::__1::default_delete<llvm::object::Binary, std::__1::default_delete<llvm::object::Binary
+      * For Flash-rom  Cherry-pick this commit https://github.com/Flash-ROM/system_core/commit/91dc1575b10edcf23398d0a520c96ae274fd5427
+

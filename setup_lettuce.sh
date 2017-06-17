@@ -64,18 +64,23 @@ case "$1" in
                     br=$(cat $romdir/device/yu/lettuce/branch.dat)
                     sed -i '/JAVA_HOME/D' /etc/environment 2>/dev/null
                     if [ "$br" = "cm-12.1" -o "$br" = "cm-13.0" ];then
-                        if [ -f /usr/lib/jvm/java-7-oracle/jre/bin/java ];then echo "JAVA_HOME=\"/usr/lib/jvm/java-7-oracle/jre/bin/java\"" >> /etc/environment;fi
+                        if [ -f /usr/lib/jvm/java-7-oracle/jre/bin/java ];then
+                            echo -e "\033[1mJAVA_HOME\033[0m = \033[1m/usr/lib/jvm/java-7-oracle/jre/bin/java\033[0m"
+                            echo "JAVA_HOME=\"/usr/lib/jvm/java-7-oracle/jre/bin/java\"" >> /etc/environment
+                        fi
                     fi
                     if [ "$br" = "cm-14.1" ];then
-                        if [ -f /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java ];then echo "JAVA_HOME=\"/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java\"" >> /etc/environment;fi
+                        if [ -f /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java ];then
+                            echo -e "\033[1mJAVA_HOME\033[0m = \033[1m/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java\033[0m"
+                            echo "JAVA_HOME=\"/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java\"" >> /etc/environment
+                        fi
                     fi
                 fi
             fi
         fi
-        pushd $romdir 2>/dev/null
-        source /etc/environment 2>/dev/null
+        cd $romdir
+        source /etc/environment
         java -version
-        popd 2>/dev/null
         echo "---------------------------------------------"
         exit 0
         ;;
@@ -135,7 +140,7 @@ case "$1" in
         if ! [ $? -lt 1 ];then echo -e "   \033[1mwlan-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mwlan-caf\033[0m\t\t[DONE]"; fi
         git clone -qb $b-caf https://github.com/$s/android_hardware_qcom_bt.git $romdir/hardware/qcom/bt-caf 2>/dev/null
         if ! [ $? -lt 1 ];then echo -e "   \033[1mbt-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mbt-caf\033[0m\t\t[DONE]"; fi
-        git clone -qb $b-caf https://github.com/$s/android_hardware_ril-caf.git $romdir/hardware/ril-caf 2>/dev/null
+        git clone -qb $b-caf https://github.com/$s/android_hardware_ril.git $romdir/hardware/ril-caf 2>/dev/null
         if ! [ $? -lt 1 ];then echo -e "   \033[1mril-caf\033[0m\t\t[\033[1mFAILED\033[0m]"; else echo -e "   \033[1mril-caf\033[0m\t\t[DONE]"; fi
         echo "---------------------------------------------"
         if [ "$rhal" = "y" -o "$rhal" = "Y" ];then
@@ -1051,8 +1056,13 @@ EOF
             echo -e "* \033[1mUnable\033[0m to change \033[1mlcd_density\033[0m..."
         fi
         echo -e "* Removing \033[1mapn-conf.xml\033[0m..."
-        rm $romdir/vendor/cm/prebuilt/common/etc/apns-conf.xml 2>/dev/null
-        # sed -i '/apn carrier/ID' $romdir/vendor/cm/prebuilt/common/etc/apns-conf.xml 2>/dev/null
+        #rm $romdir/vendor/cm/prebuilt/common/etc/apns-conf.xml 2>/dev/null
+        apn_conf=$(find $romdir/vendor/$vn/ -type f -iname 'apns-conf.xml')
+        if [ -n $apn_conf ];then
+            sed -i '/apn carrier/ID' $apn_conf 2>/dev/null
+        else
+            sed -i '/apn carrier/ID' $romdir/vendor/cm/prebuilt/common/etc/apns-conf.xml 2>/dev/null
+        fi
         if ! [ -d $romdir/external/ant-wireless/antradio-library ];then
             git clone -qb $b https://github.com/LineageOS/android_external_ant-wireless_antradio-library.git $romdir/external/ant-wireless/antradio-library
         fi

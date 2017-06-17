@@ -75,10 +75,10 @@ fi
 def=`ls $KERNEL_DIR/arch/arm64/configs|grep 'lettuce'`
 make $def &>/dev/null
 echo -e "$Cyan\tmake defconfig\t["$Yellow"done"$Cyan"]"
-sleep 1
+#sleep 1
 echo -e $nocol
-make menuconfig 2>/dev/null
-echo -e "$Cyan\tmake menuconfig\t["$Yellow"done"$Cyan"]"
+#make menuconfig 2>/dev/null
+#echo -e "$Cyan\tmake menuconfig\t["$Yellow"done"$Cyan"]"
 sleep 1
 echo -e "$Yellow-----------------------------------------------"
 echo -ne "$Cyan Please wait...while compilation completes...";echo -e $nocol
@@ -94,6 +94,7 @@ if ! [ -e $ZIMAGE ]; then
 	DIFF=$(($BUILD_END - $BUILD_START))
 	echo -e "$Yellow-----------------------------------------------";echo -ne $nocol
 	grep --color=never --line-number 'Error' $KERNEL_DIR/make.log
+    grep --color=never --line-number 'error:' $KERNEL_DIR/make.log
     grep --color=never --line-number -i 'No such file or directory' $KERNEL_DIR/make.log
 	echo -e "$Yellow-----------------------------------------------"
 	echo -e "$Red Kernel Compilation failed!!! Fix the errors and try again later!!!"$Cyan"\t["$Yellow"TimeElapsed = $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds"$Cyan"]"
