@@ -745,3 +745,6 @@ typedef enum {
 [111] system/core/libbacktrace/BacktraceOffline.cpp:722:29: error: no member named 'getError' in 'llvm::Expected<std::__1::unique_ptr<llvm::object::Binary, std::__1::default_delete<llvm::object::Binary, std::__1::default_delete<llvm::object::Binary
       * For Flash-rom  Cherry-pick this commit https://github.com/Flash-ROM/system_core/commit/91dc1575b10edcf23398d0a520c96ae274fd5427
 
+[112] error: 'libqmi_cci', needed by '/home/sachin/aosp-caf/out/target/product/lettuce/obj/EXECUTABLES/wpa_supplicant_intermediates/config.o', missing and no known rule to make it.
+      * remove aosp-caf's external/wpa_supplicant_8 and clone from halogenOS
+        git clone -b XOS-7.1 https://github.com/halogenOS/android_external_wpa_supplicant_8.git externel/wpa_supplicant_8
