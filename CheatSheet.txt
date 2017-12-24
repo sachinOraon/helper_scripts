@@ -748,3 +748,9 @@ typedef enum {
 [112] error: 'libqmi_cci', needed by '/home/sachin/aosp-caf/out/target/product/lettuce/obj/EXECUTABLES/wpa_supplicant_intermediates/config.o', missing and no known rule to make it.
       * remove aosp-caf's external/wpa_supplicant_8 and clone from halogenOS
         git clone -b XOS-7.1 https://github.com/halogenOS/android_external_wpa_supplicant_8.git externel/wpa_supplicant_8
+
+[113] system/core/init/util.h:29:10: fatal error: 'selinux/label.h' file not found
+      * insert LOCAL_C_INCLUDES := system/core/init external/selinux/libselinux/include
+        in device/cyanogen/msm8916-common/init/Android.mk file
+      * The solution is here
+        https://github.com/halogenOS/android_device_oneplus_oneplus2/commit/43c65bf1d3ed986aa29fcfc0f4a80696df07229f
