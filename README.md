@@ -19,3 +19,7 @@ Bunch of scripts that make my life easier.
    To fetch and place some components(device trees, vendor blobs etc.) of YU5010(lettuce)
    for rom compilation.
 ```
+* __mdkD.sh__
+```markdown
+   To send deauth packets to Wifi Access Point using mdk tool.
+```
