@@ -123,7 +123,7 @@ function aireplay-deauth {
 	# choose BSSID
 	max_opt=`cat $td/dmp3.dat | wc -l`
 	while read -p "Enter the target no. (1-$max_opt) : " bss; do
-		if [ $opt -gt $max_opt -o $opt -lt 1 ];then echo -e "Invalid input !! Retry"; else break; fi
+		if [ $bss -gt $max_opt -o $bss -lt 1 ];then echo -e "Invalid input !! Retry"; else break; fi
 	done
 	bssid=$(head -n $bss $td/dmp3.dat | tail -n +$bss | awk '{print $2}')
 	ch=$(head -n $bss $td/dmp3.dat | tail -n +$bss | awk '{print $3}')
