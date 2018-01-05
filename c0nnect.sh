@@ -305,6 +305,7 @@ if ! [ "$encrp" == "off" -o "$encrp" == "OPN" ];then
 	else
       echo "$essid requires password"
       read -sp "Enter password : " key; echo
+      line
       connect-wpa
 	fi
 else connect-iw
