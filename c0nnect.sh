@@ -31,7 +31,7 @@ function airodmp {
 	if [ $? -eq 0 ];then echo "[ DONE ]"; else echo "[ FAILED ]"; fi
 	echo -ne "airmon-ng start $iface\t"
 	airmon-ng start $iface 2>/dev/null 1>/dev/null
-	if [ $? -ne 0 ]; then echo "[ FAILED ]"; else echo "[ DONE ]"; fi
+	if [ $? -ne 0 ]; then echo "[ FAILED ]"; exit 1; else echo "[ DONE ]"; fi
 	# starting network-manager
 	if [ -e /etc/init.d/networking ];then
 		echo -ne "Starting /etc/init.d/networking\t"
@@ -305,6 +305,7 @@ if ! [ "$encrp" == "off" -o "$encrp" == "OPN" ];then
 	else
       echo "$essid requires password"
       read -sp "Enter password : " key; echo
+      connect-wpa
 	fi
 else connect-iw
 fi
