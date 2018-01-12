@@ -38,7 +38,7 @@ function fetch_proxy {
 }
 
 function clear_proxy {
-	echo -ne "Clearing proxy\t"
+	echo -ne "Clearing proxy\t" | tee "$logfile"
 	gsettings set org.gnome.system.proxy mode "none"
 	gsettings set org.gnome.system.proxy.http host \"\"
 	gsettings set org.gnome.system.proxy.http port 0
@@ -50,7 +50,7 @@ function clear_proxy {
 	gsettings set org.gnome.system.proxy.http authentication-user "\"\""
 	gsettings set org.gnome.system.proxy.http authentication-password "\"\""
 	rm /etc/apt/apt.conf 2>/dev/null
-	echo "[DONE]"
+	echo "[DONE]" | tee -a "$logfile"
 	if `crontab -l -u root | grep -q "proxi"`;then crontab -u root -r; fi
 }
 
@@ -101,9 +101,15 @@ case "$1" in
 		fi
 		if ! `crontab -l -u root | grep -q "proxi"`;then
 			cp "$PWD/$0" /usr/bin/proxi
-			echo "*/1 * * * * /usr/bin/proxi D" > $d/cronfile
-			crontab -u root $d/proxi
+			echo "*/10 * * * * /usr/bin/proxi D" > $d/cronfile
+			crontab -u root $d/cronfile
 		fi
 		;;
-	* ) tail -n4 $logfile ;;
+	* )
+		if [ -e "$logfile" ];then
+			echo "----------------------------------------------------"
+			echo -e "\tLog Data"
+			tail -n5 $logfile
+		fi
+		;;
 esac
