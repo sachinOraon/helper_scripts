@@ -212,22 +212,22 @@ function connect-wpa {
 if [ "$UID" -ne 0 ];then echo "Please run this script with root privileges !!"; exit 1; fi
 
 # working directory
-td=/tmp/c0nnect-`date +%d%m%y-%H%M%S`
-mkdir $td
+td="/tmp/c0nnect/`date +%d%m%y-%H%M%S`"
+mkdir -p $td
 
 # resize window
 if [ `which resize | wc -l` -eq 1 ];then resize -s 30 84 1>/dev/null 2>/dev/null; fi
 clear
 
 # install dependencies
-if [ ! -e /tmp/skip_me ];then
+if [ ! -e $HOME/.skip_me ];then
    line
    echo -e "\tInstalling required packages"
    line
    install-wt
    install-ws
    install-nt
-   touch /tmp/skip_me 2>/dev/null
+   touch $HOME/.skip_me 2>/dev/null
 fi
 
 # obtaining interface
