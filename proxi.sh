@@ -79,12 +79,13 @@ function apply_apt {
 	echo -e "Applying proxy for apt\t[DONE]" >> $logfile
 }
 
-if [ $# -eq 0 ];then echo -e "Available Options\nu, U\tUnset proxy\ns, S\tSet proxy\nd, D\tDaemonize"; fi
 case "$1" in
 	"s" | "S" )
 		fetch_proxy
 		apply_system
 		apply_apt
+		tail -n5 $logfile
+      echo -e "Current Proxy\t[`gsettings get org.gnome.system.proxy.http host | tr -d \'`]"
 		;;
 	"u" | "U" )
 		clear_proxy
@@ -106,10 +107,13 @@ case "$1" in
 		fi
 		;;
 	* )
+      echo "----------------------------------------------------"
+		echo -e "Available Options\nu, U\tUnset proxy\ns, S\tSet proxy\nd, D\tDaemonize"
 		if [ -e "$logfile" ];then
 			echo "----------------------------------------------------"
 			echo -e "\tLog Data"
 			tail -n5 $logfile
 		fi
+		echo -e "Current Proxy\t[`gsettings get org.gnome.system.proxy.http host | tr -d \'`]"
 		;;
 esac
