@@ -29,5 +29,5 @@ Bunch of scripts that make my life easier.
 ```
 * __proxi.sh__
 ```markdown
-   Fetches current proxy servers list and sets the system proxy to the one having highest speed.
+   Fetches current proxy servers list of my college and sets the system proxy to the one having highest speed.
 ```

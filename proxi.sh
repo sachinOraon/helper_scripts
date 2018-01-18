@@ -7,34 +7,34 @@ if [ ! -d "$d" ];then mkdir -p $d; fi
 
 function fetch_proxy {
 	wget -qO $d/proxy http://172.31.9.69/dc/api/proxy
-
+   alive=`grep -o "\"status\":\"Working\"" $d/proxy | wc -l`
 	egrep -o "\"speed\":\"[0-9]{1,5}([\.][0-9]{1,4} (MB|KB)| (KB|MB))" $d/proxy | cut -d: -f2 | tr -d "\"" > $d/s1
-	if [ `cat $d/s1 | wc -l` -eq 0 ];then echo "Unable to fetch proxy servers list !!"; exit 1; fi
-	egrep -o "\"speed_kbps\":\"[0-9]{1,8}" $d/proxy | cut -d: -f2 | tr -d "\"" > $d/s2
-	sort -gr $d/s2 > $d/s3
-
+	if [ "$1" != "b" -o "$1" != "B" ];then
+	   if [ `cat $d/s1 | wc -l` -eq 0 ];then echo "Unable to fetch proxy servers list !!"; exit 1; fi
+	fi
+   egrep -o "\"speed_kbps\":\"(([0-9]{1,8})|([0-9]{1,8}.[0-9]{4}))" $d/proxy | cut -d: -f2 | tr -d "\"" > $d/s2
 	egrep -o "\"ip\":\"172.31.[0-9]{1,3}\.[0-9]{1,3}" $d/proxy | cut -d: -f2 | tr -d "\"" > $d/ip
-	j=`cat $d/ip | wc -l`
+	N=`cat $d/ip | wc -l`
+	for((i=1;i<=N;i++));do
+	   ip=`awk -v x=$i 'NR==x {print $0}' $d/ip`
+	   kb=`awk -v x=$i 'NR==x {print $0}' $d/s2`
+	   mb=`awk -v x=$i 'NR==x {print $0}' $d/s1`
+	   if [ "$kb" == "0" ];then continue; fi
+	   echo -e "$ip\t$mb\t$kb"
+	done > $d/q
+	awk '{print $4}' $d/q | sort -gr > $d/w
+	j=`cat $d/w | wc -l`
 	for ((i=1; i<=j; i++)); do
-		ip=`awk -v x=$i 'NR==x {print $0}' $d/ip`
-		s1=`awk -v x=$i 'NR==x {print $0}' $d/s1`
-		echo -e "$ip\t$s1"
+		kb=`awk -v x=$i 'NR==x {print $0}' $d/w`
+      ip=`grep "$kb" $d/q | cut -f1`
+      mb=`grep "$kb" $d/q | cut -f2`
+   	echo -e "$ip\t$mb/s"
 	done > $d/lst
-
-	for ((i=1; i<=j; i++)); do
-	   x=`awk -v a=$i 'NR==a {print $0}' $d/s3`
-	   if [ `expr $i % 2` -eq 0 ];then y=`grep -no "$x" $d/s2 | head -n1 | cut -d: -f1`
-	   else y=`grep -no "$x" $d/s2 | tail -n1 | cut -d: -f1`; fi
-	   z=`head -n$y $d/lst | tail -n1 | cut -f1`
-	   w=`head -n$y $d/lst | tail -n1 | cut -f2`
-	   echo -e "$z\t$w/s"
-	   sleep 1
-	done > $d/lst2
-	proxy=`head -n1 $d/lst2 | cut -f1`
-	speed=`head -n1 $d/lst2 | cut -f2`
-	port=3128
-	user=edcguest
-	pass=edcguest
+	export proxy=`head -n1 $d/lst | cut -f1`
+	export speed=`head -n1 $d/lst | cut -f2,3`
+	export port=3128
+	export user=edcguest
+	export pass=edcguest
 }
 
 function clear_proxy {
@@ -50,8 +50,10 @@ function clear_proxy {
 	gsettings set org.gnome.system.proxy.http authentication-user "\"\""
 	gsettings set org.gnome.system.proxy.http authentication-password "\"\""
 	rm /etc/apt/apt.conf 2>/dev/null
-	echo "[DONE]" | tee -a "$logfile"
 	if `crontab -l -u root | grep -q "proxi"`;then crontab -u root -r; fi
+	rm /usr/bin/proxi 2>/dev/null
+	echo "[DONE]" | tee -a "$logfile"
+
 }
 
 function apply_system {
@@ -80,17 +82,17 @@ function apply_apt {
 }
 
 case "$1" in
-	"s" | "S" )
+	"a" | "A" )
 		fetch_proxy
 		apply_system
 		apply_apt
 		tail -n5 $logfile
       echo -e "Current Proxy\t[`gsettings get org.gnome.system.proxy.http host | tr -d \'`]"
 		;;
-	"u" | "U" )
+	"d" | "D" )
 		clear_proxy
 		;;
-	"d" | "D" )
+	"b" | "B" )
 		fetch_proxy
 		cur_proxy=`gsettings get org.gnome.system.proxy.http host | tr -d \'`
 		if [ "$cur_proxy" != "$proxy" ];then
@@ -102,18 +104,22 @@ case "$1" in
 		fi
 		if ! `crontab -l -u root | grep -q "proxi"`;then
 			cp "$PWD/$0" /usr/bin/proxi
-			echo "*/10 * * * * /usr/bin/proxi D" > $d/cronfile
+			echo "*/1 * * * * /usr/bin/proxi B" > $d/cronfile
 			crontab -u root $d/cronfile
 		fi
 		;;
 	* )
-      echo "----------------------------------------------------"
-		echo -e "Available Options\nu, U\tUnset proxy\ns, S\tSet proxy\nd, D\tDaemonize"
+      fetch_proxy
+      echo -e "Proxy\t\tSpeed\n------------------------------------"
+      cat $d/lst
+      echo "------------------------------------"
+      echo -e "Current Proxy [`gsettings get org.gnome.system.proxy.http host | tr -d \'`]"
+      echo "------------------------------------"
+		echo -e "Available Options\n------------------------------------\nd, D\tDeactivate proxy\na, A\tActivate proxy\nb, B\tRun in background [crontab]"
 		if [ -e "$logfile" ];then
-			echo "----------------------------------------------------"
+			echo "------------------------------------"
 			echo -e "\tLog Data"
 			tail -n5 $logfile
 		fi
-		echo -e "Current Proxy\t[`gsettings get org.gnome.system.proxy.http host | tr -d \'`]"
 		;;
 esac
