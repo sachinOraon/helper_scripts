@@ -127,7 +127,7 @@ function scan-iw {
 function install-wt {
 	echo -ne "Installing wireless-tools\t" 
 	apt-get install -y wireless-tools 1>/dev/null 2>/dev/null
-	if [ `which iwconfig | wc -l` -eq 1 ];then echo "[ SUCCESS ]"; else echo "[ FAILED ]"; fi
+	if [ `which iwconfig | wc -l` -eq 1 ];then echo "[ SUCCESS ]"; else echo "[ FAILED ]"; exit 1; fi
 }
 
 function install-ac {
@@ -139,13 +139,13 @@ function install-ac {
 function install-ws {
 	echo -ne "Installing wpasupplicant\t"
 	apt-get install -y wpasupplicant 1>/dev/null 2>/dev/null
-	if [ `which wpa_supplicant | wc -l` -eq 1 ];then echo "[ SUCCESS ]"; else echo "[ FAILED ]"; fi
+	if [ `which wpa_supplicant | wc -l` -eq 1 ];then echo "[ SUCCESS ]"; else echo "[ FAILED ]"; exit 1; fi
 }
 
 function install-nt {
 	echo -ne "Installing net-tools\t\t"
 	apt-get install -y net-tools 1>/dev/null 2>/dev/null
-	if [ `which ifconfig | wc -l` -eq 1 ];then echo "[ SUCCESS ]"; else echo "[ FAILED ]"; fi
+	if [ `which ifconfig | wc -l` -eq 1 ];then echo "[ SUCCESS ]"; else echo "[ FAILED ]"; exit 1; fi
 }
 
 function getIP {
