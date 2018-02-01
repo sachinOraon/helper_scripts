@@ -5,14 +5,12 @@ else export rootUser="Y";d="/tmp/proxi/`date +%d%m%y-%H%M%S`";logfile="/tmp/prox
 if [ ! -d "$d" ];then mkdir -p $d; fi
 
 function fetch_proxy {
-	#wget --no-proxy -qO $d/proxy http://172.31.9.69/dc/api/proxy
 	wget --no-proxy -qO $d/proxi http://172.31.9.69/dc/proxy
-	#alive=`grep -o "\"status\":\"Working\"" $d/proxy | wc -l`
 	egrep -o "<td><b>[0-9]{1,4}((\.| [KM]B)|(\.[0-9]{1,4} [KM]B))" $d/proxi | tr -d "<td><b>" > $d/y
 	if [ `cat $d/y | wc -l` -eq 0 ];then if [ "$1" != "x" ];then echo "Unable to fetch proxy servers list !!"; fi; exit 1; fi
 	cat $d/y | tr -d " " > $d/y1
 	egrep -o "<td>172.31.[0-9]{1,3}.[0-9]{1,3}" $d/proxi | tr -d "<td>" > $d/x	
-	N=`cat $d/x | wc -l`
+	N=`cat $d/y | wc -l`
 	for((i=1;i<=N;i++));do
 		x=`awk -v a=$i 'NR==a {print $0}' $d/x`
 		y=`awk -v a=$i 'NR==a {print $0}' $d/y`
@@ -26,25 +24,6 @@ function fetch_proxy {
 		y=`grep "$x" $d/l | cut -f2`
 		echo -e "$x\t$y/s"
 	done > $d/l3
-	#egrep -o "\"speed\":\"[0-9]{1,5}([\.][0-9]{1,4} ([KM]B)| ([KM]B))" $d/proxy | cut -d: -f2 | tr -d "\"" > $d/s1
-	#egrep -o "\"speed_kbps\":\"(([0-9]{1,8})|([0-9]{1,8}.[0-9]{4}))" $d/proxy | cut -d: -f2 | tr -d "\"" > $d/s2
-	#egrep -o "\"ip\":\"172.31.[0-9]{1,3}\.[0-9]{1,3}" $d/proxy | cut -d: -f2 | tr -d "\"" > $d/ip
-	#N=`cat $d/ip | wc -l`
-	#for((i=1;i<=N;i++));do
-		#ip=`awk -v x=$i 'NR==x {print $0}' $d/ip`
-		#kb=`awk -v x=$i 'NR==x {print $0}' $d/s2`
-		#mb=`awk -v x=$i 'NR==x {print $0}' $d/s1`
-		#if [ "$kb" == "0" ];then continue; fi
-		#echo -e "$ip\t$mb\t$kb"
-	#done > $d/q
-	#awk '{print $4}' $d/q | sort -gr > $d/w
-	#j=`cat $d/w | wc -l`
-	#for ((i=1; i<=j; i++)); do
-		#kb=`awk -v x=$i 'NR==x {print $0}' $d/w`
-		#ip=`grep "$kb" $d/q | cut -f1`
-		#mb=`grep "$kb" $d/q | cut -f2`
-		#echo -e "$ip\t$mb/s"
-	#done > $d/lst
 	export proxy=`head -n1 $d/l3 | cut -f1`
 	export speed=`head -n1 $d/l3 | cut -f2,3`
 	export port=3128
@@ -59,19 +38,7 @@ function clear_proxy {
 	else crontab -u "`whoami`" -r 2>/dev/null; echo "Please run \"sudo proxi D\" [to clear proxy for apt]"; fi
 	if [ `which gsettings | wc -l` -ne 0 ];then
 		echo -ne "Clearing proxy\t" | tee "$logfile"
-		gsettings reset-recursively org.gnome.system.proxy		
-		#gsettings set org.gnome.system.proxy mode "none"
-		#gsettings set org.gnome.system.proxy.http host \"\"
-		#gsettings set org.gnome.system.proxy.http port 0
-		#gsettings set org.gnome.system.proxy.https host "\"\""
-		#gsettings set org.gnome.system.proxy.https port 0
-		#gsettings set org.gnome.system.proxy.ftp host "\"\""
-		#gsettings set org.gnome.system.proxy.ftp port 0
-		#gsettings set org.gnome.system.proxy.socks host "\"\""
-		#gsettings set org.gnome.system.proxy.socks port 0
-		#gsettings set org.gnome.system.proxy.http use-authentication false
-		#gsettings set org.gnome.system.proxy.http authentication-user "\"\""
-		#gsettings set org.gnome.system.proxy.http authentication-password "\"\""
+		gsettings reset-recursively org.gnome.system.proxy 2>/dev/null	
 		echo "[DONE]" | tee -a "$logfile"
 	fi
 }
@@ -95,6 +62,7 @@ function apply_system {
 }
 
 function apply_apt {
+	if [ ! -e /usr/bin/proxi ];then cp "$PWD/$0" /usr/bin/proxi; fi
 	conf="/etc/apt/apt.conf"
 	echo -e "Acquire::http::Proxy \"http://$user:$pass@$proxy:$port\";" > $conf
 	echo -e "Acquire::https::Proxy \"https://$user:$pass@$proxy:$port\";" >> $conf
@@ -106,7 +74,6 @@ function cronjob {
 	if [ "$rootUser" == "Y" ];then
 		cur_user="`basename $HOME`"
 		echo "Creating crontab entry for \"root\""
-		cp "$PWD/$0" /usr/bin/proxi
 		echo "*/1 * * * * /usr/bin/proxi x" > $d/cronfile
 		crontab -u root $d/cronfile
 		if [ -n "$cur_user" ];then echo "Creating crontab entry for \"$cur_user\""; crontab -u "$cur_user" $d/cronfile; fi
