@@ -36,15 +36,17 @@ function clear_proxy {
 		rm /etc/apt/apt.conf 2>/dev/null
 		crontab -u root -r 2>/dev/null
 	else crontab -u "`whoami`" -r 2>/dev/null; echo "Please run \"sudo proxi D\" [to clear proxy for apt]"; fi
-	if [ `which gsettings | wc -l` -ne 0 ];then
-		echo -ne "Clearing proxy\t" | tee "$logfile"
-		gsettings reset-recursively org.gnome.system.proxy 2>/dev/null	
-		echo "[DONE]" | tee -a "$logfile"
+	echo -ne "Clearing proxy\t"
+	if [ -d "$PWD/.git" ];then
+		git config --global --unset http.proxy
+		git config --global --unset https.proxy
 	fi
+	gsettings reset-recursively org.gnome.system.proxy 2>/dev/null	
+	echo "[DONE]"
 }
 
 function apply_system {
-	if [ `which gsettings | wc -l` -ne 0 ];then
+	if [ -n "`which gsettings`" ];then
 		gsettings set org.gnome.system.proxy mode "manual"
 		gsettings set org.gnome.system.proxy.http host $proxy
 		gsettings set org.gnome.system.proxy.http port $port
@@ -68,6 +70,13 @@ function apply_apt {
 	echo -e "Acquire::https::Proxy \"https://$user:$pass@$proxy:$port\";" >> $conf
 	echo -e "Acquire::ftp::Proxy \"ftp://$user:$pass@$proxy:$port\";" >> $conf
 	echo -e "Applying proxy for apt\t[DONE]" >> $logfile
+}
+
+function apply_git {
+	git config --global http.proxy "http://$1:$2@$3:$4"
+	git config --global https.proxy "https://$1:$2@$3:$4"
+	echo -e "git http proxy\t[`git config --get http.proxy`]"
+	echo -e "git https proxy\t[`git config --get https.proxy`]"
 }
 
 function cronjob {
@@ -125,6 +134,10 @@ case "$1" in
 	"b" | "B" )
 		cronjob
 		;;
+	"g" | "G" )
+		if [ -d "$PWD/.git" ];then fetch_proxy; disp1; apply_git $user $pass $proxy $port
+		else echo "No git repository found !"; fi
+		;;
 	"x" )
 		fetch_proxy
 		cur_proxy=`gsettings get org.gnome.system.proxy.http host | tr -d \'`
@@ -140,7 +153,7 @@ case "$1" in
 		fetch_proxy
 		disp1
 		disp2
-		echo -e "Available Options\n------------------------------------\nd, D\tDeactivate proxy\na, A\tActivate proxy\nm, M\tManually choose proxy\nb, B\tRun in background [crontab]"
+		echo -e "Available Options\n------------------------------------\nd, D\tDeactivate proxy\na, A\tActivate proxy [for apt and system]\nm, M\tManually choose proxy\ng, G\tSet proxy for git\nb, B\tRun in background [crontab]"
 		echo "------------------------------------"
 		;;
 esac
