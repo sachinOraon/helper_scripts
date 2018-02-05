@@ -4,6 +4,16 @@ if [ "$UID" -ne 0 ];then export rootUser="N"; d="$HOME/.proxy/`date +%d%m%y-%H%M
 else export rootUser="Y";d="/tmp/proxi/`date +%d%m%y-%H%M%S`";logfile="/tmp/proxi/log-`date +%d%m%y`.log"; fi
 if [ ! -d "$d" ];then mkdir -p $d; fi
 
+if [ -z "`which gsettings`" ];then
+	read -p "gsettings NOT found ! Do you want to install(y/n)? " opt
+	if [ "$opt" == "y" -o "$opt" == "Y" ];then
+		echo -en "Installing gsettings\t"
+		apt-get update 1>/dev/null 2>/dev/null
+		apt-get install network-manager-gnome 2>/dev/null 1>/dev/null
+		if [ $? -eq 0 ];then echo "[DONE]"; else echo "[FAILED]"; exit 1; fi
+	else echo -e "Without gsettings you can't set system proxy !\nHowever proxy for apt can be configured !"; fi
+fi
+
 function fetch_proxy {
 	wget --no-proxy -qO $d/proxi http://172.31.9.69/dc/proxy
 	egrep -o "<td><b>[0-9]{1,4}((\.| [KM]B)|(\.[0-9]{1,4} [KM]B))" $d/proxi | tr -d "<td><b>" > $d/y
@@ -47,18 +57,18 @@ function clear_proxy {
 
 function apply_system {
 	if [ -n "`which gsettings`" ];then
-		gsettings set org.gnome.system.proxy mode "manual"
-		gsettings set org.gnome.system.proxy.http host $proxy
-		gsettings set org.gnome.system.proxy.http port $port
-		gsettings set org.gnome.system.proxy.https host $proxy
-		gsettings set org.gnome.system.proxy.https port $port
-		gsettings set org.gnome.system.proxy.ftp host $proxy
-		gsettings set org.gnome.system.proxy.ftp port $port
-		gsettings set org.gnome.system.proxy.socks host $proxy
-		gsettings set org.gnome.system.proxy.socks port $port
-		gsettings set org.gnome.system.proxy.http use-authentication "true"
-		gsettings set org.gnome.system.proxy.http authentication-user "$user"
-		gsettings set org.gnome.system.proxy.http authentication-password "$pass"
+		gsettings set org.gnome.system.proxy mode "manual" 2>/dev/null
+		gsettings set org.gnome.system.proxy.http host $proxy 2>/dev/null
+		gsettings set org.gnome.system.proxy.http port $port 2>/dev/null
+		gsettings set org.gnome.system.proxy.https host $proxy 2>/dev/null
+		gsettings set org.gnome.system.proxy.https port $port 2>/dev/null
+		gsettings set org.gnome.system.proxy.ftp host $proxy 2>/dev/null
+		gsettings set org.gnome.system.proxy.ftp port $port 2>/dev/null
+		gsettings set org.gnome.system.proxy.socks host $proxy 2>/dev/null
+		gsettings set org.gnome.system.proxy.socks port $port 2>/dev/null
+		gsettings set org.gnome.system.proxy.http use-authentication "true" 2>/dev/null
+		gsettings set org.gnome.system.proxy.http authentication-user "$user" 2>/dev/null
+		gsettings set org.gnome.system.proxy.http authentication-password "$pass" 2>/dev/null
 		echo -e "Applying system proxy\t[DONE]" >> $logfile
 	fi
 }
