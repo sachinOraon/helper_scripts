@@ -758,3 +758,7 @@ typedef enum {
 [114] device/cyanogen/msm8916-common/init/init_msm8916.cpp:59:23: error: use of undeclared identifier 'property_get'
       * cherry-pick this commit to solve 'property_get' error
         https://github.com/DRohan898/android_device_cyanogen_msm8916-common/commit/eb1777af615a64ac568d12f92e0868f22105f56c       
+
+[115] scripts/extract-cert.c:21:10: fatal error: openssl/bio.h: No such file
+      scripts/sign-file.c:25:10: fatal error: openssl/opensslv.h: No such file
+      * apt-get install libssl-dev
