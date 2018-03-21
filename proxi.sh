@@ -118,8 +118,7 @@ case "$1" in
 	"a" | "A" )
 		fetch_proxy
 		disp1
-		apply_system
-		if [ "$rootUser" == "Y" ];then apply_apt; else echo "Please run \"sudo proxi A\" [to apply proxy for apt]"; fi
+		if [ "$rootUser" == "Y" ];then apply_apt; else echo "Please run \"sudo proxi A\" [to apply proxy for apt]"; apply_system; fi
 		disp2
 		;;
 	"m" | "M" )
@@ -134,8 +133,7 @@ case "$1" in
 		done
 		export proxy=`head -n$opt $d/l3 | tail -n1 | cut -f1`
 		echo "------------------------------------"
-		if [ "$rootUser" == "Y" ];then apply_apt; else echo "Please run \"sudo proxi M\" [to apply proxy for apt]"; fi
-		apply_system
+		if [ "$rootUser" == "Y" ];then apply_apt; else echo "Please run \"sudo proxi M\" [to apply proxy for apt]"; apply_system; fi
 		disp2
 		;;
 	"d" | "D" )
@@ -150,6 +148,10 @@ case "$1" in
 		;;
 	"x" )
 		fetch_proxy
+		if [ -n "`which gnome-session`" ];then
+			PID=$(pgrep gnome-session)
+			export DBUS_SESSION_BUS_ADDRESS=$(grep -z DBUS_SESSION_BUS_ADDRESS /proc/$PID/environ|cut -d= -f2-)
+		fi
 		cur_proxy=`gsettings get org.gnome.system.proxy.http host | tr -d \'`
 		if [ "$cur_proxy" != "$proxy" ];then
 			echo "----------------------------------------------------" >> $logfile
