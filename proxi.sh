@@ -45,6 +45,7 @@ function clear_proxy {
 	if [ "$rootUser" == "Y" ];then
 		rm /etc/apt/apt.conf 2>/dev/null
 		crontab -u root -r 2>/dev/null
+		if [ -e /etc/wgetrc.def ]; then rm /etc/wgetrc; mv /etc/wgetrc.def /etc/wgetrc; fi
 	else crontab -u "`whoami`" -r 2>/dev/null; echo "Please run \"sudo proxi D\" [to clear proxy for apt]"; fi
 	echo -ne "Clearing proxy\t"
 	if [ -d "$PWD/.git" ];then
@@ -80,6 +81,22 @@ function apply_apt {
 	echo -e "Acquire::https::Proxy \"https://$user:$pass@$proxy:$port\";" >> $conf
 	echo -e "Acquire::ftp::Proxy \"ftp://$user:$pass@$proxy:$port\";" >> $conf
 	echo -e "Applying proxy for apt\t[DONE]" >> $logfile
+}
+
+function apply_wget {
+	if [ -e /etc/wgetrc ];then
+		cp /etc/wgetrc /etc/wgetrc.def
+		echo "Backed up wgetrc as /etc/wgetrc.def"
+		sed -i '/http_proxy/d' /etc/wgetrc
+		sed -i '/https_proxy/d' /etc/wgetrc
+		sed -i '/ftp_proxy/d' /etc/wgetrc
+		sed -i '/use_proxy/d' /etc/wgetrc
+		echo "http_proxy = http://$user:$pass@$proxy:$port/" >> /etc/wgetrc
+		echo "https_proxy = https://$user:$pass@$proxy:$port/" >> /etc/wgetrc
+		echo "ftp_proxy = ftp://$user:$pass@$proxy:$port/" >> /etc/wgetrc
+		echo "use_proxy = on" >> /etc/wgetrc
+		echo "Proxy applied in /etc/wgetrc"
+	fi
 }
 
 function apply_git {
@@ -118,7 +135,7 @@ case "$1" in
 	"a" | "A" )
 		fetch_proxy
 		disp1
-		if [ "$rootUser" == "Y" ];then apply_apt; else echo "Please run \"sudo proxi A\" [to apply proxy for apt]"; apply_system; fi
+		if [ "$rootUser" == "Y" ];then apply_apt; apply_wget; else echo "Please run \"sudo proxi A\" [to apply proxy for apt]"; apply_system; fi
 		disp2
 		;;
 	"m" | "M" )
@@ -133,7 +150,7 @@ case "$1" in
 		done
 		export proxy=`head -n$opt $d/l3 | tail -n1 | cut -f1`
 		echo "------------------------------------"
-		if [ "$rootUser" == "Y" ];then apply_apt; else echo "Please run \"sudo proxi M\" [to apply proxy for apt]"; apply_system; fi
+		if [ "$rootUser" == "Y" ];then apply_apt; apply_wget; else echo "Please run \"sudo proxi M\" [to apply proxy for apt]"; apply_system; fi
 		disp2
 		;;
 	"d" | "D" )
